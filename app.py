@@ -53,12 +53,7 @@ app = Flask(__name__)
 
 if load_dotenv:
     env_path = os.path.join(os.path.dirname(__file__), ".env")
-    env_loaded = load_dotenv(env_path)
-    if env_loaded:
-        pass  # .env file loaded successfully
-    else:
-        env_example_path = os.path.join(os.path.dirname(__file__), ".env.example")
-        load_dotenv(env_example_path)
+    load_dotenv(env_path)
 
 
 def _env_bool(name, default=False):
@@ -82,7 +77,6 @@ app.config["KHQR_ENABLED"] = _env_bool("KHQR_ENABLED", True)
 app.config["KHQR_TOKEN"] = os.getenv("KHQR_TOKEN", "").strip().strip('"\'')
 app.config["KHQR_BANK_ACCOUNT"] = os.getenv("KHQR_BANK_ACCOUNT", "nol_piseth@bkrt")
 app.config["KHQR_MERCHANT_NAME"] = os.getenv("KHQR_MERCHANT_NAME", "RentACompanion Co.")
-app.config["KHQR_MERCHANT_CITY"] = os.getenv("KHQR_MERCHANT_CITY", "Phnom Penh")
 app.config["KHQR_MERCHANT_CITY"] = os.getenv("KHQR_MERCHANT_CITY", "Phnom Penh")
 app.config["KHQR_PHONE_NUMBER"] = os.getenv("KHQR_PHONE_NUMBER", "")
 app.config["KHQR_STORE_LABEL"] = os.getenv("KHQR_STORE_LABEL", "RentACompanion")

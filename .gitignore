@@ -44,8 +44,11 @@ mydb.db
 Thumbs.db
 
 # Maintenance & Utility Scripts
+migrations/
+models/
 add_column.py
 add_username_column.py
+babel.cfg
 backfill_usernames.py
 BOOKING_MESSAGES_REPORT.py
 check_*.py
