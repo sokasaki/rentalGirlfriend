@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Layout Wrapper -->
+            <div class="col-lg-10 col-md-9">
+                <div class="row g-0">
+                    <!-- Main Content -->
+                    <div class="col-lg-9 col-md-8 p-4">
+                        {% set header_title = 'Payment Management' %}
+{% set header_class = 'mb-4' %}
+{% include 'admin/header.html' with context %}
+
+                        <!-- Transaction Table Container -->
+                        <div class="card border-0 shadow-sm mb-4 bg-white">
+                            <div class="card-header bg-white border-0 p-4">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <h5 class="fw-bold mb-0">Transaction Ledger</h5>
+                                    <div class="d-flex gap-2">
+                                        <form method="GET" action="{{ url_for('payments') }}" class="d-flex gap-2">
+                                            <div class="input-group input-group-sm" style="width: 250px;">
+                                                <span class="input-group-text bg-light border-end-0"><i
+                                                        class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                                <input type="text" class="form-control bg-light border-start-0"
+                                                    placeholder="Search customer or companion..." name="search"
+                                                    value="{{ search_query }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm px-3">SEARCH</button>
+                                        </form>
+                                        <div class="dropdown">
+                                            <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                                                <i class="fa-solid fa-filter me-1"></i>STATUS
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                <li><a class="dropdown-item {% if not status_filter %}active{% endif %}"
+                                                        href="{{ url_for('payments') }}">All Transactions</a></li>
+                                                <li><a class="dropdown-item {% if status_filter == 'COMPLETED' %}active{% endif %}"
+                                                        href="{{ url_for('payments', status='COMPLETED') }}">Completed</a>
+                                                </li>
+                                                <li><a class="dropdown-item {% if status_filter == 'PENDING' %}active{% endif %}"
+                                                        href="{{ url_for('payments', status='PENDING') }}">Pending</a>
+                                                </li>
+                                                <li><a class="dropdown-item {% if status_filter == 'FAILED' %}active{% endif %}"
+                                                        href="{{ url_for('payments', status='FAILED') }}">Failed</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light text-muted uppercase-label small">
+                                            <tr>
+                                                <th class="border-0 px-4 py-3">ID</th>
+                                                <th class="border-0 px-4 py-3">Client</th>
+                                                <th class="border-0 px-4 py-3">Companion</th>
+                                                <th class="border-0 px-4 py-3 text-end">Amount</th>
+                                                <th class="border-0 px-4 py-3 text-end">Fee</th>
+                                                <th class="border-0 px-4 py-3 text-center">Status</th>
+                                                <th class="border-0 px-4 py-3 text-center">Date</th>
+                                                <th class="border-0 px-4 py-3 text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if payments %}
+                                            {% for payment in payments %}
+                                            <tr>
+                                                <td class="px-4">
+                                                    <code class="text-primary fw-bold"
+                                                        style="font-size: 0.75rem;">{{ payment.transaction_id or '#TX-' ~ payment.payment_id }}</code>
+                                                </td>
+                                                <td class="px-4">
+                                                    <div class="d-flex align-items-center">
+                                                        {% if payment.customer_avatar %}
+                                                        <img src="{{ payment.customer_avatar }}"
+                                                            class="rounded-circle me-2 border" width="28" height="28">
+                                                        {% else %}
+                                                        <div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                                            style="width: 28px; height: 28px;">
+                                                            <i class="fa-solid fa-user text-muted"
+                                                                style="font-size: 0.7rem;"></i>
+                                                        </div>
+                                                        {% endif %}
+                                                        <span class="small fw-medium">{{ payment.customer_name or
+                                                            'Unknown'
+                                                            }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4">
+                                                    <div class="d-flex align-items-center">
+                                                        {% if payment.companion_avatar %}
+                                                        <img src="{{ payment.companion_avatar }}"
+                                                            class="rounded-circle me-2 border" width="28" height="28">
+                                                        {% else %}
+                                                        <div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                                            style="width: 28px; height: 28px;">
+                                                            <i class="fa-solid fa-crown text-primary"
+                                                                style="font-size: 0.7rem;"></i>
+                                                        </div>
+                                                        {% endif %}
+                                                        <span class="small fw-medium">{{ payment.companion_name or
+                                                            'Unknown'
+                                                            }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 text-end fw-bold text-dark">${{
+                                                    "%.2f"|format(payment.amount or
+                                                    0) }}</td>
+                                                <td class="px-4 text-end text-danger small">-${{
+                                                    "%.2f"|format(payment.platform_fee or 0) }}</td>
+                                                <td class="px-4 text-center">
+                                                    {% if payment.status == 'COMPLETED' or payment.status == 'PAID' %}
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">COMPLETED</span>
+                                                    {% elif payment.status == 'PENDING' %}
+                                                    <span
+                                                        class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">PENDING</span>
+                                                    {% elif payment.status == 'FAILED' %}
+                                                    <span
+                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">FAILED</span>
+                                                    {% else %}
+                                                    <span
+                                                        class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">{{ payment.status or 'Unknown'
+                                                        }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="px-4 text-center small text-muted">{{
+                                                    payment.created_at.strftime('%Y-%m-%d') if payment.created_at else
+                                                    'N/A' }}
+                                                </td>
+                                                <td class="px-4 text-end">
+                                                    <div class="dropdown">
+                                                        <button
+                                                            class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                                            style="width: 28px; height: 28px;"
+                                                            data-bs-toggle="dropdown">
+                                                            <i class="fa-solid fa-ellipsis-vertical"
+                                                                style="font-size: 0.8rem;"></i>
+                                                        </button>
+                                                        <ul
+                                                            class="dropdown-menu dropdown-menu-end shadow border-0 small">
+                                                            <li><a class="dropdown-item" href="#"
+                                                                    onclick="viewPaymentDetail({{ payment.payment_id }})"><i
+                                                                        class="fa-solid fa-eye me-2 opacity-50"></i>View
+                                                                    Details</a></li>
+                                                            {% if payment.status != 'FAILED' %}
+                                                            <li>
+                                                                <hr class="dropdown-divider">
+                                                            </li>
+                                                            <li><a class="dropdown-item text-danger" href="#"
+                                                                    onclick="confirmRefund({{ payment.payment_id }}, '{{ payment.transaction_id }}', {{ payment.amount }})"><i
+                                                                        class="fa-solid fa-rotate-left me-2 opacity-50"></i>Issue
+                                                                    Refund</a></li>
+                                                            {% endif %}
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="8" class="text-center py-5">
+                                                    <i class="fa-solid fa-receipt fa-3x mb-3 text-muted opacity-25"></i>
+                                                    <p class="text-muted mb-0">No transactions match your
+                                                        search/filters.</p>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0">Payout Pipeline</h5>
+                                    </div>
+                                    <div class="card-body p-4 pt-0">
+                                        <div class="bg-light rounded-3 p-4 text-center border">
+                                            <i
+                                                class="fa-solid fa-money-bill-transfer fa-3x text-muted mb-3 opacity-25"></i>
+                                            <p class="text-muted small mb-0">All companion earnings have been processed
+                                                or are
+                                                in standard hold period.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4 d-flex justify-content-between">
+                                        <h5 class="fw-bold mb-0 text-danger">Integrity Monitoring</h5>
+                                        <span class="badge bg-success">SECURE</span>
+                                    </div>
+                                    <div class="card-body p-4 pt-0 text-center">
+                                        <div class="alert alert-success border-0 small mb-0 py-3">
+                                            <i class="fa-solid fa-shield-check fa-2x d-block mb-2 opacity-50"></i>
+                                            All gateway connections are active. Last reconciliation: <span
+                                                class="fw-bold">Just
+                                                now</span>.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-3 col-md-4 p-4 border-start bg-white shadow-sm sticky-top"
+                        style="height: 100vh; overflow-y: auto;">
+                        <h5 class="fw-bold mb-4">Financial Dashboard</h5>
+
+                        <div class="card border-0 bg-primary text-white mb-4 shadow-lg overflow-hidden"
+                            style="border-radius: 12px;">
+                            <div class="card-body p-4 position-relative">
+                                <i class="fa-solid fa-vault position-absolute"
+                                    style="right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1;"></i>
+                                <small class="uppercase-label opacity-75">Platform Net Revenue</small>
+                                <h2 class="fw-bold mb-1">${{ "{:,.2f}".format(total_revenue or 0) }}</h2>
+                                <div class="badge bg-white text-primary rounded-pill px-3 py-1 small fw-bold">Active
+                                    Year</div>
+                            </div>
+                        </div>
+
+                        <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stats-icon-sm bg-success-subtle text-success me-2">
+                                    <i class="fa-solid fa-coins"></i>
+                                </div>
+                                <small class="text-muted uppercase-label fw-bold" style="font-size: 0.65rem;">Platform
+                                    Fee</small>
+                            </div>
+                            <div class="h4 fw-bold mb-0">${{ "{:,.2f}".format(platform_fees or 0) }}</div>
+                            <p class="text-muted small mb-0">Total commissions earned</p>
+                        </div>
+
+                        <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stats-icon-sm bg-info-subtle text-info me-2">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <small class="text-muted uppercase-label fw-bold"
+                                    style="font-size: 0.65rem;">Transaction
+                                    Volume</small>
+                            </div>
+                            <div class="h4 fw-bold mb-0">{{ payments|length }}</div>
+                            <p class="text-muted small mb-0">Successful bookings</p>
+                        </div>
+
+                        <div
+                            class="stats-card kpi-item mb-4 p-3 border rounded shadow-sm bg-white border-danger-subtle">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="stats-icon-sm bg-danger-subtle text-danger me-2">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </div>
+                                <small class="text-muted uppercase-label fw-bold" style="font-size: 0.65rem;">Total
+                                    Refunds</small>
+                            </div>
+                            <div class="h4 fw-bold mb-0 text-danger">${{ "{:,.2f}".format(total_refunds or 0) }}</div>
+                            <p class="text-muted small mb-0">{{ pending_refunds_count or 0 }} requests pending</p>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold small text-muted uppercase-label mb-3">Quick Actions</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm text-start py-2 px-3 fw-bold rounded-3">
+                                <i class="fa-solid fa-file-csv me-2"></i> Export Ledger (.csv)
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm text-start py-2 px-3 fw-bold rounded-3">
+                                <i class="fa-solid fa-gear me-2"></i> Payout Configuration
+                            </button>
+                            <button class="btn btn-danger btn-sm text-start py-2 px-3 fw-bold rounded-3 mt-2 shadow-sm">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i> Emergency Lockdown
+                            </button>
+                        </div>
+
+                        <div class="mt-5 p-3 bg-light rounded-3 text-center border-dashed">
+                            <img src="https://stripe.com/img/v3/home/social.png" alt="Stripe"
+                                style="height: 16px; filter: grayscale(1); opacity: 0.5;">
+                            <br>
+                            <small class="text-muted mt-2 d-block" style="font-size: 0.6rem;">Enterprise processing by
+                                Stripe</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function viewPaymentDetail(paymentId) {
+            window.location.href = `/admin/payments/view/${paymentId}`;
+        }
+
+        function confirmRefund(paymentId, transactionId, amount) {
+            Swal.fire({
+                title: 'Confirm Refund?',
+                html: `Are you sure you want to refund <strong>${transactionId}</strong>?<br>Amount: <strong>$${amount.toFixed(2)}</strong><br><br><small class="text-muted">This will also cancel the associated booking.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, refund it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/payments/refund/${paymentId}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

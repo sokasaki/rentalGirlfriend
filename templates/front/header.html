@@ -1,0 +1,253 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <div class="container">
+        <div class="row w-100 align-items-center">
+            <div class="col-4 d-none d-sm-block">
+                <!-- Left column - empty for spacing -->
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-circle-user"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        {% if session.get('user_id') %}
+                        {% if user_type == 'companion' %}
+                        <li><a class="dropdown-item" href="{{ url_for('dashboard_companion') }}"><i
+                                    class="fa-regular fa-circle-user me-2"></i>My Profile</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{{ url_for('dashboard_customer') }}"><i
+                                    class="fa-regular fa-circle-user me-2"></i>My Profile</a></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{{ url_for('listing') }}"><i
+                                    class="fas fa-search me-2"></i>Browse Companions</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i
+                                    class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        {% else %}
+                        <li><a class="dropdown-item" href="{{ url_for('login') }}"><i
+                                    class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('register') }}"><i
+                                    class="fas fa-user-plus me-2"></i>Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4 text-center">
+                <a class="navbar-brand fw-bold text-primary" href="{{ url_for('home') }}">
+                    <i class="fas fa-heart"></i> {{ platform_name }}
+                </a>
+            </div>
+            <div class="col-4 text-end d-none d-sm-block">
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-bell"></i>
+                        <!-- DEBUG: notif_count={{ notification_count }}, pending_reports={{ pending_reports|length }} -->
+                        {% if notification_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ notification_count }}
+                        </span>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" id="notificationMenu"
+                        aria-labelledby="notificationDropdown"
+                        style="min-width: 320px; max-height: 400px; overflow-y: auto;">
+                        {% if not pending_bookings and not approved_bookings and not notifications and not
+                        pending_reports %}
+                        <li class="empty-notifications">
+                            <span class="dropdown-item text-muted text-center py-3">
+                                <i class="fa-regular fa-bell-slash me-2"></i>No notifications
+                            </span>
+                        </li>
+                        {% else %}
+
+                        <!-- Pending Info Requests (Urgent) -->
+                        {% if pending_reports %}
+                        <li class="dropdown-header">
+                            <strong class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Urgent Action
+                                Required</strong>
+                        </li>
+                        {% for report in pending_reports %}
+                        <li>
+                            <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                data-bs-target="#respondReportModal{{ report.report_id }}"
+                                style="white-space: normal; background-color: #fff3cd;">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-exclamation-circle text-danger me-2 mt-1"></i>
+                                    <div>
+                                        <div class="small fw-bold mb-1 text-danger">Action Required: Report #{{
+                                            report.report_id }}</div>
+                                        <div class="small text-dark">Admin requested info. Click here to respond.</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        {% endif %}
+                        <!-- Pending Bookings (for Companion) -->
+                        {% if user_type == 'companion' and pending_bookings %}
+                        <li class="dropdown-header">
+                            <strong>Pending Booking Requests</strong>
+                        </li>
+                        {% for booking in pending_bookings %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('dashboard_companion') }}#requests">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <i class="fa-solid fa-clock me-2 text-warning"></i>
+                                        <strong>{{ booking.customer_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ booking.start_time.strftime('%b %d, %I:%M %p')
+                                            }}</small>
+                                    </div>
+                                    <span class="badge bg-danger">${{ "%.0f"|format(booking.amount) }}</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        {% endif %}
+
+                        <!-- Approved Bookings (for Customer) -->
+                        {% if user_type == 'customer' and approved_bookings %}
+                        <li class="dropdown-header">
+                            <strong>Approved - Payment Required</strong>
+                        </li>
+                        {% for booking in approved_bookings %}
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('payment', booking_id=booking.booking_id) }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <i class="fa-regular fa-credit-card me-2 text-success"></i>
+                                        <strong>{{ booking.companion_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ booking.start_time.strftime('%b %d, %I:%M %p')
+                                            }}</small>
+                                    </div>
+                                    <span class="badge bg-success">${{ "%.0f"|format(booking.amount) }}</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endfor %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        {% endif %}
+
+                        <!-- General Notifications -->
+                        {% if notifications %}
+                        <li class="dropdown-header general-notification-item">
+                            <strong>Recent Notifications</strong>
+                        </li>
+                        {% for notification in notifications[:5] %}
+                        <li class="general-notification-item">
+                            <div class="dropdown-item py-2">
+                                <div class="d-flex align-items-start">
+                                    <div class="me-2 mt-1">
+                                        {% if 'Approved' in notification.title or 'Successful' in notification.title %}
+                                        <i class="fa-solid fa-circle-check text-success"></i>
+                                        {% elif 'Declined' in notification.title or 'Rejected' in notification.title or
+                                        'Failed' in notification.title %}
+                                        <i class="fa-solid fa-circle-xmark text-danger"></i>
+                                        {% else %}
+                                        <i class="fa-solid fa-circle-info text-primary"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold small">{{ notification.title }}</div>
+                                        <div class="text-muted small text-wrap">{{ notification.message }}</div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">
+                                            {{ notification.created_at.strftime('%b %d, %I:%M %p') }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                        <li class="general-notification-item">
+                            <hr class="dropdown-divider">
+                        </li>
+                        {% endif %}
+
+                        <!-- Mark all as read -->
+                        <li class="general-notification-item">
+                            <button class="dropdown-item text-center text-muted small py-2" id="markNotificationsRead">
+                                <i class="fa-solid fa-check-double me-1"></i>Mark all as read
+                            </button>
+                        </li>
+                        <li class="general-notification-item">
+                            <hr class="dropdown-divider">
+                        </li>
+
+                        <!-- View All Links -->
+                        {% if user_type == 'companion' %}
+                        <li>
+                            <a class="dropdown-item text-center text-primary"
+                                href="{{ url_for('dashboard_companion') }}#requests">
+                                <strong>View All Requests</strong>
+                            </a>
+                        </li>
+                        {% elif user_type == 'customer' %}
+                        <li>
+                            <a class="dropdown-item text-center text-primary"
+                                href="{{ url_for('dashboard_customer') }}#bookings">
+                                <strong>View All Bookings</strong>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Respond to Report Modals -->
+{% if pending_reports %}
+{% for report in pending_reports %}
+<div class="modal fade" id="respondReportModal{{ report.report_id }}" tabindex="-1"
+    aria-labelledby="respondReportModalLabel{{ report.report_id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark border-0">
+                <h5 class="modal-title fw-bold" id="respondReportModalLabel{{ report.report_id }}">
+                    <i class="fas fa-exclamation-triangle me-2"></i> Urgent Information Request
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="mb-3">Our moderation team needs more details regarding your report <strong>#{{
+                        report.report_id }}</strong>.</p>
+                <div class="bg-light p-3 rounded mb-4">
+                    <p class="small text-muted mb-1">Original Reason:</p>
+                    <p class="small mb-0">{{ report.reason }}</p>
+                </div>
+                <p class="text-danger small mb-3"><i class="fas fa-clock me-1"></i> Please provide the requested
+                    information within 1 hour to maintain active account status.</p>
+
+                <form action="{{ url_for('respond_to_report', report_id=report.report_id) }}" method="POST">
+                    <div class="mb-3">
+                        <label for="details{{ report.report_id }}" class="form-label fw-bold small">Your
+                            Response</label>
+                        <textarea class="form-control" id="details{{ report.report_id }}" name="details" rows="3"
+                            placeholder="Describe what happened or provide requested details..." required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary px-4">Submit Details</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}

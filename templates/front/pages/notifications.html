@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        :root {
+            --premium-pink: #ff6b9d;
+            --premium-orange: #ffa366;
+            --premium-gradient: linear-gradient(135deg, #ff6b9d 0%, #ffa366 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background: #f8f9fc;
+            font-family: 'Inter', sans-serif;
+            color: #1a1a2e;
+            padding-top: 0 !important;
+            overflow-x: visible !important;
+        }
+
+        h1, h2, h3, .notif-header h1 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* ── Page Header (Glassmorphism) ── */
+        .notif-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notif-header .back-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .notif-header .back-btn:hover {
+            transform: scale(1.1);
+            color: var(--premium-pink);
+            box-shadow: var(--shadow-md);
+        }
+
+        .notif-header h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.5px;
+            background: var(--premium-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mark-all-btn {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--premium-pink);
+            background: rgba(255, 107, 157, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mark-all-btn:hover {
+            background: var(--premium-pink);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* ── Section Labels ── */
+        .notif-section-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #a0aec0;
+            padding: 1.8rem 1.25rem 0.8rem;
+        }
+
+        /* ── Notification Item ── */
+        .notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.1rem;
+            background: #fff;
+            padding: 1.25rem;
+            margin: 0 1rem 0.75rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+        }
+
+        .notif-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: #fff;
+        }
+
+        .notif-item.unread {
+            background: #fff;
+            border-left: 4px solid var(--premium-pink);
+        }
+
+        /* Icon circle */
+        .notif-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.25rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .notif-icon.booking {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #fff;
+        }
+
+        .notif-icon.payment {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+        }
+
+        .notif-icon.alert {
+            background: var(--premium-gradient);
+            color: #fff;
+        }
+
+        .notif-icon.info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+        }
+
+        .notif-icon.report {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: #fff;
+        }
+
+        .unread-dot {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background: var(--premium-pink);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        /* Text block */
+        .notif-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notif-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.3rem;
+            line-height: 1.3;
+        }
+
+        .notif-msg {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .notif-time {
+            font-size: 0.783rem;
+            color: #94a3b8;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* ── Filters ── */
+        .notif-filters {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1.25rem;
+            background: transparent;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .notif-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .notif-filter-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: none;
+            background: #fff;
+            color: #64748b;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .notif-filter-btn.active {
+            background: var(--premium-gradient);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* ── Empty State ── */
+        .notif-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .empty-visual {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .empty-visual i {
+            font-size: 3.5rem;
+            background: var(--premium-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-visual::after {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border-radius: 45px;
+            background: var(--premium-gradient);
+            opacity: 0.05;
+            z-index: -1;
+        }
+
+        .notif-empty h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .notif-empty p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            max-width: 280px;
+            line-height: 1.6;
+        }
+
+        /* ── Action buttons ── */
+        .notif-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .notif-action-btn {
+            padding: 0.5rem 1.1rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .notif-action-btn.primary {
+            background: var(--premium-gradient);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.2);
+        }
+
+        .notif-action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(255, 107, 157, 0.3);
+            color: #fff;
+        }
+
+        /* ── Container ── */
+        .notif-container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 6rem;
+        }
+
+        .notif-group {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 992px) {
+            .notif-container {
+                max-width: 720px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="notif-container">
+
+        <!-- Header -->
+        <div class="notif-header">
+            <a href="javascript:history.back()" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Notifications</h1>
+            <button class="mark-all-btn" id="markAllReadBtn">
+                Mark all as read
+            </button>
+        </div>
+
+        {% if not session.get('user_id') %}
+        <!-- Not logged in -->
+        <div class="notif-empty mt-5">
+            <i class="far fa-bell-slash"></i>
+            <h6 class="fw-bold mb-2">Sign in to see notifications</h6>
+            <p class="mb-3">You need to be logged in to view your notifications.</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary rounded-pill px-4">Login</a>
+        </div>
+
+        {% else %}
+
+        <!-- Filter Tabs -->
+        <div class="notif-filters">
+            <button class="notif-filter-btn active" data-filter="all">All</button>
+            <button class="notif-filter-btn" data-filter="bookings">Bookings</button>
+            <button class="notif-filter-btn" data-filter="payments">Payments</button>
+            <button class="notif-filter-btn" data-filter="alerts">Alerts</button>
+        </div>
+
+        {% set has_any = pending_reports or pending_bookings or approved_bookings or notifications %}
+
+        {% if not has_any %}
+        <div class="notif-empty">
+            <div class="empty-visual">
+                <i class="far fa-bell-slash"></i>
+            </div>
+            <h6 class="fw-bold mb-1">All caught up!</h6>
+            <p>No new notifications right now. Check back later for updates.</p>
+        </div>
+
+        {% else %}
+
+        <!-- ── URGENT / ACTION REQUIRED ── -->
+        {% if pending_reports %}
+        <div class="notif-section-label">🚨 Action Required</div>
+        <div class="notif-group" data-category="alerts">
+            {% for report in pending_reports %}
+            <div class="notif-item unread" data-category="alerts">
+                <div class="notif-icon report">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">Admin Requested More Info</div>
+                    <div class="notif-msg">Your report #{{ report.report_id }} needs a response. Please provide the
+                        requested information.</div>
+                    <div class="notif-time">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ report.info_requested_at.strftime('%b %d at %I:%M %p') if report.info_requested_at else
+                        'Recently' }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('dashboard_customer') }}" class="notif-action-btn primary">
+                            <i class="fas fa-reply"></i> Respond Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── PENDING BOOKINGS (companion sees new requests) ── -->
+        {% if pending_bookings %}
+        <div class="notif-section-label">📅 Booking Requests</div>
+        <div class="notif-group" data-category="bookings">
+            {% for booking in pending_bookings %}
+            <div class="notif-item unread" data-category="bookings">
+                <div class="notif-icon booking">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">New Booking Request</div>
+                    <div class="notif-msg">
+                        <strong>{{ booking.customer_name }}</strong> wants to book you on
+                        {{ booking.start_time.strftime('%b %d at %I:%M %p') }}
+                    </div>
+                    <div class="notif-time">
+                        <i class="fas fa-dollar-sign me-1"></i>${{ "%.0f"|format(booking.amount) }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('dashboard_companion') }}#requests" class="notif-action-btn primary">
+                            <i class="fas fa-check"></i> Review
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── APPROVED BOOKINGS (customer needs to pay) ── -->
+        {% if approved_bookings %}
+        <div class="notif-section-label">💳 Payment Required</div>
+        <div class="notif-group" data-category="payments">
+            {% for booking in approved_bookings %}
+            <div class="notif-item unread" data-category="payments">
+                <div class="notif-icon payment">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">Booking Approved — Pay Now</div>
+                    <div class="notif-msg">
+                        Your booking with <strong>{{ booking.companion_name }}</strong> on
+                        {{ booking.start_time.strftime('%b %d at %I:%M %p') }} has been approved.
+                    </div>
+                    <div class="notif-time">
+                        <i class="fas fa-tag me-1"></i>Total: ${{ "%.0f"|format(booking.amount) }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('payment', booking_id=booking.booking_id) }}"
+                            class="notif-action-btn primary">
+                            <i class="fas fa-credit-card"></i> Pay Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── GENERAL NOTIFICATIONS ── -->
+        {% if notifications %}
+        {% set today_notifs = [] %}
+        {% set week_notifs = [] %}
+        {% set older_notifs = [] %}
+        {% for n in notifications %}
+        {% set age = (now - n.created_at).days %}
+        {% if age == 0 %}{% set _ = today_notifs.append(n) %}
+        {% elif age <= 7 %}{% set _=week_notifs.append(n) %} {% else %}{% set _=older_notifs.append(n) %} {% endif %} {%
+            endfor %} {% if today_notifs %} <div class="notif-section-label">Today
+    </div>
+    <div class="notif-group">
+        {% for n in today_notifs %}
+        <div class="notif-item {% if not n.is_read %}unread{% endif %}" data-category="alerts">
+            <div class="notif-icon {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}payment{% elif 'book' in n.title|lower %}booking{% elif 'approved' in n.title|lower %}payment{% else %}info{% endif %}">
+                <i class="fas {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}fa-check-circle{% elif 'book' in n.title|lower %}fa-calendar-check{% elif 'approved' in n.title|lower %}fa-thumbs-up{% else %}fa-bell{% endif %}"></i>
+            </div>
+            {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%I:%M %p') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if week_notifs %}
+    <div class="notif-section-label">This Week</div>
+    <div class="notif-group">
+        {% for n in week_notifs %}
+        <div class="notif-item {% if not n.is_read %}unread{% endif %}" data-category="alerts">
+            <div class="notif-icon {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}payment{% elif 'book' in n.title|lower %}booking{% else %}info{% endif %}">
+                <i class="fas {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}fa-check-circle{% elif 'book' in n.title|lower %}fa-calendar-check{% else %}fa-bell{% endif %}"></i>
+            </div>
+            {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%b %d at %I:%M %p') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if older_notifs %}
+    <div class="notif-section-label">Earlier</div>
+    <div class="notif-group">
+        {% for n in older_notifs %}
+        <div class="notif-item" data-category="alerts">
+            <div class="notif-icon info">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%b %d, %Y') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %} {# end if notifications #}
+
+    {% endif %} {# end if has_any #}
+    {% endif %} {# end if logged in #}
+
+    </div><!-- /.notif-container -->
+
+    {% include 'front/footer.html' %}
+
+    <script>
+        // ── Mark all as read ─────────────────────────────
+        document.getElementById('markAllReadBtn')?.addEventListener('click', async function () {
+            try {
+                await fetch('/notifications/mark-read', { method: 'POST' });
+                document.querySelectorAll('.notif-item.unread').forEach(el => {
+                    el.classList.remove('unread');
+                });
+                document.querySelectorAll('.unread-dot').forEach(el => el.remove());
+                this.style.opacity = '0.4';
+                this.disabled = true;
+            } catch (e) { }
+        });
+
+        // ── Filter buttons ───────────────────────────────
+        document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.notif-filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const filter = this.dataset.filter;
+                document.querySelectorAll('.notif-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.category === filter) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                // Hide empty groups and their labels
+                document.querySelectorAll('.notif-group').forEach(group => {
+                    const visible = [...group.querySelectorAll('.notif-item')].some(i => i.style.display !== 'none');
+                    group.style.display = visible ? '' : 'none';
+                    const label = group.previousElementSibling;
+                    if (label && label.classList.contains('notif-section-label')) {
+                        label.style.display = visible ? '' : 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

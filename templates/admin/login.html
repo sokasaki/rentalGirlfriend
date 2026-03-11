@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access — RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --purple: #584073;
+            --purple-dark: #432f55;
+            --purple-glow: rgba(88, 64, 115, 0.45);
+            --sidebar-bg: #141414;
+            --white: #ffffff;
+            --soft-gray: #f4f5f7;
+            --border: #e4e6ea;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --font: 'Inter', sans-serif;
+            --display: 'Poppins', sans-serif;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font);
+            display: flex;
+            min-height: 100vh;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        /* ──────────────────────────────────────
+           LEFT PANEL
+        ────────────────────────────────────── */
+        .panel-left {
+            width: 400px;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 52px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glow orbs */
+        .panel-left::before,
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .panel-left::before {
+            width: 380px;
+            height: 380px;
+            top: -140px;
+            left: -140px;
+            background: radial-gradient(circle, rgba(88, 64, 115, .55) 0%, transparent 65%);
+        }
+
+        .panel-left::after {
+            width: 300px;
+            height: 300px;
+            bottom: -80px;
+            right: -80px;
+            background: radial-gradient(circle, rgba(88, 64, 115, .3) 0%, transparent 65%);
+        }
+
+        /* Brand */
+        .brand {
+            position: relative;
+            z-index: 2;
+            margin-bottom: auto;
+        }
+
+        .brand-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--purple), #7c5fa3);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            box-shadow: 0 0 30px var(--purple-glow);
+        }
+
+        .brand-icon i {
+            color: #fff;
+            font-size: 22px;
+        }
+
+        .brand-name {
+            font-family: var(--display);
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+            display: block;
+        }
+
+        .brand-tag {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .35);
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Divider */
+        .left-sep {
+            width: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--purple), transparent);
+            border-radius: 2px;
+            margin: 36px 0 28px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Feature list */
+        .left-features {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: auto;
+        }
+
+        .feat {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .feat-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .25s;
+        }
+
+        .feat-icon i {
+            font-size: 13px;
+            color: rgba(255, 255, 255, .55);
+        }
+
+        .feat-text strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .85);
+            line-height: 1.3;
+        }
+
+        .feat-text span {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, .35);
+        }
+
+        /* Bottom copy */
+        .left-foot {
+            position: relative;
+            z-index: 2;
+            margin-top: 48px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, .2);
+        }
+
+        /* ──────────────────────────────────────
+           RIGHT PANEL
+        ────────────────────────────────────── */
+        .panel-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 60px;
+            background: var(--white);
+            position: relative;
+        }
+
+        /* Subtle dot-grid watermark */
+        .panel-right::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, #e0e0e0 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: .5;
+            pointer-events: none;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 400px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 44px 40px;
+            box-shadow:
+                0 0 0 1px rgba(88, 64, 115, .05),
+                0 8px 32px rgba(0, 0, 0, .07),
+                0 32px 64px rgba(0, 0, 0, .04);
+            animation: slide-up .5s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Badge */
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(88, 64, 115, .08);
+            color: var(--purple);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(88, 64, 115, .15);
+            margin-bottom: 24px;
+            letter-spacing: .03em;
+        }
+
+        .card-title {
+            font-family: var(--display);
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -.03em;
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .card-sub {
+            font-size: 13.5px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        /* Form */
+        .field-label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: .01em;
+        }
+
+        .field-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b0b7c3;
+            font-size: 13px;
+            pointer-events: none;
+            transition: color .2s;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: 11px;
+            font-size: 14px;
+            font-family: var(--font);
+            color: var(--text);
+            background: var(--soft-gray);
+            transition: all .2s ease;
+            outline: none;
+        }
+
+        .field-input::placeholder {
+            color: #b0b7c3;
+        }
+
+        .field-input:focus {
+            border-color: var(--purple);
+            background: var(--white);
+            box-shadow: 0 0 0 3.5px rgba(88, 64, 115, .12);
+        }
+
+        .field-wrap:focus-within .field-icon {
+            color: var(--purple);
+        }
+
+        /* Button */
+        .btn-signin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 24px;
+            background: var(--purple);
+            color: var(--white);
+            font-size: 14.5px;
+            font-weight: 600;
+            font-family: var(--font);
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all .25s ease;
+            box-shadow: 0 4px 16px rgba(88, 64, 115, .35);
+            letter-spacing: .01em;
+        }
+
+        .btn-signin:hover {
+            background: var(--purple-dark);
+            box-shadow: 0 8px 24px rgba(88, 64, 115, .45);
+            transform: translateY(-1px);
+        }
+
+        .btn-signin:active {
+            transform: translateY(0);
+        }
+
+        /* Alerts */
+        .alert-custom {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 11px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-custom.danger {
+            background: rgba(239, 68, 68, .07);
+            color: #b91c1c;
+            border: 1px solid rgba(239, 68, 68, .15);
+        }
+
+        .alert-custom.success {
+            background: rgba(16, 185, 129, .07);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, .15);
+        }
+
+        .alert-custom.warning {
+            background: rgba(245, 158, 11, .07);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, .15);
+        }
+
+        /* Divider */
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0 20px;
+            color: var(--border);
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .back-link:hover {
+            color: var(--purple);
+        }
+
+        @media (max-width: 768px) {
+            .panel-left {
+                display: none;
+            }
+
+            .panel-right {
+                padding: 24px 20px;
+            }
+
+            .login-card {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="panel-left">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-heart"></i>
+            </div>
+            <span class="brand-name">RentACompanion</span>
+            <span class="brand-tag">Admin Panel</span>
+        </div>
+
+        <div class="left-sep"></div>
+
+        <div class="left-features">
+            <div class="feat">
+                <div class="feat-icon"><i class="fa-solid fa-gauge-high"></i></div>
+                <div class="feat-text">
+                    <strong>Live Dashboard</strong>
+                    <span>Real-time stats and KPIs</span>
+                </div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="feat-text">
+                    <strong>User Management</strong>
+                    <span>Customers, companions & roles</span>
+                </div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fa-solid fa-credit-card"></i></div>
+                <div class="feat-text">
+                    <strong>Payments & Analytics</strong>
+                    <span>Revenue tracking & exports</span>
+                </div>
+            </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="feat-text">
+                    <strong>Security & Auditing</strong>
+                    <span>Reports, logs & controls</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="left-foot">
+            &copy; 2026 RentACompanion &mdash; Secure Admin Portal
+        </div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="panel-right">
+        <div class="login-card">
+
+            <div class="admin-badge">
+                <i class="fa-solid fa-shield-halved fa-xs"></i>
+                Administrator Access
+            </div>
+
+            <h1 class="card-title">Welcome back</h1>
+            <p class="card-sub">Sign in to manage the platform</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert-custom {{ category }}">
+                <i class="fa-solid fa-circle-exclamation fa-sm"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('do_admin_login') }}" method="POST">
+                <div>
+                    <label for="email" class="field-label">Email Address</label>
+                    <div class="field-wrap">
+                        <i class="fa-solid fa-envelope field-icon"></i>
+                        <input type="email" id="email" name="email" class="field-input" placeholder="admin@example.com"
+                            autocomplete="email" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="password" class="field-label">Password</label>
+                    <div class="field-wrap">
+                        <i class="fa-solid fa-lock field-icon"></i>
+                        <input type="password" id="password" name="password" class="field-input" placeholder="••••••••"
+                            autocomplete="current-password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-signin">
+                    <i class="fa-solid fa-right-to-bracket fa-sm"></i>
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <div class="or-divider">or</div>
+
+            <a href="{{ url_for('home') }}" class="back-link">
+                <i class="fa-solid fa-arrow-left fa-xs"></i>
+                Back to main site
+            </a>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

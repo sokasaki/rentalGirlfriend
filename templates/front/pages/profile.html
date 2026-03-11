@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ companion.display_name }} - Companion Profile | RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+
+    <!-- Profile Section -->
+    <section>
+        <div class="container">
+            <!-- Identity Header -->
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-4 mt-2">
+                <div class="flex-grow-1 mb-3 mb-sm-0">
+                    <h1 class="fw-bold mb-2">{{ companion.display_name }}</h1>
+                    <div class="rating mb-2">
+                        {% for i in range(5) %}
+                        <i
+                            class="fas fa-star{% if i >= companion.avg_rating %} text-muted{% else %} text-warning{% endif %}"></i>
+                        {% endfor %}
+                        <span class="fw-bold ms-2">{{ companion.avg_rating }}</span>
+                        <span class="text-muted">({{ companion.total_reviews }} reviews)</span>
+                    </div>
+                    <div class="tags mb-3">
+                        {% for trait in companion.personality_traits %}
+                        <span class="personality-tag"><i class="fas fa-heart"></i>{{ trait }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="btn btn-light btn-lg rounded-circle favorite-btn flex-shrink-0"
+                    id="profileFavoriteBtn" data-companion-id="{{ companion.companion_id }}"
+                    data-favorited="{{ 'true' if is_favorited else 'false' }}" onclick="toggleFavorite(this)"
+                    title="{% if is_favorited %}Remove from favorites{% else %}Add to favorites{% endif %}"
+                    style="transition: transform 0.2s, color 0.2s;">
+                    <i class="{% if is_favorited %}fas{% else %}far{% endif %} fa-heart fa-lg"
+                        style="color: {% if is_favorited %}#e91e8c{% else %}inherit{% endif %};"></i>
+                </button>
+            </div>
+
+            <div class="row">
+                <!-- Left Column: Identity & Bio -->
+                <div class="col-lg-5 mb-4">
+                    <img src="{{ companion.photo_url }}" class="profile-img shadow-lg"
+                        alt="{{ companion.display_name }}">
+
+                    <div class="card border-0 shadow-lg mt-4"
+                        style="background: var(--glass-light); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8) !important;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3" style="font-weight: 800; letter-spacing: -0.75px;">Quick Info</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i
+                                        class="fas fa-{% if companion.gender in ['FEMALE', 'Female'] %}venus{% elif companion.gender in ['MALE', 'Male'] %}mars{% else %}user{% endif %} text-primary me-2"></i>
+                                    {{ companion.gender }}</li>
+                                <li class="mb-2"><i class="fas fa-birthday-cake text-primary me-2"></i> {{ companion.age
+                                    }} years old</li>
+                                <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> {{
+                                    companion.city }}, {{ companion.state }}</li>
+                                <li class="mb-2"><i class="fas fa-language text-primary me-2"></i> {{
+                                    companion.languages_display }}</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> {% if
+                                    companion.verification_status == 'APPROVED' %}Verified Profile{% else %}Pending
+                                    Verification{% endif %}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">About Me</h5>
+                            <p class="text-muted mb-4">{{ companion.bio }}</p>
+
+                            <hr class="opacity-10">
+
+                            <div class="text-end">
+                                <button class="btn btn-link btn-sm text-muted text-decoration-none p-0"
+                                    data-bs-toggle="modal" data-bs-target="#reportModal">
+                                    <i class="fas fa-flag me-1"></i> Report this profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if companion.photos and companion.photos|length > 0 %}
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Photo Gallery</h5>
+                            <div class="row g-2">
+                                {% for photo in companion.photos[:6] %}
+                                <div class="col-4">
+                                    <img src="{{ photo.photo_url }}" class="img-fluid rounded gallery-photo"
+                                        alt="{{ companion.display_name }}"
+                                        style="aspect-ratio: 1; object-fit: cover; width: 100%; cursor: pointer;"
+                                        data-bs-toggle="modal" data-bs-target="#photoModal"
+                                        onclick="showPhoto('{{ photo.photo_url }}')">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if companion.photos|length > 6 %}
+                            <div class="text-center mt-3">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <i class="fas fa-images me-1"></i> View All {{ companion.photos|length }} Photos
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Column: Availability & Booking -->
+                <div class="col-lg-7">
+                    <!-- Weekly Availability -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Weekly Availability</h5>
+
+                            <!-- Calendar Days -->
+                            <div class="availability-calendar mb-3">
+                                {% for day in companion.availability_week %}
+                                <div class="day-slot {% if day.is_available %}available{% else %}unavailable{% endif %}"
+                                    data-day="{{ day.day_name }}" id="avail-{{ day.short_name }}">
+                                    <div class="day-name">{{ day.short_name }}</div>
+                                    <div class="status-dot"></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Time Slots Details -->
+                            <div class="availability-details">
+                                <h6 class="fw-semibold mb-3">Available Time Slots</h6>
+                                {% for day in companion.availability_week %}
+                                <div class="time-slot-item {% if not loop.last %}mb-3{% endif %}"
+                                    id="time-item-{{ day.short_name }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="day-title">{{ day.day_name }}</strong>
+                                            {% if day.is_available %}
+                                            {% for slot in day.slots %}
+                                            <div class="text-muted small {% if loop.first %}mt-1{% endif %}">
+                                                <i class="far fa-clock me-1"></i> {{ slot.start }} - {{ slot.end }}
+                                            </div>
+                                            {% endfor %}
+                                            {% else %}
+                                            <div class="text-muted small mt-1">
+                                                <i class="fas fa-ban me-1"></i> Not Available
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <span
+                                            class="badge {% if day.is_available %}bg-success{% else %}bg-secondary{% endif %}">{%
+                                            if day.is_available %}Open{% else %}Unavailable{% endif %}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="text-center">
+                                <small class="text-muted d-block mb-2">
+                                    <span class="text-success fw-semibold">● Available</span> &nbsp;|&nbsp;
+                                    <span class="text-secondary fw-semibold">● Unavailable</span>
+                                </small>
+                                <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <i class="far fa-calendar-alt me-1"></i> View Full Calendar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Book Your Time</h5>
+
+                            <form id="bookingForm">
+                                <input type="hidden" name="companion_id" value="{{ companion.companion_id }}">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Date</label>
+                                        <input type="date" class="form-control" name="date" required id="bookingDate">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Time</label>
+                                        <select class="form-select" name="time" id="bookingTime" required disabled>
+                                            <option value="">Loading availability...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Duration</label>
+                                        <select class="form-select" name="duration" id="bookingDuration" required
+                                            disabled>
+                                            <option value="">Select time first</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Total Price</label>
+                                        <div id="hourlyRate" data-rate="{{ companion.rate_per_hour }}"></div>
+                                        <input type="text" class="form-control fw-bold text-primary" id="totalPrice"
+                                            value="${{ " {:,.0f}".format(companion.rate_per_hour) }}/hr" readonly>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Location/Venue</label>
+                                        <input type="text" class="form-control" name="location"
+                                            placeholder="e.g., Grand Hotel, Manhattan" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Special Requests (Optional)</label>
+                                        <textarea class="form-control" name="notes" rows="3"
+                                            placeholder="Any special requests or details..."></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                            <label class="form-check-label" for="termsCheck">
+                                                I agree to the <a href="#" class="text-primary">Terms of Service</a>
+                                                and
+                                                <a href="#" class="text-primary">Cancellation Policy</a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">
+                                            <i class="fas fa-calendar-check me-2"></i>Proceed to Book
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="mt-5">
+                <h3 class="fw-bold mb-4">Reviews ({{ companion.total_reviews }})</h3>
+                {% if companion.reviews %}
+                <div class="row g-4">
+                    {% for review in companion.reviews %}
+                    <div class="col-lg-6">
+                        <div class="review-card">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ url_for('static', filename='images/avatar-placeholder.jpg') }}"
+                                    alt="{{ review.customer_name }}" class="rounded-circle profile-img-sm me-3">
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ review.customer_name }}</h6>
+                                    <div class="rating">
+                                        {% for i in range(5) %}
+                                        <i
+                                            class="fas fa-star{% if i >= review.rating %} text-muted{% else %} text-warning{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-light rounded shadow-sm mb-3">
+                                <p class="text-muted mb-0 italic" style="font-size: 0.95rem;">"{{ review.comment or 'No
+                                    comment provided' }}"</p>
+                            </div>
+
+                            {% if review.reply %}
+                            <div class="ms-4 p-3 bg-primary-subtle rounded border-start border-primary border-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="fw-bold text-primary text-uppercase"
+                                        style="font-size: 0.7rem;">Companion's Reply</small>
+                                    <small class="text-muted x-small">{{ review.replied_at.strftime('%b %d, %Y') if
+                                        review.replied_at else '' }}</small>
+                                </div>
+                                <p class="mb-0 small text-dark" style="line-height: 1.5;">{{ review.reply }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if companion.total_reviews > companion.reviews|length %}
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary rounded-pill px-4">Load More Reviews</button>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No reviews yet. Be the first to review!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Success Modal -->
+    <div class="modal fade" id="bookingSuccessModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-5">
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Booking Request Sent!</h3>
+                    <p class="text-muted mb-3" id="companionMessageText">Your booking request has been sent to <span
+                            id="successCompanionName"></span>. You will receive a confirmation once it is accepted.</p>
+
+                    <!-- Booking Details Card -->
+                    <div class="card mt-4 mb-4" style="background: #f9f9f9; border: 1px solid #e0e0e0;">
+                        <div class="card-body text-start">
+                            <h5 class="fw-bold mb-3 text-center">Booking Details</h5>
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-calendar text-primary me-3" style="min-width: 25px;"></i>
+                                <div>
+                                    <span class="fw-bold me-2">Date:</span>
+                                    <span id="successDate"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-clock text-primary me-3" style="min-width: 25px;"></i>
+                                <div>
+                                    <span class="fw-bold me-2">Time:</span>
+                                    <span id="successTime"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-hourglass-end text-primary me-3" style="min-width: 25px;"></i>
+                                <div>
+                                    <span class="fw-bold me-2">Duration:</span>
+                                    <span id="successDuration"></span>
+                                </div>
+                            </div>
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-map-marker-alt text-primary me-3" style="min-width: 25px;"></i>
+                                <div>
+                                    <span class="fw-bold me-2">Location:</span>
+                                    <span id="successLocation"></span>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="fw-bold">Total Price:</span>
+                                <span class="fw-bold text-success" id="successTotal" style="font-size: 1.1rem;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary rounded-pill px-5" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Lightbox Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal" aria-label="Close" style="z-index: 1050;"></button>
+                    <img id="modalPhoto" src="" alt="Photo" class="img-fluid rounded" style="width: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let availableDays = [];
+        let dayAvailability = {};
+        let bookedSlots = [];
+        let hourlyRate = parseFloat(document.getElementById('hourlyRate').dataset.rate);
+
+        // Load available days and bookings when page loads
+        async function loadAvailabilityData() {
+            const companionId = document.querySelector('input[name="companion_id"]').value;
+            const timeSelect = document.getElementById('bookingTime');
+
+            try {
+                const response = await fetch(`/get_companion_availability/${companionId}`);
+                if (!response.ok) throw new Error('Failed to load availability from server');
+
+                const data = await response.json();
+                if (data.success) {
+                    dayAvailability = data.available_days || {};
+                    availableDays = Object.keys(dayAvailability);
+                    bookedSlots = data.booked_slots || [];
+
+                    timeSelect.innerHTML = '<option value="">Select date first</option>';
+
+                    // Initialize listeners
+                    document.getElementById('bookingDate').addEventListener('change', handleDateChange);
+                    document.getElementById('bookingTime').addEventListener('change', handleTimeChange);
+                    document.getElementById('bookingDuration').addEventListener('change', updatePriceDisplay);
+
+                    console.log('✓ Availability loaded');
+                    setupAvailabilityInteractions();
+                } else {
+                    throw new Error(data.message || 'Unknown error loading availability');
+                }
+            } catch (error) {
+                console.error('Error loading availability:', error);
+                timeSelect.innerHTML = '<option value="">Error loading schedule</option>';
+                showAlert('Could not load companion schedule. Please refresh the page.', 'danger');
+            }
+        }
+
+        function handleDateChange() {
+            const dateInput = document.getElementById('bookingDate');
+            const timeSelect = document.getElementById('bookingTime');
+            const durationSelect = document.getElementById('bookingDuration');
+
+            if (!dateInput.value) return;
+
+            // Reset dependent fields
+            timeSelect.innerHTML = '<option value="">Select time</option>';
+            timeSelect.disabled = true;
+            durationSelect.innerHTML = '<option value="">Select time first</option>';
+            durationSelect.disabled = true;
+            updatePriceDisplay();
+
+            // Robust local date parsing
+            const [year, month, day] = dateInput.value.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1, day);
+
+            if (isNaN(selectedDate.getTime())) return;
+
+            const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+            const dayOfWeek = selectedDate.getDay(); // 0=Sun, 1=Mon...
+            const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            const selectedDayName = dayNames[adjustedDay];
+
+            if (!availableDays.includes(selectedDayName)) {
+                dateInput.classList.add('is-invalid');
+                showDateFeedback(`Companion is not available on ${selectedDayName}.`);
+                return;
+            }
+
+            dateInput.classList.remove('is-invalid');
+            hideDateFeedback();
+
+            // Highlight the corresponding calendar tile
+            const tile = document.getElementById(`avail-${selectedDayName}`);
+            document.querySelectorAll('.day-slot').forEach(t => t.classList.remove('active-selection'));
+            if (tile) tile.classList.add('active-selection');
+
+            // Highlight and scroll to the corresponding time slot detail
+            const timeItem = document.getElementById(`time-item-${selectedDayName}`);
+            document.querySelectorAll('.time-slot-item').forEach(i => i.classList.remove('highlight-day'));
+            if (timeItem) {
+                timeItem.classList.add('highlight-day');
+                // Optional: scroll the availability container if it has overflow
+            }
+
+            // Populate available times for this day
+            const slots = dayAvailability[selectedDayName];
+            const dateStr = dateInput.value;
+
+            let optionsFound = false;
+            slots.forEach(slot => {
+                let current = parseTime(slot.start_time);
+                const end = parseTime(slot.end_time);
+
+                while (current < end) {
+                    const timeStr = formatTime(current);
+                    if (!isTimeBooked(dateStr, timeStr)) {
+                        const option = document.createElement('option');
+                        option.value = timeStr;
+                        option.textContent = timeStr;
+                        timeSelect.appendChild(option);
+                        optionsFound = true;
+                    }
+                    current.setMinutes(current.getMinutes() + 30);
+                }
+            });
+
+            if (optionsFound) {
+                timeSelect.disabled = false;
+            } else {
+                showDateFeedback('No available slots for this date.');
+            }
+        }
+
+        function handleTimeChange() {
+            const dateValue = document.getElementById('bookingDate').value;
+            const timeValue = document.getElementById('bookingTime').value;
+            const durationSelect = document.getElementById('bookingDuration');
+
+            durationSelect.innerHTML = '<option value="">Select duration</option>';
+            durationSelect.disabled = true;
+
+            if (!timeValue) return;
+
+            const [year, month, day] = dateValue.split('-').map(Number);
+            const selectedDate = new Date(year, month - 1, day);
+            const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+            const selectedDayName = dayNames[selectedDate.getDay() === 0 ? 6 : selectedDate.getDay() - 1];
+
+            const slots = dayAvailability[selectedDayName];
+            const startTime = parseTime(timeValue);
+
+            // Find which availability window this time falls into
+            const window = slots.find(s => {
+                const sStart = parseTime(s.start_time);
+                const sEnd = parseTime(s.end_time);
+                return startTime >= sStart && startTime < sEnd;
+            });
+
+            if (!window) return;
+
+            const windowEnd = parseTime(window.end_time);
+            const durations = [1, 2, 4, 6, 8];
+
+            durations.forEach(d => {
+                const endTime = new Date(startTime.getTime() + d * 60 * 60 * 1000);
+
+                // Check if fits in availability window
+                if (endTime <= windowEnd) {
+                    // Check if overlaps with any existing booking
+                    if (!doesOverLapWithBooking(dateValue, startTime, endTime)) {
+                        const option = document.createElement('option');
+                        option.value = d;
+                        option.textContent = `${d} hour${d > 1 ? 's' : ''} - $${(hourlyRate * d).toLocaleString()}`;
+                        durationSelect.appendChild(option);
+                    }
+                }
+            });
+
+            if (durationSelect.options.length > 1) {
+                durationSelect.disabled = false;
+            }
+        }
+
+        function isTimeBooked(date, time) {
+            return bookedSlots.some(b => b.date === date && b.start <= time && b.end > time);
+        }
+
+        function doesOverLapWithBooking(date, start, end) {
+            return bookedSlots.some(b => {
+                if (b.date !== date) return false;
+                const bStart = parseTime(b.start);
+                const bEnd = parseTime(b.end);
+                return (start < bEnd && end > bStart);
+            });
+        }
+
+        function parseTime(t) {
+            const [h, m] = t.split(':').map(Number);
+            const d = new Date();
+            d.setHours(h, m, 0, 0);
+            return d;
+        }
+
+        function formatTime(d) {
+            return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }
+
+        function showDateFeedback(msg) {
+            let feedback = document.querySelector('.date-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'date-feedback invalid-feedback d-block';
+                document.getElementById('bookingDate').closest('.col-md-6').appendChild(feedback);
+            }
+            feedback.textContent = msg;
+        }
+
+        function hideDateFeedback() {
+            const feedback = document.querySelector('.date-feedback');
+            if (feedback) feedback.remove();
+        }
+
+        function updatePriceDisplay() {
+            const duration = document.getElementById('bookingDuration').value;
+            const totalPrice = document.getElementById('totalPrice');
+
+            if (duration && hourlyRate) {
+                const total = duration * hourlyRate;
+                totalPrice.value = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            } else {
+                totalPrice.value = `$${hourlyRate.toLocaleString()}/hr`;
+            }
+        }
+
+        // Photo gallery lightbox
+        function showPhoto(photoUrl) {
+            document.getElementById('modalPhoto').src = photoUrl;
+        }
+
+        // Helper function to show alert messages using SweetAlert2
+        function showAlert(message, type = 'error') {
+            const iconMap = {
+                'success': 'success',
+                'danger': 'error',
+                'warning': 'warning',
+                'info': 'info'
+            };
+
+            Swal.fire({
+                icon: iconMap[type] || 'error',
+                title: type === 'success' ? 'Success!' : type === 'warning' ? 'Warning' : 'Error',
+                text: message,
+                confirmButtonColor: type === 'success' ? '#4CAF50' : type === 'warning' ? '#ff9800' : '#f44336'
+            });
+        }
+
+        // Booking form submission
+        document.getElementById('bookingForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            const resetBtn = () => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            try {
+                const formData = new FormData(form);
+                const data = {
+                    companion_id: formData.get('companion_id'),
+                    date: formData.get('date'),
+                    time: formData.get('time'),
+                    duration: formData.get('duration'),
+                    location: formData.get('location'),
+                    notes: formData.get('notes') || ''
+                };
+
+                if (!data.date || !data.time || !data.duration || !data.location) {
+                    showAlert('Please fill in all required fields.', 'warning');
+                    resetBtn();
+                    return;
+                }
+
+                if (!document.getElementById('termsCheck').checked) {
+                    showAlert('Please agree to the Terms of Service.', 'warning');
+                    resetBtn();
+                    return;
+                }
+
+                const response = await fetch('/create_booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json().catch(() => ({ success: false, message: 'Invalid response from server' }));
+
+                if (response.ok && result.success) {
+                    if (result.booking_details) {
+                        const d = result.booking_details;
+                        document.getElementById('successCompanionName').textContent = d.companion_name;
+                        document.getElementById('successDate').textContent = d.date;
+                        document.getElementById('successTime').textContent = d.time;
+                        document.getElementById('successDuration').textContent = d.duration;
+                        document.getElementById('successLocation').textContent = d.location;
+                        document.getElementById('successTotal').textContent = '$' + d.total_price.toFixed(2);
+                    }
+
+                    const modalEl = document.getElementById('bookingSuccessModal');
+                    const bookingModal = new bootstrap.Modal(modalEl);
+                    modalEl.addEventListener('hidden.bs.modal', function () {
+                        window.location.href = '{{ url_for("dashboard_customer") }}';
+                    }, { once: true });
+                    bookingModal.show();
+                } else {
+                    showAlert(result.message || 'Booking failed.', 'danger');
+                    resetBtn();
+                }
+            } catch (error) {
+                showAlert('An unexpected error occurred.', 'danger');
+                resetBtn();
+            }
+        });
+
+        function setupAvailabilityInteractions() {
+            const daySlots = document.querySelectorAll('.day-slot.available');
+            const dateInput = document.getElementById('bookingDate');
+
+            daySlots.forEach(slot => {
+                slot.title = 'Click to book this day';
+                slot.addEventListener('click', () => {
+                    const dayCode = slot.dataset.day; // e.g., "Monday"
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const targetDayIndex = dayNames.indexOf(dayCode);
+                    if (targetDayIndex === -1) return;
+
+                    let targetDate = new Date();
+                    targetDate.setHours(0, 0, 0, 0);
+                    let daysUntil = (targetDayIndex - targetDate.getDay() + 7) % 7;
+                    targetDate.setDate(targetDate.getDate() + daysUntil);
+
+                    const yyyy = targetDate.getFullYear();
+                    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(targetDate.getDate()).padStart(2, '0');
+                    dateInput.value = `${yyyy}-${mm}-${dd}`;
+
+                    dateInput.dispatchEvent(new Event('change'));
+                    document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+        }
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').setAttribute('min', today);
+
+        // Load availability
+        loadAvailabilityData();
+
+        // Add hover effect to gallery photos
+        document.querySelectorAll('.gallery-photo').forEach(photo => {
+            photo.addEventListener('mouseenter', function () {
+                this.style.transform = 'scale(1.05)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            photo.addEventListener('mouseleave', function () {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="reportModalLabel">Report Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ url_for('submit_report') }}" method="POST">
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-4">Your report is anonymous and helps us keep the community safe.
+                            Please select a reason for reporting <strong>{{ companion.display_name }}</strong>.</p>
+
+                        <input type="hidden" name="target_type" value="COMPANION">
+                        <input type="hidden" name="target_id" value="{{ companion.companion_id }}">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase">Reason for reporting</label>
+                            <select class="form-select border-0 bg-light" name="reason" required>
+                                <option value="" selected disabled>Choose a reason...</option>
+                                <option value="Inappropriate content or bio">Inappropriate content or bio</option>
+                                <option value="Fake profile or misleading information">Fake profile or misleading
+                                    information</option>
+                                <option value="Harassment or abusive behavior">Harassment or abusive behavior</option>
+                                <option value="Solicitation or spam">Solicitation or spam</option>
+                                <option value="Safety concerns during a session">Safety concerns during a session
+                                </option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-0 pt-2">
+                            <label class="form-label small fw-bold text-uppercase">Additional Details (Optional)</label>
+                            <textarea class="form-control border-0 bg-light" name="details" rows="3"
+                                placeholder="Please provide more context..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-toggle="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include 'front/footer.html' %}
+</body>
+
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        {% for category, message in messages %}
+                        Swal.fire({
+                            icon: '{{ "success" if category == "success" else "error" if category in ["error", "danger"] else "warning" if category == "warning" else "info" }}',
+                            title: '{{ "Success!" if category == "success" else "Error!" if category in ["error", "danger"] else "Warning!" if category == "warning" else "Notice" }}',
+                            text: {{ message | tojson }},
+                        confirmButtonColor: '{{ "#10b981" if category == "success" else "#ef4444" if category in ["error", "danger"] else "#f59e0b" if category == "warning" else "#3b82f6" }}',
+                        timer: 4000,
+                        timerProgressBar: true,
+                        });
+                    {% endfor %}
+                    });
+                </script>
+                {% endif %}
+                {% endwith %}
+
+                {% set header_title = 'Role Management' %}
+                {% include 'admin/header.html' with context %}
+
+                <div class="row g-4 mt-2">
+                    <!-- Left Column: Roles Table -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom p-4 pb-3">
+                                <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1 text-primary">
+                                    <i class="fa-solid fa-shield-halved me-2"></i> Role Directory
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light-subtle">
+                                            <tr class="small text-muted">
+                                                <th class="ps-4">ID</th>
+                                                <th>Role Name</th>
+                                                <th>Active Users</th>
+                                                <th class="pe-4 text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for role in roles %}
+                                            <tr>
+                                                <td class="ps-4 text-muted small">#{{ role.role_id }}</td>
+                                                <td>
+                                                    <span
+                                                        class="badge {% if role.role_name == 'Admin' %}bg-danger{% elif role.role_name == 'Companion' %}bg-primary{% elif role.role_name == 'Customer' %}bg-info{% else %}bg-secondary{% endif %} px-3 py-2">
+                                                        {{ role.role_name }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa-solid fa-users me-2 text-muted small"></i>
+                                                        <span class="fw-bold">{{ role.users|length }}</span>
+                                                    </div>
+                                                </td>
+                                                <td class="pe-4 text-end">
+                                                    {% if role.role_name not in ['Admin', 'Customer', 'Companion'] %}
+                                                    <button class="btn btn-sm btn-light border-0 me-1"
+                                                        onclick='openEditModal({{ role.role_id }}, "{{ role.role_name }}", {{ role.permissions|map(attribute="permission_id")|list|tojson|safe }})'>
+                                                        <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-light border-0"
+                                                        onclick="confirmDeleteRole('{{ url_for('delete_role', role_id=role.role_id) }}', '{{ role.role_name }}')">
+                                                        <i class="fa-solid fa-trash-can text-danger"></i>
+                                                    </button>
+                                                    {% else %}
+                                                    <span class="badge bg-light text-muted border small">Core System
+                                                        Role</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Add Role Form -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm sticky-top" style="top: 2rem;">
+                            <div class="card-header bg-white border-bottom p-4 pb-3">
+                                <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1 text-success">
+                                    <i class="fa-solid fa-plus me-2"></i> Add New Role
+                                </h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <form action="{{ url_for('add_role') }}" method="POST">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-muted text-uppercase">Role
+                                            Name</label>
+                                        <input type="text" name="role_name" class="form-control"
+                                            placeholder="e.g. Moderator, Staff" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-muted text-uppercase">Role
+                                            Permissions</label>
+                                        <div class="permission-grid p-3 bg-light rounded"
+                                            style="max-height: 200px; overflow-y: auto;">
+                                            {% for perm in permissions %}
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="permissions"
+                                                    value="{{ perm.permission_id }}"
+                                                    id="perm_add_{{ perm.permission_id }}">
+                                                <label class="form-check-label small"
+                                                    for="perm_add_{{ perm.permission_id }}">
+                                                    <span class="fw-bold">{{ perm.name.replace('_', ' ').capitalize()
+                                                        }}</span>
+                                                    <br><span class="text-muted" style="font-size: 0.8em;">{{
+                                                        perm.description }}</span>
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fa-solid fa-plus me-2"></i>Create Role
+                                    </button>
+                                </form>
+                                <div class="mt-4 pt-3 border-top">
+                                    <p class="small text-muted mb-0">
+                                        <i class="fa-solid fa-circle-info me-1"></i>
+                                        Core roles (Admin, Customer, Companion) are protected and cannot be deleted or
+                                        renamed.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Role Modal -->
+    <div class="modal fade" id="editRoleModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Edit Role Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editRoleForm" method="POST">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">New Role Name</label>
+                            <input type="text" name="role_name" id="edit_role_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Update Permissions</label>
+                            <div class="permission-grid p-3 bg-light rounded"
+                                style="max-height: 300px; overflow-y: auto;">
+                                {% for perm in permissions %}
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input edit-perm-checkbox" type="checkbox"
+                                        name="permissions" value="{{ perm.permission_id }}"
+                                        id="perm_edit_{{ perm.permission_id }}">
+                                    <label class="form-check-label small" for="perm_edit_{{ perm.permission_id }}">
+                                        <span class="fw-bold">{{ perm.name.replace('_', ' ').capitalize() }}</span>
+                                        <br><span class="text-muted" style="font-size: 0.8em;">{{ perm.description
+                                            }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 p-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Update Role</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const editModal = new bootstrap.Modal(document.getElementById('editRoleModal'));
+
+        function openEditModal(id, name, rolePerms) {
+            document.getElementById('editRoleForm').action = `/admin/roles/edit/${id}`;
+            document.getElementById('edit_role_name').value = name;
+
+            // Clear all checkboxes first
+            document.querySelectorAll('.edit-perm-checkbox').forEach(cb => cb.checked = false);
+
+            // Re-check permissions for this role
+            rolePerms.forEach(permId => {
+                const cb = document.getElementById(`perm_edit_${permId}`);
+                if (cb) cb.checked = true;
+            });
+
+            editModal.show();
+        }
+
+        function confirmDeleteRole(url, name) {
+            Swal.fire({
+                title: 'Delete Role?',
+                text: `Are you sure you want to delete the "${name}" role? This cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

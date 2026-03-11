@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        {% for category, message in messages %}
+                        Swal.fire({
+                            icon: '{{ "success" if category == "success" else "error" if category in ["error", "danger"] else "warning" if category == "warning" else "info" }}',
+                            title: '{{ "Success!" if category == "success" else "Error!" if category in ["error", "danger"] else "Warning!" if category == "warning" else "Notice" }}',
+                            text: {{ message | tojson }},
+                        confirmButtonColor: '{{ "#10b981" if category == "success" else "#ef4444" if category in ["error", "danger"] else "#f59e0b" if category == "warning" else "#3b82f6" }}',
+                        timer: 4000,
+                        timerProgressBar: true,
+                        });
+                    {% endfor %}
+                    });
+                </script>
+                {% endif %}
+                {% endwith %}
+
+                {% set header_title = 'Users Management' %}
+{% include 'admin/header.html' with context %}
+
+                <div class="row g-4 mt-2">
+                    <!-- Left Column: User Table -->
+                    <div class="col-lg-9">
+                        <!-- Active Filters HUD -->
+                        {% if search_query or role_filter %}
+                        <div
+                            class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between mb-4 py-2 px-3">
+                            <div>
+                                <i class="fa-solid fa-filter me-2"></i>
+                                <span class="small">
+                                    Showing results for {% if search_query %}"<strong>{{ search_query }}</strong>"{%
+                                    endif %}
+                                    {% if role_filter %}
+                                    {% for role in roles %}
+                                    {% if role.role_id|string == role_filter|string %}
+                                    Role: <strong>{{ role.role_name }}</strong>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    ({{ users|length }} results)
+                                </span>
+                            </div>
+                            <a href="{{ url_for('users') }}"
+                                class="btn btn-sm btn-link text-info p-0 text-decoration-none small">Clear All</a>
+                        </div>
+                        {% endif %}
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-4">User</th>
+                                                <th>Role</th>
+                                                <th>Contact</th>
+                                                <th>Joined</th>
+                                                <th>Status</th>
+                                                <th class="pe-4 text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for user in users %}
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        {% set profile_photo = none %}
+                                                        {% if user.customer_profile and
+                                                        user.customer_profile.profile_photo %}
+                                                        {% set profile_photo = user.customer_profile.profile_photo %}
+                                                        {% elif user.companion_profile and user.companion_profile.photos
+                                                        %}
+                                                        {% set primary =
+                                                        user.companion_profile.photos|selectattr('is_primary',
+                                                        'true')|first %}
+                                                        {% if primary %}{% set profile_photo = primary.photo_url %}{%
+                                                        endif %}
+                                                        {% endif %}
+
+                                                        {% if profile_photo %}
+                                                        <img src="{{ profile_photo }}" class="rounded-circle me-2"
+                                                            style="width: 32px; height: 32px; object-fit: cover;">
+                                                        {% else %}
+                                                        <i class="fa-solid fa-circle-user text-secondary me-2"
+                                                            style="font-size: 1.5rem;"></i>
+                                                        {% endif %}
+                                                        <div>
+                                                            <div class="small fw-bold">{{
+                                                                user.email.split('@')[0]|capitalize }}</div>
+                                                            <div class="text-muted" style="font-size: 0.7rem;">ID: {{
+                                                                user.user_id }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge {% if user.role.role_name == 'Admin' %}bg-danger{% elif user.role.role_name == 'Companion' %}bg-primary{% else %}bg-info{% endif %} small">
+                                                        {{ user.role.role_name }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="small">{{ user.email }}</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;">{{ user.phone or
+                                                        'No Phone' }}</div>
+                                                </td>
+                                                <td class="small">{{ user.created_at.strftime('%b %d, %Y') if
+                                                    user.created_at else 'N/A' }}</td>
+                                                <td>
+                                                    {% if user.status.value == 'ACTIVE' %}
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle small px-2">Active</span>
+                                                    {% elif user.status.value == 'SUSPENDED' %}
+                                                    <span
+                                                        class="badge bg-warning-subtle text-warning border border-warning-subtle small px-2">Suspended</span>
+                                                    {% else %}
+                                                    <span
+                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle small px-2">Banned</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="pe-4 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light border-0" type="button"
+                                                            data-bs-toggle="dropdown">
+                                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ url_for('edit_user', user_id=user.user_id) }}">
+                                                                    <i
+                                                                        class="fa-solid fa-pen-to-square me-2 text-primary"></i>Edit
+                                                                    User Account</a>
+                                                            </li>
+
+                                                            {% if user.role.role_name == 'Companion' %}
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ url_for('view_companion_detail', id=user.companion_profile.companion_id if user.companion_profile else 0) }}">
+                                                                    <i class="fa-solid fa-eye me-2 text-info"></i>View
+                                                                    Profile Details</a></li>
+                                                            {% elif user.role.role_name == 'Customer' %}
+                                                            <li><a class="dropdown-item" href="#"
+                                                                    onclick="viewCustomerProfile({{ user.user_id }})">
+                                                                    <i class="fa-solid fa-eye me-2 text-info"></i>View
+                                                                    Profile Details</a></li>
+                                                            {% endif %}
+
+                                                            <li>
+                                                                <hr class="dropdown-divider">
+                                                            </li>
+                                                            <li><a class="dropdown-item text-danger" href="#"
+                                                                    onclick="confirmDelete('{{ url_for('delete_user', user_id=user.user_id) }}', '{{ user.email }}')">
+                                                                    <i class="fa-solid fa-trash-can me-2"></i>Delete
+                                                                    User Account</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Sidebar Actions & Filters -->
+                    <div class="col-lg-3">
+                        <div class="sticky-top" style="top: 2rem; z-index: 10;">
+                            <!-- Primary Action -->
+                            <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+                                <div class="card-body p-4 text-center">
+                                    <i class="fa-solid fa-user-plus fa-2x mb-3 opacity-75"></i>
+                                    <h6 class="fw-bold mb-3">Add Register User</h6>
+                                    <a href="{{ url_for('add_user') }}" class="btn btn-light w-100 fw-bold">
+                                        <i class="fa-solid fa-plus me-2"></i>Create New
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Search & Filter Card -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-4">
+                                    <form method="GET" action="{{ url_for('users') }}" id="filterForm">
+                                        <div class="mb-4">
+                                            <label
+                                                class="form-label small fw-bold text-muted text-uppercase">Search</label>
+                                            <div class="input-group input-group-sm">
+                                                <span class="input-group-text bg-light border-end-0"><i
+                                                        class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                                <input type="text" class="form-control border-start-0 ps-0"
+                                                    placeholder="Email or phone..." name="search"
+                                                    value="{{ search_query }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label class="form-label small fw-bold text-muted text-uppercase">Filter by
+                                                Role</label>
+                                            <select class="form-select form-select-sm" name="role"
+                                                onchange="this.form.submit()">
+                                                <option value="">All Roles</option>
+                                                {% for role in roles %}
+                                                <option value="{{ role.role_id }}" {% if
+                                                    role_filter|string==role.role_id|string %}selected{% endif %}>
+                                                    {{ role.role_name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="pt-2 border-top">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="text-muted small">Total Records</span>
+                                                <span class="fw-bold small">{{ users|length }}</span>
+                                            </div>
+                                            <a href="{{ url_for('users') }}"
+                                                class="btn btn-sm btn-outline-danger w-100 mt-3">
+                                                <i class="fa-solid fa-rotate-right me-2"></i>Reset Filters
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function viewCustomerProfile(userId) {
+            window.location.href = `/admin/customers/view/${userId}`;
+        }
+
+        function confirmDelete(deleteUrl, userEmail) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to delete user: ${userEmail}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

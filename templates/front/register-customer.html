@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+
+<body class="auth-page">
+    {% include 'front/header.html' %}
+
+    <section class="py-5 bg-light min-vh-100">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-lg rounded-4">
+                        <div class="card-body p-5">
+                            <h2 class="text-center mb-4">Customer Registration</h2>
+
+                            <!-- Step Indicator -->
+                            <div class="step-indicator">
+                                <div class="step active" data-step="1">
+                                    <div class="step-number">1</div>
+                                    <small>Basic Info</small>
+                                </div>
+                                <div class="step" data-step="2">
+                                    <div class="step-number">2</div>
+                                    <small>Profile</small>
+                                </div>
+                            </div>
+
+                            <form id="customerRegistrationForm" class="auth-form" novalidate>
+                                <!-- Step 1: Basic Account Info -->
+                                <div class="form-step active" data-step="1">
+                                    <h4 class="mb-4">Basic Account Information</h4>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                                            <input type="email" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone Number <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="tel" class="form-control" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Password <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Confirm Password <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="password" class="form-control" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Date of Birth <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" required>
+                                            <small class="text-muted">Must be 18 years or older</small>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                            <select class="form-select" required>
+                                                <option value="">Select...</option>
+                                                <option>Male</option>
+                                                <option>Female</option>
+                                                <option>Other</option>
+                                                <option>Prefer not to say</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-4">
+                                        <button type="button" class="btn btn-primary px-5" onclick="nextStep()">Next
+                                            <i class="fas fa-arrow-right ms-2"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Profile Information -->
+                                <div class="form-step" data-step="2">
+                                    <h4 class="mb-4">Profile Information</h4>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Profile Photo (Optional)</label>
+                                        <input type="file" class="form-control" accept="image/*">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Location / City <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Short Bio (Optional)</label>
+                                        <textarea class="form-control" rows="3" maxlength="500"></textarea>
+                                        <small class="text-muted">Tell us a bit about yourself (max 500
+                                            characters)</small>
+                                    </div>
+
+                                    <hr class="my-4">
+
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                            <label class="form-check-label" for="agreeTerms">
+                                                I agree to the <a href="#" class="text-primary">Terms &
+                                                    Conditions</a>
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="agreeConduct" required>
+                                            <label class="form-check-label" for="agreeConduct">
+                                                I agree to the <a href="#" class="text-primary">Code of Conduct</a>
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between mt-4">
+                                        <button type="button" class="btn btn-outline-secondary px-5"
+                                            onclick="prevStep()"><i class="fas fa-arrow-left me-2"></i>
+                                            Back</button>
+                                        <button type="submit" class="btn btn-primary px-5"><i
+                                                class="fas fa-check me-2"></i> Complete Registration</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        let currentStep = 1;
+
+        function nextStep() {
+            if (currentStep < 2) {
+                // Validate Step 1 required fields
+                const currentStepElement = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+                const requiredInputs = currentStepElement.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+                let firstInvalidField = null;
+
+                requiredInputs.forEach(input => {
+                    // Remove previous validation state
+                    input.classList.remove('is-invalid', 'is-valid');
+
+                    // Check if field is empty
+                    if (!input.value.trim()) {
+                        input.classList.add('is-invalid');
+                        isValid = false;
+                        if (!firstInvalidField) firstInvalidField = input;
+
+                        // Add error message if not exists
+                        if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('invalid-feedback')) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'invalid-feedback';
+                            errorDiv.textContent = 'This field is required';
+                            input.parentNode.appendChild(errorDiv);
+                        }
+                    } else {
+                        input.classList.add('is-valid');
+                        // Remove error message if exists
+                        if (input.nextElementSibling && input.nextElementSibling.classList.contains('invalid-feedback')) {
+                            input.nextElementSibling.remove();
+                        }
+                    }
+                });
+
+                // Check password match
+                const password = currentStepElement.querySelector('input[type="password"]');
+                const confirmPassword = currentStepElement.querySelectorAll('input[type="password"]')[1];
+                if (password && confirmPassword && password.value && confirmPassword.value) {
+                    if (password.value !== confirmPassword.value) {
+                        confirmPassword.classList.add('is-invalid');
+                        confirmPassword.classList.remove('is-valid');
+                        isValid = false;
+
+                        const errorDiv = confirmPassword.nextElementSibling;
+                        if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+                            errorDiv.textContent = 'Passwords do not match';
+                        } else {
+                            const newErrorDiv = document.createElement('div');
+                            newErrorDiv.className = 'invalid-feedback';
+                            newErrorDiv.textContent = 'Passwords do not match';
+                            confirmPassword.parentNode.appendChild(newErrorDiv);
+                        }
+                    }
+                }
+
+                if (!isValid) {
+                    // Shake animation
+                    currentStepElement.style.animation = 'shake 0.5s';
+                    setTimeout(() => {
+                        currentStepElement.style.animation = '';
+                    }, 500);
+
+                    // Focus first invalid field
+                    if (firstInvalidField) {
+                        firstInvalidField.focus();
+                    }
+                    return;
+                }
+
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+                currentStep++;
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+                currentStep--;
+                document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('completed');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        document.getElementById('customerRegistrationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Check if required checkboxes on final step are checked
+            const agreeTerms = document.getElementById('agreeTerms');
+            const agreeConduct = document.getElementById('agreeConduct');
+
+            // Remove any previous error styling
+            agreeTerms.classList.remove('is-invalid');
+            agreeConduct.classList.remove('is-invalid');
+
+            let hasError = false;
+            let errorMessage = '';
+
+            if (!agreeTerms.checked) {
+                agreeTerms.classList.add('is-invalid');
+                hasError = true;
+                errorMessage = 'Please agree to the Terms & Conditions';
+            }
+
+            if (!agreeConduct.checked) {
+                agreeConduct.classList.add('is-invalid');
+                hasError = true;
+                if (errorMessage) errorMessage += ' and Code of Conduct';
+                else errorMessage = 'Please agree to the Code of Conduct';
+            }
+
+            if (hasError) {
+                // Shake animation for checkboxes
+                const checkboxContainer = document.querySelector('.form-step.active');
+                checkboxContainer.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    checkboxContainer.style.animation = '';
+                }, 500);
+
+                // Scroll to first error
+                if (!agreeTerms.checked) {
+                    agreeTerms.focus();
+                } else if (!agreeConduct.checked) {
+                    agreeConduct.focus();
+                }
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Processing...';
+
+            // Simulate form submission (in production, this would send data to server)
+            setTimeout(() => {
+                window.location.href = 'registration-success.html?type=customer';
+            }, 1000);
+        });
+
+        // Clear validation errors when checkboxes are checked
+        document.getElementById('agreeTerms').addEventListener('change', function () {
+            this.classList.remove('is-invalid');
+        });
+
+        document.getElementById('agreeConduct').addEventListener('change', function () {
+            this.classList.remove('is-invalid');
+        });
+    </script>
+    {% include 'front/scripts.html' %}
+</body>
+
+</html>

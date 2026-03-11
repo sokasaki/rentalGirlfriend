@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                {% set header_title = 'Bookings Management' %}
+{% include 'admin/header.html' with context %}
+
+                <div class="row g-4 mt-2">
+                    <!-- Left Column: Results -->
+                    <div class="col-lg-9">
+                        <!-- Active Filters HUD -->
+                        {% if search_query or status_filter %}
+                        <div
+                            class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between mb-4 py-2 px-3">
+                            <div>
+                                <i class="fa-solid fa-filter me-2"></i>
+                                <span class="small">
+                                    Showing {% if status_filter %}<strong>{{ status_filter }}</strong>{% endif %}
+                                    {% if search_query %}results for "<strong>{{ search_query }}</strong>"{% else
+                                    %}bookings{% endif %}
+                                    ({{ bookings|length }})
+                                </span>
+                            </div>
+                            <a href="{{ url_for('bookings') }}"
+                                class="btn btn-sm btn-link text-info p-0 text-decoration-none small">Clear</a>
+                        </div>
+                        {% endif %}
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-4">ID</th>
+                                                <th>Client</th>
+                                                <th>Companion</th>
+                                                <th>Schedule</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th class="pe-4 text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if bookings %}
+                                            {% for booking in bookings %}
+                                            <tr>
+                                                <td class="ps-4 fw-bold">
+                                                    <a href="{{ url_for('view_booking', booking_id=booking.id) }}"
+                                                        class="text-decoration-none">
+                                                        {{ booking.booking_id or '#' ~ booking.id }}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if booking.customer_avatar %}
+                                                        <img src="{{ booking.customer_avatar }}"
+                                                            class="rounded-circle me-2" width="32" height="32"
+                                                            style="object-fit: cover;" alt="">
+                                                        {% else %}
+                                                        <i class="fa-solid fa-circle-user text-secondary me-2"
+                                                            style="font-size: 1.5rem;"></i>
+                                                        {% endif %}
+                                                        <span class="small">{{ booking.customer_name or 'N/A' }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if booking.companion_avatar %}
+                                                        <img src="{{ booking.companion_avatar }}"
+                                                            class="rounded-circle me-2" width="32" height="32"
+                                                            style="object-fit: cover;" alt="">
+                                                        {% else %}
+                                                        <i class="fa-solid fa-circle-user text-secondary me-2"
+                                                            style="font-size: 1.5rem;"></i>
+                                                        {% endif %}
+                                                        <span class="small">{{ booking.companion_name or 'N/A' }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="small fw-semibold">{{ booking.booking_date.strftime('%b
+                                                        %d') if booking.booking_date else 'N/A' }}</div>
+                                                    <div class="text-light small" style="font-size: 0.75rem;">{{
+                                                        booking.booking_time or 'TBD' }}</div>
+                                                </td>
+                                                <td class="small fw-bold text-dark">${{ "{:.0f}".format(booking.amount
+                                                    or 0) }}</td>
+                                                <td>
+                                                    {% if booking.status == 'PENDING' %}
+                                                    <span class="badge badge-pending">Pending</span>
+                                                    {% elif booking.status == 'CONFIRMED' %}
+                                                    <span class="badge badge-confirmed">Confirmed</span>
+                                                    {% elif booking.status == 'COMPLETED' %}
+                                                    <span class="badge badge-completed">Completed</span>
+                                                    {% elif booking.status == 'CANCELLED' %}
+                                                    <span class="badge badge-danger">Cancelled</span>
+                                                    {% else %}
+                                                    <span class="badge bg-secondary">{{ booking.status }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="pe-4 text-end">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm dropdown-toggle" type="button"
+                                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0">
+                                                            <li><a class="dropdown-item"
+                                                                    href="{{ url_for('view_booking', booking_id=booking.id) }}"><i
+                                                                        class="fa-solid fa-eye me-2 text-primary"></i>View
+                                                                    Details</a></li>
+                                                            {% if booking.status not in ['CANCELLED', 'COMPLETED',
+                                                            'REJECTED'] %}
+                                                            <li><a class="dropdown-item" href="#"
+                                                                    onclick="cancelBooking('{{ booking.id }}')"><i
+                                                                        class="fa-solid fa-circle-xmark me-2 text-warning"></i>Cancel
+                                                                    Booking</a></li>
+                                                            {% endif %}
+                                                            <li>
+                                                                <hr class="dropdown-divider">
+                                                            </li>
+                                                            <li><a class="dropdown-item text-danger" href="#"
+                                                                    onclick="deleteBooking('{{ booking.id }}')"><i
+                                                                        class="fa-solid fa-trash-can me-2"></i>Delete
+                                                                    Record</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="7" class="text-center py-5">
+                                                    <i
+                                                        class="fa-solid fa-calendar-xmark text-muted fa-3x mb-3 opacity-25"></i>
+                                                    <p class="text-muted">No bookings found matching your request.</p>
+                                                </td>
+                                            </tr>
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Stats & Filters -->
+                    <div class="col-lg-3">
+                        <div class="sticky-top" style="top: 2rem; z-index: 10;">
+                            <!-- Compact Stats -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-3 text-muted small text-uppercase">Booking Statistics</h6>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">Total</span>
+                                            <span class="fw-bold">{{ "{:,}".format(total_bookings or 0) }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">Pending</span>
+                                            <span class="fw-bold text-warning">{{ pending_bookings_count or 0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-warning"
+                                                style="width: {% if total_bookings %}{{ (pending_bookings_count / total_bookings * 100)|int }}{% else %}0{% endif %}%">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">Confirmed</span>
+                                            <span class="fw-bold text-info">{{ confirmed_bookings_count or 0 }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-info"
+                                                style="width: {% if total_bookings %}{{ (confirmed_bookings_count / total_bookings * 100)|int }}{% else %}0{% endif %}%">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small">Completed</span>
+                                            <span class="fw-bold text-success">{{ completed_bookings_count or 0
+                                                }}</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-success"
+                                                style="width: {% if total_bookings %}{{ (completed_bookings_count / total_bookings * 100)|int }}{% else %}0{% endif %}%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Search & Filters -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-4">
+                                    <h6 class="fw-bold mb-3 text-muted small text-uppercase">Filters & Search</h6>
+
+                                    <form method="GET" action="{{ url_for('bookings') }}" id="filterForm">
+                                        <div class="mb-3">
+                                            <label class="form-label small">Search</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    placeholder="Client or companion..." name="search"
+                                                    value="{{ search_query }}">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary"><i
+                                                        class="fa-solid fa-magnifying-glass"></i></button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label small">Status</label>
+                                            <div class="d-flex flex-column gap-2">
+                                                <a href="{{ url_for('bookings', search=search_query) }}"
+                                                    class="btn btn-sm text-start {% if not status_filter %}btn-primary{% else %}btn-outline-secondary border-0{% endif %}">
+                                                    <i class="fa-solid fa-calendar me-2"></i> All Bookings
+                                                </a>
+                                                <a href="{{ url_for('bookings', status='PENDING', search=search_query) }}"
+                                                    class="btn btn-sm text-start {% if status_filter == 'PENDING' %}btn-warning text-white{% else %}btn-outline-secondary border-0{% endif %}">
+                                                    <i class="fa-solid fa-clock me-2"></i> Pending
+                                                </a>
+                                                <a href="{{ url_for('bookings', status='CONFIRMED', search=search_query) }}"
+                                                    class="btn btn-sm text-start {% if status_filter == 'CONFIRMED' %}btn-info text-white{% else %}btn-outline-secondary border-0{% endif %}">
+                                                    <i class="fa-solid fa-circle-check me-2"></i> Confirmed
+                                                </a>
+                                                <a href="{{ url_for('bookings', status='COMPLETED', search=search_query) }}"
+                                                    class="btn btn-sm text-start {% if status_filter == 'COMPLETED' %}btn-success text-white{% else %}btn-outline-secondary border-0{% endif %}">
+                                                    <i class="fa-solid fa-check-double me-2"></i> Completed
+                                                </a>
+                                                <a href="{{ url_for('bookings', status='CANCELLED', search=search_query) }}"
+                                                    class="btn btn-sm text-start {% if status_filter == 'CANCELLED' %}btn-danger text-white{% else %}btn-outline-secondary border-0{% endif %}">
+                                                    <i class="fa-solid fa-circle-xmark me-2"></i> Cancelled
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        {% if search_query or status_filter %}
+                                        <a href="{{ url_for('bookings') }}" class="btn btn-sm btn-outline-danger w-100">
+                                            <i class="fa-solid fa-rotate-right me-2"></i>Reset All
+                                        </a>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function cancelBooking(id) {
+                Swal.fire({
+                    title: 'Cancel Booking?',
+                    text: `Are you sure you want to cancel booking #${id}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/admin/bookings/cancel/${id}`;
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            }
+
+            function deleteBooking(id) {
+                Swal.fire({
+                    title: 'Delete Booking?',
+                    text: `Are you sure you want to delete booking #${id}? This cannot be undone!`,
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `/admin/bookings/delete/${id}`;
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            }
+        </script>
+</body>
+
+</html>

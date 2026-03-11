@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #FF758C 0%, #FFAD71 100%);
+            --soft-pink: #FF758C;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --light-gray: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-gray);
+        }
+
+        /* Typography Scaling */
+        h1 {
+            font-size: calc(1.5rem + 1vw);
+        }
+
+        .fw-bold {
+            color: #2d3436;
+        }
+
+        /* Responsive Card */
+        .receipt-card {
+            border-radius: 1.5rem;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Icon Styling */
+        .icon-box {
+            background-color: #FFEDF0;
+            width: 70px;
+            height: 70px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Table */
+        .table td {
+            padding: 0.75rem 0;
+            border: none;
+        }
+
+        .border-top-dashed {
+            border-top: 2px dashed #eee !important;
+        }
+
+        /* Custom Buttons */
+        .btn-primary {
+            background: var(--primary-gradient) !important;
+            border: none !important;
+            padding: 12px 30px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 117, 140, 0.3);
+        }
+
+        .text-primary {
+            color: var(--soft-pink) !important;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem !important;
+            }
+
+            .receipt-header {
+                text-align: center;
+            }
+
+            .info-label {
+                font-size: 0.75rem;
+            }
+
+            .info-value {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .btn,
+            .auth-page::before {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .receipt-card {
+                box-shadow: none;
+                border: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+
+<body class="auth-page">
+    <section class="py-4 py-md-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+
+                    <div class="text-center mb-4">
+                        <div class="icon-box">
+                            <i class="fas fa-receipt" style="font-size: 2rem; color: var(--soft-pink);"></i>
+                        </div>
+                        <h1 class="fw-extrabold mb-1">Payment Receipt</h1>
+                        <p class="text-muted small">Transaction successful</p>
+                    </div>
+
+                    <div class="card receipt-card mb-4">
+                        <div class="card-body p-4 p-md-5">
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="text-muted small text-uppercase fw-bold info-label">Receipt ID</div>
+                                    <div class="fw-bold info-value">#PAY-{{ payment.payment_id }}</div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <div class="text-muted small text-uppercase fw-bold info-label">Date</div>
+                                    <div class="fw-bold info-value">{{ (payment.paid_at or
+                                        booking.start_time).strftime('%b %d, %Y') }}</div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4" style="opacity: 0.1;">
+
+                            <div class="row g-4 mb-4">
+                                <div class="col-6">
+                                    <div class="text-muted small info-label">Customer</div>
+                                    <div class="fw-bold info-value text-truncate">{{ customer.full_name }}</div>
+                                </div>
+                                <div class="col-6 text-end text-md-start">
+                                    <div class="text-muted small info-label">Companion</div>
+                                    <div class="fw-bold info-value text-truncate">{{ companion.display_name }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small info-label">Duration</div>
+                                    <div class="fw-bold info-value">{{ duration_hours|round(1) }} hours</div>
+                                </div>
+                                <div class="col-6 text-end text-md-start">
+                                    <div class="text-muted small info-label">Method</div>
+                                    <div class="fw-bold info-value">{{ payment.method.value if payment.method else
+                                        'CARD' }}</div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="text-muted small info-label">Location</div>
+                                    <div class="fw-bold info-value"><i
+                                            class="fas fa-map-marker-alt me-1 text-muted"></i> {{
+                                        booking.meeting_location or 'Not specified' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-muted">Base Amount</td>
+                                            <td class="text-end fw-bold">${{ '{:,.2f}'.format(base_amount) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Service Fee (10%)</td>
+                                            <td class="text-end fw-bold">${{ '{:,.2f}'.format(service_fee) }}</td>
+                                        </tr>
+                                        <tr class="border-top-dashed">
+                                            <td class="pt-3 fw-bold fs-5">Total Paid</td>
+                                            <td class="pt-3 text-end fw-bold fs-5 text-primary">${{
+                                                '{:,.2f}'.format(total_amount) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-2 d-print-none">
+                                <span
+                                    class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+                                    <i class="fas fa-check-circle me-1"></i> PAID
+                                </span>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm rounded-pill"
+                                        onclick="downloadPDF()">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF
+                                    </button>
+                                    <button class="btn btn-link text-decoration-none text-muted small"
+                                        onclick="window.print()">
+                                        <i class="fas fa-print me-1"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center d-print-none">
+                        <a href="{{ url_for('dashboard_customer') }}"
+                            class="btn btn-primary rounded-pill w-100 w-md-auto px-5">
+                            Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            const element = document.querySelector('.receipt-card');
+            const opt = {
+                margin: 0.5,
+                filename: 'Receipt-PAY-{{ payment.payment_id }}.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+    {% include 'front/scripts.html' %}
+</body>
+
+</html>

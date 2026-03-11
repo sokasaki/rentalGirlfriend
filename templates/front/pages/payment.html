@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --khqr-red: #e11d27;
+            --ticket-bg: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #777777;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* Premium Transitions */
+        * {
+            transition: all 0.2s ease;
+        }
+
+        /* Voucher Container */
+        .voucher-container {
+            display: flex;
+            max-width: 750px;
+            background: var(--ticket-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            margin: 20px auto;
+            border: 1px solid #eee;
+        }
+
+        /* Left Section: Details */
+        .voucher-info {
+            flex: 1.5;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .bakong-logo {
+            width: 80%;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            margin-bottom: 16px;
+        }
+
+        .label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .value {
+            font-size: 22px;
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .currency-row {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .currency-symbol {
+            font-weight: lighter;
+            color: var(--khqr-red);
+            font-size: 20px;
+        }
+
+        .currency-value {
+            font-size: 22px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        /* The Perforated Divider */
+        .voucher-divider {
+            width: 2px;
+            border-left: 2px dashed #ddd;
+            position: relative;
+            margin: 0;
+        }
+
+        /* Top and Bottom Notch Cutouts */
+        .voucher-divider::before,
+        .voucher-divider::after {
+            content: "";
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #f0f2f5;
+            border-radius: 50%;
+            left: -13px;
+        }
+
+        .voucher-divider::before {
+            top: -12px;
+        }
+
+        .voucher-divider::after {
+            bottom: -12px;
+        }
+
+        /* Right Section: QR Code */
+        .voucher-qr-pane {
+            flex: 1;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+        }
+
+        .khqr-box {
+            width: 100%;
+            border: 1px solid #eee;
+            border-radius: 15px;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .khqr-header {
+            background: var(--khqr-red);
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .khqr-header img {
+            height: 24px;
+        }
+
+        .qr-code-area {
+            padding: 12px;
+            background: white;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+        }
+
+        .main-qr {
+            width: 240px;
+            height: auto;
+            display: block;
+        }
+
+        .qr-label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Payment Method Cards */
+        .payment-method-card {
+            background: white;
+            border: 2px solid #edf2f7;
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-method-card:hover {
+            border-color: var(--app-primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .payment-method-card.selected {
+            border-color: var(--app-primary);
+            background: var(--app-primary-soft);
+        }
+
+        .payment-method-card.selected::after {
+            content: "\f058";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--app-primary);
+            font-size: 1.25rem;
+        }
+
+        .payment-icon {
+            width: 48px;
+            height: 48px;
+            background: #f7fafc;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #4a5568;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method-card:hover .payment-icon {
+            background: var(--app-primary);
+            color: white;
+        }
+
+        .payment-method-card.selected .payment-icon {
+            background: var(--app-primary);
+            color: white;
+        }
+
+        /* Order Summary Polish */
+        .order-summary-card {
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+        }
+
+        .promo-code-input {
+            border-radius: 12px 0 0 12px !important;
+            border-color: #edf2f7;
+        }
+
+        .promo-code-btn {
+            border-radius: 0 12px 12px 0 !important;
+        }
+
+        /* Action Pulse */
+        .btn-pay-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(99, 102, 241, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .voucher-container {
+                flex-direction: column;
+                max-width: 100%;
+                margin: 20px 10px;
+            }
+
+            .voucher-divider {
+                display: none;
+            }
+
+            .voucher-divider::before,
+            .voucher-divider::after {
+                display: none;
+            }
+
+            .voucher-info {
+                padding: 25px;
+            }
+
+            .voucher-qr-pane {
+                padding: 20px;
+            }
+
+            .bakong-logo {
+                width: 110px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+
+    <section class="py-5 min-vh-100" style="background: var(--very-light-gray);">
+        <div class="container">
+            <div class="row">
+                <!-- Payment Form -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card border-0 shadow-premium rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-4">
+                                <a href="{{ url_for('profile') }}" class="btn btn-light rounded-circle me-3">
+                                    <i class="fas fa-arrow-left"></i>
+                                </a>
+                                <h3 class="mb-0" style="font-weight: 800; letter-spacing: -0.75px;">Complete Payment
+                                </h3>
+                            </div>
+
+                            <!-- Booking Details Summary -->
+                            <div class="alert alert-light border mb-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <img src="{{ booking.companion.primary_photo.photo_url if booking.companion.primary_photo else url_for('static', filename='images/avatar-placeholder.jpg') }}"
+                                            alt="Companion" class="rounded"
+                                            style="width: 100%; height: 80px; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-10">
+                                        <h6 class="fw-bold mb-1">{{ booking.companion.display_name }}</h6>
+                                        <small class="text-muted">
+                                            <i class="far fa-calendar me-1"></i> {{ booking.start_time.strftime('%A, %b
+                                            %d, %Y') }}
+                                            &nbsp;|&nbsp;
+                                            <i class="far fa-clock me-1"></i> {{ booking.start_time.strftime('%I:%M %p')
+                                            }} - {{ booking.end_time.strftime('%I:%M %p') }} ({{ ((booking.end_time -
+                                            booking.start_time).total_seconds() / 3600)|int }} hours)
+                                            &nbsp;|&nbsp;
+                                            <i class="fas fa-map-marker-alt me-1"></i> {{ booking.meeting_location or
+                                            'Location TBD' }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method Selection -->
+                            <h5 class="fw-bold mb-3">Select Payment Method</h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <div class="payment-method-card" onclick="selectPayment('card', this)">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="paymentMethod" id="cardPayment" value="card"
+                                                class="me-3">
+                                            <div class="payment-icon me-3">
+                                                <i class="fas fa-credit-card"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Credit/Debit Card</h6>
+                                                <small class="text-muted">Visa, Mastercard, Amex</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="payment-method-card" onclick="selectPayment('khqr', this)">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="paymentMethod" id="khqrPayment" value="khqr"
+                                                class="me-3">
+                                            <div class="payment-icon me-3">
+                                                <i class="fas fa-qrcode"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">KHQR</h6>
+                                                <small class="text-muted">QR code payment</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card Payment Form with Stripe Elements -->
+                            <div id="cardForm" style="display: none;">
+                                <h5 class="fw-bold mb-3">Card Details</h5>
+                                <form id="payment-form">
+                                    <div class="mb-3">
+                                        <label class="form-label">Cardholder Name</label>
+                                        <input type="text" id="cardholder-name" class="form-control"
+                                            placeholder="John Doe" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Information</label>
+                                        <div id="card-element" class="form-control"
+                                            style="height: 40px; padding: 10px;">
+                                            <!-- Stripe Element will be inserted here -->
+                                        </div>
+                                        <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- KHQR QR Code Payment Form -->
+                            <div id="khqrForm" style="display: none;">
+                                <div id="khqr-loading" class="text-center py-5" style="display: none;">
+                                    <div class="spinner-border text-danger" role="status"
+                                        style="width: 3rem; height: 3rem;">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-3 text-muted">Generating QR Code...</p>
+                                </div>
+
+                                <div id="khqr-container" style="display: none;">
+                                    <!-- Voucher Container -->
+                                    <div class="voucher-container">
+                                        <!-- Left Section: Merchant Info -->
+                                        <div class="voucher-info">
+                                            <img src="{{ url_for('static', filename='asset/BakongLogo.png') }}"
+                                                alt="KHQR Logo" class="bakong-logo">
+
+                                            <div class="info-row">
+                                                <div class="label">Merchant:</div>
+                                                <div class="value" id="khqr-merchant-name">RentACompanion</div>
+                                            </div>
+
+                                            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+                                            <div class="currency-row">
+                                                <div class="currency-item">
+                                                    <span class="currency-value" id="khqr-amount-khr">100</span>
+                                                    <span class="currency-symbol">KHR</span>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Perforated Divider -->
+                                        <div class="voucher-divider"></div>
+
+                                        <!-- Right Section: QR Code -->
+                                        <div class="voucher-qr-pane">
+                                            <div class="khqr-box">
+                                                <div class="khqr-header">
+                                                    <img src="{{ url_for('static', filename='asset/KHQR Logo.png') }}"
+                                                        alt="KHQR" style="height: 20px;">
+                                                </div>
+                                                <div class="qr-code-area">
+                                                    <img id="qr-code-image" src="" alt="QR Code" class="main-qr">
+                                                </div>
+                                            </div>
+                                            <p class="qr-label">SCAN TO PAY</p>
+                                            <p id="khqr-status" class="qr-label">Waiting for payment...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Billing Information -->
+                            <div class="mt-4">
+                                <h5 class="fw-bold mb-3">Billing Information</h5>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" placeholder="john@example.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" placeholder="+1 (555) 123-4567">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Security Notice -->
+                            <div class="mt-4">
+                                <div class="security-badge">
+                                    <i class="fas fa-lock"></i>
+                                    <span>Secure payment powered by SSL encryption</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-premium rounded-4 order-summary-card">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                            {% set duration_hours = ((booking.end_time - booking.start_time).total_seconds() /
+                            3600)|int
+                            %}
+                            {% set subtotal = booking.total_price|float %}
+                            {% set service_fee = (subtotal * 0.1) %}
+                            {% set total = (subtotal + service_fee) %}
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ duration_hours }} hours @ ${{ booking.companion.rate_per_hour
+                                        }}/hour</span>
+                                    <span class="fw-semibold">${{ "%.2f"|format(subtotal) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service Fee (10%)</span>
+                                    <span class="fw-semibold">${{ "%.2f"|format(service_fee) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 text-success" id="discountRow"
+                                    style="display: none;">
+                                    <span>Discount</span>
+                                    <span class="fw-semibold" id="discountAmount">-$0.00</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Promo Code -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Promo Code</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control promo-code-input"
+                                        placeholder="Enter promo code" id="promoCode">
+                                    <button class="btn btn-outline-primary promo-code-btn" onclick="applyPromo()">
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="fw-bold mb-0">Total</h5>
+                                <h5 class="fw-bold mb-0 text-primary" id="totalAmount">${{ "%.2f"|format(total) }}
+                                </h5>
+                            </div>
+
+                            <input type="hidden" id="bookingId" value="{{ booking.booking_id }}">
+                            <input type="hidden" id="baseTotal" value="{{ " %.2f"|format(total) }}">
+
+                            <button class="btn btn-primary btn-lg w-100 rounded-pill mb-3 btn-pay-pulse"
+                                onclick="processPayment()">
+                                <i class="fas fa-lock me-2"></i>Pay Now
+                            </button>
+
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    By completing this payment, you agree to our
+                                    <a href="#" class="text-primary">Terms & Conditions</a>
+                                </small>
+                            </div>
+
+                            <!-- Payment Methods Accepted -->
+                            <div class="mt-4 pt-4 border-top">
+                                <small class="text-muted d-block mb-2">We accept:</small>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-visa"></i> Visa
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-mastercard"></i> Mastercard
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-amex"></i> Amex
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-qrcode"></i> KHQR
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Processing Modal -->
+    <div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-body text-center p-5">
+                    <div class="position-relative mb-4">
+                        <div class="spinner-border text-primary" role="status"
+                            style="width: 4rem; height: 4rem; border-width: 0.25rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <i class="fas fa-shield-alt text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold mb-2">Securing Transaction...</h5>
+                    <p class="text-muted mb-0">Please do not refresh or close this window.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .spinner-border {
+            animation: spinner-border .75s linear infinite, pulse-border 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <script>
+        // ==========================================
+        // VARIABLE DECLARATIONS - MUST BE AT TOP
+        // ==========================================
+        let cardMounted = false;
+        let clientSecret = null;
+        let khqrPollTimer = null;
+        let khqrMd5 = null;
+
+        // Initialize Stripe
+        const stripe = Stripe('{{ stripe_public_key }}');
+        const elements = stripe.elements();
+
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    fontFamily: 'Inter, sans-serif',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            }
+        });
+
+        function selectPayment(method, el) {
+            // Update radio button
+            document.getElementById(method + 'Payment').checked = true;
+
+            // Update card styles
+            document.querySelectorAll('.payment-method-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            if (el && el.classList) {
+                el.classList.add('selected');
+            }
+
+            // Hide all forms
+            document.getElementById('cardForm').style.display = 'none';
+            document.getElementById('khqrForm').style.display = 'none';
+
+            // Stop KHQR polling when switching away
+            if (method !== 'khqr' && khqrPollTimer) {
+                clearInterval(khqrPollTimer);
+                khqrPollTimer = null;
+            }
+
+            // Show selected form
+            if (method === 'card') {
+                document.getElementById('cardForm').style.display = 'block';
+
+                // Mount Stripe card element only once
+                if (!cardMounted) {
+                    cardElement.mount('#card-element');
+                    cardMounted = true;
+
+                    // Handle real-time validation errors
+                    cardElement.on('change', function (event) {
+                        const displayError = document.getElementById('card-errors');
+                        if (event.error) {
+                            displayError.textContent = event.error.message;
+                        } else {
+                            displayError.textContent = '';
+                        }
+                    });
+                }
+            } else if (method === 'khqr') {
+                document.getElementById('khqrForm').style.display = 'block';
+                generateQRCode(); // Generate QR code when selected
+            }
+        }
+
+        async function generateQRCode() {
+            const bookingId = document.getElementById('bookingId').value;
+            document.getElementById('khqr-loading').style.display = 'block';
+            document.getElementById('khqr-container').style.display = 'none';
+
+            try {
+                const response = await fetch('/khqr/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ booking_id: bookingId })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorMsg = `HTTP ${response.status}`;
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMsg = errorData.error || errorMsg;
+                    } catch {
+                        errorMsg = errorText || errorMsg;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    throw new Error('Invalid response from server: ' + parseError.message);
+                }
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                if (!data.qr_base64 || !data.md5) {
+                    throw new Error('Missing QR code data in response');
+                }
+
+                // Display QR code
+                document.getElementById('qr-code-image').src = 'data:image/png;base64,' + data.qr_base64;
+                khqrMd5 = data.md5;
+
+                // Update amount (KHR only)
+                document.getElementById('khqr-amount-khr').textContent = data.amount;
+                document.getElementById('khqr-status').textContent = 'Waiting for payment...';
+                document.getElementById('khqr-container').style.display = 'block';
+
+                startKhqrPolling();
+
+                document.getElementById('khqr-loading').style.display = 'none';
+            } catch (error) {
+                document.getElementById('khqr-loading').style.display = 'none';
+                alert('Error generating QR code: ' + (error.message || String(error)));
+            }
+        }
+
+        function startKhqrPolling() {
+            if (!khqrMd5) {
+                return;
+            }
+            if (khqrPollTimer) {
+                clearInterval(khqrPollTimer);
+            }
+            khqrPollTimer = setInterval(checkKhqrPayment, 3000);
+        }
+
+        async function checkKhqrPayment() {
+            if (!khqrMd5) {
+                return;
+            }
+            try {
+                const response = await fetch('/khqr/check-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ md5: khqrMd5 })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('khqr-status').textContent = data.error;
+                    return;
+                }
+
+                if (data.redirect) {
+                    clearInterval(khqrPollTimer);
+                    khqrPollTimer = null;
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                document.getElementById('khqr-status').textContent = 'Waiting for payment...';
+            } catch (error) {
+                document.getElementById('khqr-status').textContent = 'Error checking payment';
+            }
+        }
+
+        function applyPromo() {
+            const promoCode = document.getElementById('promoCode').value.trim().toUpperCase();
+            const baseTotal = parseFloat(document.getElementById('baseTotal').value);
+
+            if (promoCode === 'FIRST10') {
+                // Apply 10% discount
+                const discount = baseTotal * 0.1;
+                const newTotal = baseTotal - discount;
+                document.getElementById('totalAmount').textContent = '$' + newTotal.toFixed(2);
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('discountAmount').textContent = '-$' + discount.toFixed(2);
+                alert('Promo code applied! You saved $' + discount.toFixed(2));
+            } else if (promoCode === '') {
+                alert('Please enter a promo code');
+            } else {
+                alert('Invalid promo code');
+            }
+        }
+
+        async function processPayment() {
+            const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
+            if (!selectedPayment) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            // KHQR QR Code payment
+            if (selectedPayment.value === 'khqr') {
+                const bookingId = document.getElementById('bookingId').value;
+                // Redirect to KHQR payment page
+                window.location.href = '/khqr/payment/' + bookingId;
+                return;
+            }
+
+            // Card payment with Stripe
+            if (selectedPayment.value === 'card') {
+                const cardholderName = document.getElementById('cardholder-name').value;
+
+                if (!cardholderName) {
+                    alert('Please enter cardholder name');
+                    return;
+                }
+
+                // Show processing modal
+                const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+                processingModal.show();
+
+                try {
+                    // Create payment intent
+                    const bookingId = document.getElementById('bookingId').value;
+                    const response = await fetch('/create-payment-intent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            booking_id: bookingId
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    clientSecret = data.clientSecret;
+
+                    // Confirm payment with Stripe
+                    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: cardholderName
+                            }
+                        }
+                    });
+
+                    if (error) {
+                        throw new Error(error.message);
+                    }
+
+                    if (paymentIntent.status === 'succeeded') {
+                        // Update booking status
+                        const successResponse = await fetch('/payment-success', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                booking_id: bookingId,
+                                payment_intent_id: paymentIntent.id
+                            })
+                        });
+
+                        const successData = await successResponse.json();
+
+                        if (successData.success) {
+                            processingModal.hide();
+                            window.location.href = successData.redirect;
+                        } else {
+                            throw new Error(successData.error || 'Payment processing failed');
+                        }
+                    }
+
+                } catch (error) {
+                    processingModal.hide();
+                    alert('Payment failed: ' + error.message);
+                    console.error('Payment error:', error);
+                }
+            }
+        }
+    </script>
+    {% include 'front/footer.html' %}
+</body>
+
+</html>

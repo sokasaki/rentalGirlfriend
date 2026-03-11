@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentACompanion - System Documentation</title>
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #ff6b9d;
+            --text-color: #333;
+            --border-color: #ddd;
+            --background-light: #f9f9f9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background-color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            page-break-after: always;
+            padding: 40px;
+        }
+
+        .cover-page h1 {
+            font-size: 3.5em;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border: none;
+            color: white;
+        }
+
+        .cover-page .subtitle {
+            font-size: 1.8em;
+            margin-bottom: 40px;
+            font-weight: 300;
+            opacity: 0.95;
+        }
+
+        .cover-page .metadata {
+            margin-top: 60px;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .cover-page .version {
+            margin-top: 20px;
+            font-size: 1em;
+            opacity: 0.8;
+        }
+
+        /* Table of Contents */
+        .toc-page {
+            page-break-after: always;
+            padding: 10px 0;
+        }
+
+        .toc-title {
+            font-size: 2.5em;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .toc-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-list li {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        .toc-list a {
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+            transition: color 0.3s;
+        }
+
+        .toc-list a:hover {
+            color: var(--primary-color);
+        }
+
+        .toc-list .toc-number {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-right: 15px;
+        }
+
+        .toc-list .toc-dots {
+            flex: 1;
+            border-bottom: 2px dotted #ddd;
+            margin: 0 10px;
+            position: relative;
+            top: -5px;
+        }
+
+        .toc-list .toc-page-num {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Hide page numbers on screen, show only when printing */
+        /* @media screen {
+            .toc-page-num {
+                display: none;
+            }
+
+            .toc-dots {
+                margin-right: 0 !important;
+            }
+        } */
+
+        .toc-list .toc-subsection {
+            margin-left: 40px;
+            font-size: 0.95em;
+            margin-top: 8px;
+        }
+
+        /* Chapter Styling */
+        .chapter {
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .chapter-number {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2em;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #eee;
+            /* padding-bottom: 8px; */
+            /* margin-top: 30px; */
+            /* margin-bottom: 20px; */
+            color: var(--secondary-color);
+        }
+
+        h4 {
+            font-size: 1.2em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            page-break-after: avoid;
+        }
+
+        p {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        ul {
+            margin-bottom: 25px;
+            padding-left: 30px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 0.9em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+        }
+
+        code {
+            background-color: #e2eef9;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+        }
+
+        .print-button:hover {
+            background-color: #ff5a8c;
+            box-shadow: 0 6px 16px rgba(255, 107, 157, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .diagram-container {
+            text-align: center;
+            margin: 15px auto;
+            padding: 15px;
+            background: var(--background-light);
+            border-radius: 8px;
+            page-break-inside: avoid;
+        }
+
+        .diagram-container img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .diagram-caption {
+            color: #666;
+            font-size: 0.95em;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .note-box {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+
+        @media print {
+            @page {
+                margin: 20mm 15mm;
+
+                @bottom-right {
+                    content: counter(page);
+                    font-size: 9pt;
+                    color: #666;
+                }
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-size: 10pt;
+                counter-reset: page;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 10mm;
+            }
+
+            .print-button {
+                display: none;
+            }
+
+            .cover-page {
+                page-break-after: always;
+            }
+
+            .toc-page {
+                page-break-after: always;
+            }
+
+            .chapter {
+                page-break-before: auto;
+                page-break-inside: avoid;
+            }
+
+            h1,
+            h2,
+            h3 {
+                page-break-after: avoid;
+            }
+
+            h4 {
+                margin-top: 15px;
+                margin-bottom: 8px;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+
+            .diagram-container {
+                margin: 10px auto;
+                padding: 10px;
+            }
+
+            h4+p,
+            h4+.diagram-container {
+                page-break-before: avoid;
+            }
+
+            table,
+            .diagram-container {
+                page-break-inside: avoid;
+            }
+
+            th {
+                background-color: var(--primary-color) !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
+            a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+            .toc-dots {
+                border-bottom: 2px dotted #999 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="print-button" onclick="window.print()">📄 Export to PDF</button>
+
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <h1>RentACompanion</h1>
+        <div class="subtitle">Project Documentation</div>
+        <div class="metadata">
+            <p>Prepared by: Nol Piseth</p>
+        </div>
+        <div class="version">
+        </div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc-page">
+        <div class="container">
+            <h1 class="toc-title">Table of Contents</h1>
+            <ul class="toc-list">
+                <li>
+                    <a href="#section-1">
+                        <span><span class="toc-number">i.</span> System Requirement</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">3</span>
+                    </a>
+                    <div class="toc-subsection">
+                        <a href="#req-functional">
+                            <span>Functional Requirements</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">3</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#req-nonfunctional">
+                            <span>Non-Functional Requirements</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">5</span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#section-2">
+                        <span><span class="toc-number">ii.</span> Data Flow Diagram / Use Case Diagram</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">7</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#section-3">
+                        <span><span class="toc-number">iii.</span> Entity Relationship Diagram</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">8</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#section-4">
+                        <span><span class="toc-number">iv.</span> Data Dictionary</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">9</span>
+                    </a>
+                    <div class="toc-subsection">
+                        <a href="#table-roles">
+                            <span>ROLES Table</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">9</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-permissions">
+                            <span>PERMISSIONS Table</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">9</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-role-permissions">
+                            <span>ROLE_PERMISSIONS Table</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">9</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-users">
+                            <span>USERS Table</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">9</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-customers">
+                            <span>CUSTOMER_PROFILES Table</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">10</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-companions">
+                            <span>5.4 Companion Profiles</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">11</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-photos">
+                            <span>5.5 Companion Photos</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">12</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-availability">
+                            <span>5.6 Availability</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">12</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-bookings">
+                            <span>5.7 Bookings</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">13</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-payments">
+                            <span>5.8 Payments</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">13</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-reviews">
+                            <span>5.9 Reviews</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">14</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-favorites">
+                            <span>5.10 Favorites</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">14</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-notifications">
+                            <span>5.11 Notifications</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">15</span>
+                        </a>
+                    </div>
+                    <div class="toc-subsection">
+                        <a href="#table-reports">
+                            <span>5.12 Reports</span>
+                            <span class="toc-dots"></span>
+                            <span class="toc-page-num">15</span>
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <a href="#section-5">
+                        <span><span class="toc-number">v.</span> User Interface</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">16</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#section-6">
+                        <span><span class="toc-number">vi.</span> Test Case</span>
+                        <span class="toc-dots"></span>
+                        <span class="toc-page-num">20</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Section i: System Requirement -->
+        <div class="chapter" id="section-1">
+            <!-- <div class="chapter-number">SECTION i</div> -->
+            <h1>System Requirement</h1>
+            <p>
+                The RentACompanion system is a comprehensive web-based platform that connects customers with verified
+                companions for
+                various social activities including dining, events, studying, and travel. The system facilitates secure
+                bookings, payments, and reviews while ensuring user safety through robust reporting and moderation
+                features.
+            </p>
+
+            <!-- <div class="info-box">
+                <strong>Platform Purpose:</strong> To provide a safe, professional, and user-friendly environment for
+                connecting individuals seeking companionship services with verified service providers.
+            </div> -->
+
+            <!-- <h4>Key Stakeholders</h4>
+            <ul>
+                <li><strong>Customers:</strong> Individuals seeking companionship services for various occasions</li>
+                <li><strong>Companions:</strong> Verified service providers offering their time and presence</li>
+                <li><strong>Administrators:</strong> Platform managers ensuring quality, safety, and system integrity
+                </li>
+            </ul>
+
+            <h4>Core System Capabilities</h4>
+            <ul>
+                <li>User registration and authentication with role-based access control</li>
+                <li>Comprehensive profile management for both customers and companions</li>
+                <li>Advanced search and filtering for companion discovery</li>
+                <li>Real-time booking system with approval workflows</li>
+                <li>Secure payment processing with multiple payment methods</li>
+                <li>Rating and review system for quality assurance</li>
+                <li>Safety reporting mechanism for inappropriate behavior</li>
+                <li>Notification system for real-time updates</li>
+            </ul> -->
+        </div>
+
+        <!-- Functional Requirements -->
+        <h2 id="req-functional" style="margin-top: 50px;">Functional Requirements</h2>
+
+        <h3 id="fr-1">FR-1: User Management</h3>
+        <ul>
+            <li>Users can register using email, phone number, and password</li>
+            <li>Secure login and logout functionality with session management</li>
+            <li>Users can receive real-time notifications about account activities</li>
+            <li>Account status management (active, suspended, banned) based on behavior</li>
+            <!-- <li>Password recovery and account security features</li> -->
+            <li>Role-based access control with granular permissions and dynamic access management</li>
+        </ul>
+
+        <h3 id="fr-2">FR-2: Customer Features</h3>
+        <ul>
+            <li>Browse companion profiles with advanced filtering options</li>
+            <li>View detailed companion information including photos, pricing, ratings, and availability</li>
+            <li>Book companions by selecting specific date, time, and duration</li>
+            <li>Make secure payments for confirmed bookings</li>
+            <li>Leave ratings and reviews after booking completion</li>
+            <li>Save favorite companions for quick access</li>
+            <li>View booking history and payment records</li>
+            <!-- <li>Manage personal profile and preferences</li> -->
+        </ul>
+
+        <h3 id="fr-3">FR-3: Companion Features</h3>
+        <ul>
+            <li>Create and manage detailed public profiles</li>
+            <li>Upload and manage multiple profile photos (up to 10 photos)</li>
+            <li>Set hourly rates and update pricing as needed</li>
+            <li>Define weekly availability schedules with specific time slots</li>
+            <li>Accept or reject booking requests with optional messages</li>
+            <li>View earnings and payment history</li>
+            <li>Receive and respond to customer reviews</li>
+            <li>Manage languages spoken and personality traits</li>
+        </ul>
+
+        <h3 id="fr-4">FR-4: Booking & Payment</h3>
+        <ul>
+            <li>Support for multiple booking statuses: <code>Pending</code>, <code>Approved</code>,
+                <code>Rejected</code>, <code>Paid</code>, <code>Completed</code>
+            </li>
+            <li>Automated price calculation based on hourly rate and duration</li>
+            <li>Secure payment processing with multiple methods (ABA, Card, AC)</li>
+            <li>Payment confirmation and receipt generation</li>
+            <li>Booking cancellation with refund policy enforcement</li>
+            <li>Payment history and transaction records</li>
+        </ul>
+
+        <h3 id="fr-5">FR-5: Safety & Moderation</h3>
+        <ul>
+            <li>Users can report inappropriate behavior or content</li>
+            <li>Administrators can review reports and take appropriate action</li>
+            <li>Notification system informs users about important account activities</li>
+            <li>Companion verification process before profile activation</li>
+            <li>Content moderation for profiles and reviews</li>
+            <li>User suspension and ban capabilities for policy violations</li>
+        </ul>
+
+        <h3 id="fr-6">FR-6: Administrator Features</h3>
+        <ul>
+            <li>Dashboard overview with dynamic sidebar navigation based on user permissions</li>
+            <li>Role management system to create, edit, and delete custom administrative roles (e.g., Staff, Manager)
+            </li>
+            <li>Granular permission assignment (e.g., manage_users, manage_bookings) per role</li>
+            <li>Comprehensive system user management (Add, View, Edit, Delete)</li>
+            <li>Platform analytics and financial reporting visualizations</li>
+            <li>Global platform settings configuration (Platform Name, Fee Percentage)</li>
+            <li>Broadcast system for platform-wide announcements</li>
+        </ul>
+
+        <!-- Non-Functional Requirements -->
+        <h2 id="req-nonfunctional" style="margin-top: 50px;">Non-Functional Requirements</h2>
+
+        <!-- <h3>3.1 Security Requirements</h3>
+        <ul>
+            <li><strong>Password Security:</strong> All passwords must be stored using industry-standard hashing
+                algorithms (bcrypt or Argon2)</li>
+            <li><strong>Data Privacy:</strong> Sensitive personal information accessible only to authorized users
+                and administrators</li>
+            <li><strong>SQL Injection Protection:</strong> All database queries must use prepared statements or
+                parameterized queries</li>
+            <li><strong>XSS Prevention:</strong> Input validation and output encoding for all user-generated content
+            </li>
+            <li><strong>HTTPS:</strong> All data transmission must be encrypted using TLS/SSL certificates</li>
+            <li><strong>Session Management:</strong> Secure session handling with timeout and automatic logout</li>
+        </ul> -->
+
+        <h3>3.1 Performance Requirements</h3>
+        <ul>
+            <li><strong>Page Load Time:</strong> Profile browsing and booking pages should load within 2-3 seconds
+            </li>
+            <!-- <li><strong>Database Queries:</strong> Complex queries should execute within 1 second</li> -->
+            <li><strong>Concurrent Users:</strong> System must support at least 1000 concurrent users</li>
+            <li><strong>Image Loading:</strong> Optimized image delivery with lazy loading and caching</li>
+            <li><strong>API Response Time:</strong> API response time: under 500ms</li>
+        </ul>
+
+        <h3>3.2 Reliability & Availability</h3>
+        <ul>
+            <li><strong>Uptime:</strong> System availability of 99.5% or higher</li>
+            <li><strong>Data Integrity:</strong> Referential integrity maintained through foreign key constraints
+            </li>
+            <li><strong>Backup:</strong> Daily automated database backups with 30-day retention</li>
+            <li><strong>Error Handling:</strong> Graceful error handling with user-friendly messages</li>
+            <li><strong>Transaction Management:</strong> ACID compliance for all financial transactions</li>
+        </ul>
+
+        <h3>3.3 Usability Requirements</h3>
+        <ul>
+            <li><strong>Interface Design:</strong> Clean, intuitive, and mobile-responsive interface</li>
+            <!-- <li><strong>Accessibility:</strong> WCAG 2.1 Level AA compliance for accessibility</li> -->
+            <li><strong>Learning Curve:</strong> New users should be able to complete a booking within 5 minutes
+            </li>
+            <li><strong>Error Messages:</strong> Clear and actionable error messages for all failures</li>
+            <li><strong>Help System:</strong> Contextual help and FAQs for common tasks</li>
+        </ul>
+
+        <h3>3.4 Scalability & Maintainability</h3>
+        <ul>
+            <li><strong>Database Design:</strong> Normalized database structure supporting future growth</li>
+            <li><strong>Code Quality:</strong> Well-documented, modular code following best practices</li>
+            <li><strong>Horizontal Scaling:</strong> Architecture supporting load balancing and replication</li>
+            <!-- <li><strong>API Versioning:</strong> RESTful APIs with version control for backward compatibility</li>
+            <li><strong>Monitoring:</strong> Application and database performance monitoring</li> -->
+        </ul>
+    </div>
+
+    <!-- Section ii: Data Flow Diagram / Use Case Diagram -->
+    <div class="chapter" id="section-2">
+        <!-- <div class="chapter-number">SECTION ii</div> -->
+        <h1>Data Flow Diagram / Use Case Diagram</h1>
+
+        <!-- <p>
+            The RentACompanion system follows a modern three-tier architecture pattern, ensuring separation of
+            concerns,
+            maintainability, and scalability. This chapter provides a comprehensive overview of the system's
+            architectural
+            design, component interactions, and technology stack.
+        </p>
+
+        <h3>4.1 Architecture Overview</h3>
+
+        <h4>4.1.1 Three-Tier Architecture Pattern</h4>
+        <p>
+            The system is structured into three distinct layers, each with specific responsibilities:
+        </p>
+
+        <div class="info-box">
+            <strong>Layer 1: Presentation Layer (Frontend)</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0;">
+                <li><strong>Technology:</strong> HTML5, CSS3, JavaScript (ES6+), Bootstrap 5</li>
+                <li><strong>Purpose:</strong> User interface and user experience</li>
+                <li><strong>Components:</strong> Web pages, forms, dashboards, responsive layouts</li>
+                <li><strong>Responsibilities:</strong> User interaction, input validation, data presentation,
+                    routing</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="margin-top: 20px;">
+            <strong>Layer 2: Application Layer (Backend)</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0;">
+                <li><strong>Technology:</strong> Node.js / PHP / Python (framework to be determined)</li>
+                <li><strong>Purpose:</strong> Business logic and data processing</li>
+                <li><strong>Components:</strong> RESTful APIs, authentication services, payment gateway integration
+                </li>
+                <li><strong>Responsibilities:</strong> Request handling, business rules, data validation, security
+                    enforcement</li>
+            </ul>
+        </div>
+
+        <div class="info-box" style="margin-top: 20px;">
+            <strong>Layer 3: Data Layer (Database)</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0;">
+                <li><strong>Technology:</strong> MySQL / MariaDB with InnoDB storage engine</li>
+                <li><strong>Purpose:</strong> Data persistence and management</li>
+                <li><strong>Components:</strong> 12 relational tables, indexes, constraints, stored procedures</li>
+                <li><strong>Responsibilities:</strong> Data storage, retrieval, integrity enforcement, transaction
+                    management</li>
+            </ul>
+        </div>
+
+        <h4>4.1.2 System Components</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Technology</th>
+                    <th>Purpose</th>
+                    <th>Key Features</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Web Server</strong></td>
+                    <td>Nginx / Apache</td>
+                    <td>HTTP request handling</td>
+                    <td>Load balancing, SSL/TLS, static file serving</td>
+                </tr>
+                <tr>
+                    <td><strong>Application Server</strong></td>
+                    <td>Node.js / PHP-FPM</td>
+                    <td>Business logic execution</td>
+                    <td>API endpoints, authentication, authorization</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Server</strong></td>
+                    <td>MySQL 8.0+</td>
+                    <td>Data persistence</td>
+                    <td>ACID transactions, replication, backup</td>
+                </tr>
+                <tr>
+                    <td><strong>Cache Layer</strong></td>
+                    <td>Redis / Memcached</td>
+                    <td>Performance optimization</td>
+                    <td>Session storage, query caching, rate limiting</td>
+                </tr>
+                <tr>
+                    <td><strong>File Storage</strong></td>
+                    <td>Local / S3-compatible</td>
+                    <td>Media file management</td>
+                    <td>Profile photos, upload handling, CDN integration</td>
+                </tr>
+                <tr>
+                    <td><strong>Payment Gateway</strong></td>
+                    <td>ABA Bank API / Stripe</td>
+                    <td>Payment processing</td>
+                    <td>Secure transactions, webhooks, refunds</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>4.1.3 Communication Patterns</h4>
+        <ul>
+            <li><strong>Client-Server Model:</strong> Frontend communicates with backend via RESTful APIs over HTTPS
+            </li>
+            <li><strong>Request-Response Cycle:</strong> Synchronous API calls for immediate data operations</li>
+            <li><strong>Event-Driven:</strong> Asynchronous notifications for real-time updates</li>
+            <li><strong>Stateless Design:</strong> Each API request contains all necessary information (JWT tokens)
+            </li>
+        </ul>
+
+        <h3>4.2 Technology Stack</h3>
+
+        <h4>Frontend Technologies</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Technology</th>
+                    <th>Version</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>HTML5</td>
+                    <td>Latest</td>
+                    <td>Semantic markup structure</td>
+                </tr>
+                <tr>
+                    <td>CSS3</td>
+                    <td>Latest</td>
+                    <td>Styling and responsive design</td>
+                </tr>
+                <tr>
+                    <td>Bootstrap</td>
+                    <td>5.3.0</td>
+                    <td>UI framework and grid system</td>
+                </tr>
+                <tr>
+                    <td>JavaScript</td>
+                    <td>ES6+</td>
+                    <td>Client-side interactivity</td>
+                </tr>
+                <tr>
+                    <td>Font Awesome</td>
+                    <td>6.4.0</td>
+                    <td>Icon library</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Backend Technologies (Recommended)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Technology</th>
+                    <th>Purpose</th>
+                    <th>Alternative</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Node.js + Express</td>
+                    <td>Application server framework</td>
+                    <td>PHP (Laravel) / Python (Django)</td>
+                </tr>
+                <tr>
+                    <td>JWT (JSON Web Tokens)</td>
+                    <td>Authentication and authorization</td>
+                    <td>Session-based auth</td>
+                </tr>
+                <tr>
+                    <td>bcrypt</td>
+                    <td>Password hashing</td>
+                    <td>Argon2</td>
+                </tr>
+                <tr>
+                    <td>Joi / Express Validator</td>
+                    <td>Input validation</td>
+                    <td>Custom validators</td>
+                </tr>
+                <tr>
+                    <td>Multer</td>
+                    <td>File upload handling</td>
+                    <td>Formidable</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.3 Security Architecture</h3>
+
+        <h4>Authentication & Authorization Flow</h4>
+        <ol>
+            <li><strong>User Registration:</strong> Password hashed with bcrypt (salt rounds: 10), stored in
+                database</li>
+            <li><strong>User Login:</strong> Credentials validated, JWT token generated with user_id and role_id
+            </li>
+            <li><strong>Token Storage:</strong> JWT stored in httpOnly cookie or localStorage (based on security
+                requirements)</li>
+            <li><strong>API Authorization:</strong> Middleware verifies JWT on protected routes, checks user role
+            </li>
+            <li><strong>Session Management:</strong> Tokens expire after 24 hours, refresh token mechanism
+                implemented</li>
+        </ol>
+
+        <div class="note-box">
+            <strong>Security Best Practices:</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0;">
+                <li>All API endpoints use HTTPS (TLS 1.2+)</li>
+                <li>CORS configured to allow only trusted origins</li>
+                <li>Rate limiting implemented to prevent brute force attacks</li>
+                <li>SQL injection prevention via parameterized queries</li>
+                <li>XSS protection through input sanitization and output encoding</li>
+                <li>CSRF tokens for state-changing operations</li>
+            </ul>
+        </div>
+
+        <h3>4.4 API Architecture</h3>
+
+        <h4>RESTful API Design Principles</h4>
+        <ul>
+            <li><strong>Resource-Based URLs:</strong> <code>/api/v1/companions</code>, <code>/api/v1/bookings</code>
+            </li>
+            <li><strong>HTTP Methods:</strong> GET (read), POST (create), PUT (update), DELETE (remove)</li>
+            <li><strong>Status Codes:</strong> 200 (success), 201 (created), 400 (bad request), 401 (unauthorized),
+                404 (not found), 500 (server error)</li>
+            <li><strong>JSON Format:</strong> All requests and responses use JSON with consistent structure</li>
+            <li><strong>Versioning:</strong> API version included in URL (<code>/api/v1/</code>)</li>
+        </ul>
+
+        <h4>Sample API Endpoints</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Purpose</th>
+                    <th>Auth Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/v1/auth/register</td>
+                    <td>User registration</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/v1/auth/login</td>
+                    <td>User authentication</td>
+                    <td>No</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/api/v1/companions</td>
+                    <td>List all companions</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/api/v1/companions/:id</td>
+                    <td>Get companion details</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/v1/bookings</td>
+                    <td>Create booking</td>
+                    <td>Yes (Customer)</td>
+                </tr>
+                <tr>
+                    <td>PUT</td>
+                    <td>/api/v1/bookings/:id</td>
+                    <td>Update booking status</td>
+                    <td>Yes (Companion)</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td>/api/v1/payments</td>
+                    <td>Process payment</td>
+                    <td>Yes (Customer)</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td>/api/v1/profile</td>
+                    <td>Get user profile</td>
+                    <td>Yes</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4.5 Database Architecture</h3>
+
+        <h4>Storage Engine</h4>
+        <ul>
+            <li><strong>InnoDB:</strong> Default storage engine for all tables</li>
+            <li><strong>Features:</strong> ACID compliance, row-level locking, foreign key support, crash recovery
+            </li>
+            <li><strong>Transaction Support:</strong> BEGIN, COMMIT, ROLLBACK for data consistency</li>
+        </ul>
+
+        <h4>Indexing Strategy</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Table</th>
+                    <th>Index</th>
+                    <th>Type</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>users</td>
+                    <td>email</td>
+                    <td>UNIQUE</td>
+                    <td>Fast login lookup, prevent duplicates</td>
+                </tr>
+                <tr>
+                    <td>companion_profiles</td>
+                    <td>location, rate_per_hour</td>
+                    <td>INDEX</td>
+                    <td>Search and filter optimization</td>
+                </tr>
+                <tr>
+                    <td>bookings</td>
+                    <td>customer_id, companion_id</td>
+                    <td>INDEX</td>
+                    <td>Fast booking history queries</td>
+                </tr>
+                <tr>
+                    <td>bookings</td>
+                    <td>status, start_time</td>
+                    <td>INDEX</td>
+                    <td>Upcoming bookings retrieval</td>
+                </tr>
+                <tr>
+                    <td>reviews</td>
+                    <td>booking_id</td>
+                    <td>UNIQUE</td>
+                    <td>One review per booking constraint</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Query Optimization Techniques</h4>
+        <ul>
+            <li><strong>JOIN Optimization:</strong> Use INNER JOIN instead of subqueries where possible</li>
+            <li><strong>SELECT Specificity:</strong> Always specify columns instead of SELECT *</li>
+            <li><strong>LIMIT Clauses:</strong> Pagination implemented for large result sets</li>
+            <li><strong>Prepared Statements:</strong> All queries use parameterized statements</li>
+            <li><strong>Connection Pooling:</strong> Reuse database connections for efficiency</li>
+        </ul> -->
+
+        <h3 id="diagram-dfd">Data Flow Diagram (DFD)</h3>
+        <!-- <p>
+            The Data Flow Diagram illustrates how information moves through the system, from customer booking
+            requests
+            to payment processing and confirmation. It shows the interaction between customers, companions, and the
+            system.
+        </p> -->
+        <div class="diagram-container">
+            <img src="./images/rental-Page-1.drawio.png" alt="Data Flow Diagram">
+            <!-- <p class="diagram-caption">Figure 1: Data Flow Diagram - Customer Booking & Payment Process</p> -->
+        </div>
+
+        <!-- <div class="note-box">
+            <strong>Note:</strong> The DFD demonstrates the complete booking lifecycle, including request
+            submission,
+            companion approval, payment processing, and completion with review submission.
+        </div> -->
+
+        <!-- <h3>Use Case Diagram</h3>
+        <p>
+            <em>Use case diagram to be developed showing actor interactions with the system.</em>
+        </p> -->
+    </div>
+
+    <!-- Section iii: Entity Relationship Diagram -->
+    <div class="chapter" id="section-3">
+        <!-- <div class="chapter-number">SECTION iii</div> -->
+        <h1>Entity Relationship Diagram</h1>
+        <!-- <p>
+            The Entity Relationship Diagram provides a comprehensive view of the database structure, showing all
+            entities
+            (tables), their attributes (columns), and relationships (foreign keys). This diagram is fundamental to
+            understanding
+            the data model and system architecture.
+        </p> -->
+        <div class="diagram-container">
+            <img src="./images/Diagram 1.png" alt="Entity Relationship Diagram">
+            <!-- <p class="diagram-caption">Figure 2: Entity Relationship Diagram - Complete Database Structure</p> -->
+        </div>
+
+        <!-- <h4>Database Design Principles</h4>
+        <ul>
+            <li><strong>Normalization:</strong> Database follows 3NF (Third Normal Form) to minimize redundancy</li>
+            <li><strong>Referential Integrity:</strong> Foreign key constraints ensure data consistency</li>
+            <li><strong>Indexing:</strong> Strategic indexes on frequently queried columns for performance</li>
+            <li><strong>Data Types:</strong> Appropriate data types chosen for storage efficiency</li>
+            <li><strong>Cascading Actions:</strong> ON DELETE and ON UPDATE rules to maintain referential integrity
+            </li>
+        </ul> -->
+    </div>
+
+    <!-- Section iv: Data Dictionary -->
+    <div class="chapter" id="section-4">
+        <!-- <div class="chapter-number">SECTION iv</div> -->
+        <h1>Data Dictionary</h1>
+
+        <!-- <p>
+            The system database is designed using relational principles with 12 interconnected tables. Each table
+            represents a real-world entity
+            and is connected using primary and foreign keys. The database structure includes User Management,
+            Companion Management, Core Transactions,
+            User Engagement, and Safety System components.
+        </p> -->
+
+
+        <h3 id="table-roles">1. ROLES </h3>
+        <p><strong>Purpose:</strong> Defines user roles and access levels within the system.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>role_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Role ID</td>
+                </tr>
+                <tr>
+                    <td>role_name</td>
+                    <td>VARCHAR(50)</td>
+                    <td>UNIQUE</td>
+                    <td>Admin, Customer, Companion, Staff, Manager, etc.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="table-permissions">1.1 PERMISSIONS</h3>
+        <p><strong>Purpose:</strong> Defines specific granular module access rights that can be assigned to roles.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>permission_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Permission ID</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td>VARCHAR(100)</td>
+                    <td>UNIQUE</td>
+                    <td>Permission code (e.g., manage_users, manage_bookings)</td>
+                </tr>
+                <tr>
+                    <td>description</td>
+                    <td>VARCHAR(255)</td>
+                    <td></td>
+                    <td>Human-readable explanation of what the permission allows</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="table-role-permissions">1.2 ROLE_PERMISSIONS</h3>
+        <p><strong>Purpose:</strong> Association table mapping the many-to-many relationship between roles and specific
+            permissions.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>role_id</td>
+                    <td>INT</td>
+                    <td>PK, FK → Roles</td>
+                    <td>ID of the role</td>
+                </tr>
+                <tr>
+                    <td>permission_id</td>
+                    <td>INT</td>
+                    <td>PK, FK → Permissions</td>
+                    <td>ID of the granted permission</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>2. USERS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>user_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>User ID</td>
+                </tr>
+                <tr>
+                    <td>role_id</td>
+                    <td>INT</td>
+                    <td>FK → Roles</td>
+                    <td>Role of user</td>
+                </tr>
+                <tr>
+                    <td>email</td>
+                    <td>VARCHAR(100)</td>
+                    <td>UNIQUE</td>
+                    <td>Login email</td>
+                </tr>
+                <tr>
+                    <td>password</td>
+                    <td>VARCHAR(255)</td>
+                    <td></td>
+                    <td>Hashed password</td>
+                </tr>
+                <tr>
+                    <td>phone</td>
+                    <td>VARCHAR(20)</td>
+                    <td></td>
+                    <td>Contact number</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>Account created</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3. CUSTOMER_PROFILES</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>customer_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Customer profile ID</td>
+                </tr>
+                <tr>
+                    <td>user_id</td>
+                    <td>INT</td>
+                    <td>FK → Users</td>
+                    <td>Owner account</td>
+                </tr>
+                <tr>
+                    <td>full_name</td>
+                    <td>VARCHAR(100)</td>
+                    <td></td>
+                    <td>Real name</td>
+                </tr>
+                <tr>
+                    <td>date_of_birth</td>
+                    <td>DATE</td>
+                    <td></td>
+                    <td>Date of birth (18+ required)</td>
+                </tr>
+                <tr>
+                    <td>gender</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Male, Female, Other, Prefer not to say</td>
+                </tr>
+                <tr>
+                    <td>bio</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Short intro</td>
+                </tr>
+                <tr>
+                    <td>location</td>
+                    <td>VARCHAR(100)</td>
+                    <td></td>
+                    <td>City</td>
+                </tr>
+                <tr>
+                    <td>profile_photo</td>
+                    <td>VARCHAR(255)</td>
+                    <td></td>
+                    <td>Image URL</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>4. COMPANION_PROFILES</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>companion_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Companion ID</td>
+                </tr>
+                <tr>
+                    <td>user_id</td>
+                    <td>INT</td>
+                    <td>FK → Users</td>
+                    <td>Owner account</td>
+                </tr>
+                <tr>
+                    <td>display_name</td>
+                    <td>VARCHAR(100)</td>
+                    <td></td>
+                    <td>Public name</td>
+                </tr>
+                <tr>
+                    <td>date_of_birth</td>
+                    <td>DATE</td>
+                    <td></td>
+                    <td>Date of birth (18+ required)</td>
+                </tr>
+                <tr>
+                    <td>age</td>
+                    <td>INT</td>
+                    <td></td>
+                    <td>Age (18-99)</td>
+                </tr>
+                <tr>
+                    <td>gender</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Female, Male, Non-binary, Other</td>
+                </tr>
+                <tr>
+                    <td>bio</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Description</td>
+                </tr>
+                <tr>
+                    <td>rate_per_hour</td>
+                    <td>DECIMAL(10,2)</td>
+                    <td></td>
+                    <td>Price</td>
+                </tr>
+                <tr>
+                    <td>location</td>
+                    <td>VARCHAR(100)</td>
+                    <td></td>
+                    <td>Area</td>
+                </tr>
+                <tr>
+                    <td>languages</td>
+                    <td>JSON</td>
+                    <td></td>
+                    <td>Array of languages spoken (e.g., ["English", "Spanish"])</td>
+                </tr>
+                <tr>
+                    <td>personality_traits</td>
+                    <td>JSON</td>
+                    <td></td>
+                    <td>Array of personality traits (e.g., ["Outgoing", "Friendly"])</td>
+                </tr>
+                <tr>
+                    <td>verification_status</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Pending, Approved, Rejected</td>
+                </tr>
+                <tr>
+                    <td>avg_rating</td>
+                    <td>DECIMAL(3,2)</td>
+                    <td></td>
+                    <td>Average stars</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>5. COMPANION_PHOTOS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>photo_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Photo ID</td>
+                </tr>
+                <tr>
+                    <td>companion_id</td>
+                    <td>INT</td>
+                    <td>FK → Companion</td>
+                    <td>Owner</td>
+                </tr>
+                <tr>
+                    <td>photo_url</td>
+                    <td>VARCHAR(255)</td>
+                    <td></td>
+                    <td>Image path</td>
+                </tr>
+                <tr>
+                    <td>is_primary</td>
+                    <td>BOOLEAN</td>
+                    <td></td>
+                    <td>Main photo</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>6. AVAILABILITY</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>availability_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Slot ID</td>
+                </tr>
+                <tr>
+                    <td>companion_id</td>
+                    <td>INT</td>
+                    <td>FK → Companion</td>
+                    <td>Companion</td>
+                </tr>
+                <tr>
+                    <td>day_of_week</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Mon–Sun</td>
+                </tr>
+                <tr>
+                    <td>start_time</td>
+                    <td>TIME</td>
+                    <td></td>
+                    <td>Available from</td>
+                </tr>
+                <tr>
+                    <td>end_time</td>
+                    <td>TIME</td>
+                    <td></td>
+                    <td>Available until</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>7. BOOKINGS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>booking_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Booking ID</td>
+                </tr>
+                <tr>
+                    <td>customer_id</td>
+                    <td>INT</td>
+                    <td>FK → Customer</td>
+                    <td>Who booked</td>
+                </tr>
+                <tr>
+                    <td>companion_id</td>
+                    <td>INT</td>
+                    <td>FK → Companion</td>
+                    <td>Who is booked</td>
+                </tr>
+                <tr>
+                    <td>start_time</td>
+                    <td>DATETIME</td>
+                    <td></td>
+                    <td>Start time</td>
+                </tr>
+                <tr>
+                    <td>end_time</td>
+                    <td>DATETIME</td>
+                    <td></td>
+                    <td>End time</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Pending, Approved, Rejected, Paid, Completed</td>
+                </tr>
+                <tr>
+                    <td>total_price</td>
+                    <td>DECIMAL(10,2)</td>
+                    <td></td>
+                    <td>Total amount</td>
+                </tr>
+                <tr>
+                    <td>meeting_location</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Where to meet</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>8. PAYMENTS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>payment_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Payment ID</td>
+                </tr>
+                <tr>
+                    <td>booking_id</td>
+                    <td>INT</td>
+                    <td>FK → Booking</td>
+                    <td>Related booking</td>
+                </tr>
+                <tr>
+                    <td>amount</td>
+                    <td>DECIMAL(10,2)</td>
+                    <td></td>
+                    <td>Paid amount</td>
+                </tr>
+                <tr>
+                    <td>method</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>ABA, Card, Wing</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Pending, Paid, Refunded</td>
+                </tr>
+                <tr>
+                    <td>paid_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>Payment time</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>9. REVIEWS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>review_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Review ID</td>
+                </tr>
+                <tr>
+                    <td>booking_id</td>
+                    <td>INT</td>
+                    <td>FK → Booking</td>
+                    <td>Related booking</td>
+                </tr>
+                <tr>
+                    <td>rating</td>
+                    <td>INT</td>
+                    <td></td>
+                    <td>1–5 stars</td>
+                </tr>
+                <tr>
+                    <td>comment</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Review text</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>When reviewed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>10. FAVORITES</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>favorite_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Favorite ID</td>
+                </tr>
+                <tr>
+                    <td>customer_id</td>
+                    <td>INT</td>
+                    <td>FK → Customer</td>
+                    <td>Who liked</td>
+                </tr>
+                <tr>
+                    <td>companion_id</td>
+                    <td>INT</td>
+                    <td>FK → Companion</td>
+                    <td>Who is liked</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>Date added</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>11. NOTIFICATIONS</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>notification_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Notification ID</td>
+                </tr>
+                <tr>
+                    <td>user_id</td>
+                    <td>INT</td>
+                    <td>FK → Users</td>
+                    <td>Receiver</td>
+                </tr>
+                <tr>
+                    <td>title</td>
+                    <td>VARCHAR(100)</td>
+                    <td></td>
+                    <td>Short title</td>
+                </tr>
+                <tr>
+                    <td>message</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Full message</td>
+                </tr>
+                <tr>
+                    <td>is_read</td>
+                    <td>BOOLEAN</td>
+                    <td></td>
+                    <td>Read or not</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>Sent time</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>12. REPORTS (Safety feature)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>report_id</td>
+                    <td>INT</td>
+                    <td>PK</td>
+                    <td>Report ID</td>
+                </tr>
+                <tr>
+                    <td>reporter_id</td>
+                    <td>INT</td>
+                    <td>FK → Users</td>
+                    <td>Who reported</td>
+                </tr>
+                <tr>
+                    <td>target_type</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>User / Companion / Booking</td>
+                </tr>
+                <tr>
+                    <td>target_id</td>
+                    <td>INT</td>
+                    <td></td>
+                    <td>Target ID</td>
+                </tr>
+                <tr>
+                    <td>reason</td>
+                    <td>TEXT</td>
+                    <td></td>
+                    <td>Why reported</td>
+                </tr>
+                <tr>
+                    <td>status</td>
+                    <td>ENUM</td>
+                    <td></td>
+                    <td>Pending, Resolved</td>
+                </tr>
+                <tr>
+                    <td>created_at</td>
+                    <td>TIMESTAMP</td>
+                    <td></td>
+                    <td>Report time</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- Section v: User Interface -->
+    <div class="chapter" id="section-5">
+        <!-- <div class="chapter-number">SECTION v</div> -->
+        <h1>User Interface</h1>
+
+        <!-- <p>
+            The RentACompanion platform features a modern, responsive user interface designed with Bootstrap 5 and
+            custom CSS.
+            The interface follows a millennial pink color scheme with glassmorphism effects for a contemporary look.
+        </p> -->
+
+        <h3>Interface Pages</h3>
+
+        <h4>1. Homepage</h4>
+        <!-- <p><strong>Purpose:</strong> Landing page showcasing featured companions and platform features</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-homepage.png" alt="Homepage Screenshot">
+            <p class="diagram-caption">Figure 3: Homepage - Hero section with featured companions</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Hero banner, featured companions grid, how it works section, testimonials,
+            call-to-action buttons</p> -->
+
+        <h4>2. Companion List</h4>
+        <!-- <p><strong>Purpose:</strong> Browse and filter all available companions</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-listing.png" alt="Companion Listing Screenshot">
+            <p class="diagram-caption">Figure 4: Companion Listing - Filter and search interface</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Search bar, filters (location, rate, age), companion cards grid (2-3-3
+            columns), pagination</p> -->
+
+        <h4>3. Companion Profile</h4>
+        <!-- <p><strong>Purpose:</strong> Detailed companion information with booking capability</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-profile.png" alt="Companion Profile Screenshot">
+            <p class="diagram-caption">Figure 5: Companion Profile - Complete information and booking form</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Photo gallery (6 photos), about section, languages & personality traits,
+            weekly availability calendar, booking form with date/time picker</p> -->
+
+        <h4>4. Customer Dashboard</h4>
+        <!-- <p><strong>Purpose:</strong> Customer account management and booking history</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-dashboard-customer.png" alt="Customer Dashboard Screenshot">
+            <p class="diagram-caption">Figure 6: Customer Dashboard - Bookings and profile management</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Welcome card, active bookings list, favorites, payment history, profile
+            settings</p> -->
+
+        <h4>5. Companion Dashboard</h4>
+        <!-- <p><strong>Purpose:</strong> Companion account management and earnings tracking</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-dashboard-companion.png" alt="Companion Dashboard Screenshot">
+            <p class="diagram-caption">Figure 7: Companion Dashboard - Stats, bookings, and availability</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Earnings statistics, booking requests, accept/reject actions, profile editor,
+            availability scheduler</p> -->
+
+        <h4>6. Admin Dashboard</h4>
+        <!-- <p><strong>Purpose:</strong> Platform administration and content moderation</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-dashboard-admin.png" alt="Admin Dashboard Screenshot">
+            <p class="diagram-caption">Figure 8: Admin Dashboard - User and content management</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> User management table, companion verification, booking oversight, review
+            moderation, reports management with modal</p> -->
+
+        <h4>7. Payment Page</h4>
+        <!-- <p><strong>Purpose:</strong> Secure payment processing for bookings</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-payment.png" alt="Payment Page Screenshot">
+            <p class="diagram-caption">Figure 9: Payment Page - Multiple payment methods</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Booking summary, price breakdown, payment method selection (ABA, Card, Wing),
+            secure payment form</p> -->
+
+        <h4>8. Authentication</h4>
+        <!-- <p><strong>Purpose:</strong> User login and registration</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-login.png" alt="Login Page Screenshot">
+            <p class="diagram-caption">Figure 10: Login Page - Clean authentication interface</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Email/password form, remember me option, forgot password link, social login
+            options</p> -->
+
+        <h4>9. Mobile Responsive View</h4>
+        <!-- <p><strong>Purpose:</strong> Demonstrates responsive design on mobile devices</p> -->
+        <div class="diagram-container" style="max-width: 500px;">
+            <img src="./images/UI/ui-mobile.png" alt="Mobile View Screenshot">
+            <p class="diagram-caption">Figure 11: Mobile View - Responsive companion cards (2 columns)</p>
+        </div>
+        <!-- <p><strong>Key Features:</strong> Collapsible navigation, 2-column grid on mobile, touch-friendly buttons,
+            optimized images</p> -->
+
+        <!-- <h3>Design System</h3> -->
+
+        <!-- <h4>Key Components</h4>
+        <div class="diagram-container">
+            <img src="./images/UI/ui-components.png" alt="UI Components Screenshot">
+            <p class="diagram-caption">Figure 12: UI Components - Navigation, cards, buttons, and forms</p>
+        </div>
+
+        <h4>Color Palette</h4>
+        <ul>
+            <li><strong>Primary:</strong> Millennial Pink (#ff6b9d)</li>
+            <li><strong>Secondary:</strong> Soft Pink (#ffb6c1)</li>
+            <li><strong>Accent:</strong> Deep Pink (#ff69b4)</li>
+            <li><strong>Background:</strong> Off-white (#f8f9fa)</li>
+            <li><strong>Text:</strong> Dark Gray (#333)</li>
+        </ul>
+
+        <h4>Typography</h4>
+        <ul>
+            <li><strong>Primary Font:</strong> Inter (body text, UI elements)</li>
+            <li><strong>Heading Font:</strong> Montserrat (headings, titles)</li>
+            <li><strong>Font Sizes:</strong> Base 16px, responsive scaling</li>
+        </ul>
+
+        <h4>Component Details</h4>
+        <ul>
+            <li><strong>Navigation Bar:</strong> Fixed-top, transparent with glassmorphism effect</li>
+            <li><strong>Companion Cards:</strong> Glassmorphic cards with photo, name, age, location, rate, rating</li>
+            <li><strong>Buttons:</strong> Primary (pink gradient), secondary (outline), icon buttons</li>
+            <li><strong>Forms:</strong> Bootstrap form controls with custom pink focus states</li>
+            <li><strong>Modals:</strong> Bootstrap modals for confirmations and details</li>
+            <li><strong>Badges:</strong> Status indicators (Pending, Approved, Paid, Completed)</li>
+        </ul>
+
+        <h4>Responsive Design</h4>
+        <ul>
+            <li><strong>Mobile:</strong> col-6 (2 columns for companion cards)</li>
+            <li><strong>Tablet:</strong> col-md-4 (3 columns)</li>
+            <li><strong>Desktop:</strong> col-lg-4 (3 columns)</li>
+            <li><strong>Breakpoints:</strong> Bootstrap 5 default (576px, 768px, 992px, 1200px, 1400px)</li>
+        </ul>
+
+        <div class="note-box">
+            <strong>Note:</strong> All UI pages are designed to be fully responsive, working seamlessly on mobile
+            phones,
+            tablets, and desktop computers. The interface prioritizes usability and accessibility following WCAG 2.1
+            Level AA guidelines.
+        </div> -->
+    </div>
+
+    <!-- Section vi: Test UI -->
+
+    <!-- Section vii: Scrum Project Management -->
+    <!-- <div class="chapter-number">SECTION vi</div> -->
+    <h1>Test Case</h1>
+    <!-- <p>
+        Comprehensive testing strategy to ensure system reliability, security, and performance. Testing covers
+        functional requirements, user interface, API endpoints, and database operations.
+    </p> -->
+    <!-- <h3>Test Categories</h3> -->
+    <h4>1. User Interface Testing</h4>
+
+    <h4>UI-001: Registration Form Validation</h4>
+    <p><strong>Test Case:</strong> Click "Next" button on customer registration form without filling required fields
+        (Full Name, Email, Phone, Password, Date of Birth, Gender)</p>
+    <p><strong>Expected Result:</strong> Red borders appear on empty fields, error message "This field is required"
+        displays below each field, form shakes to draw attention, and user cannot proceed to Step 2</p>
+    <div class="diagram-container" style="max-width: 500px;">
+        <img src="./images/test-case/test-ui-001.png" alt="UI Test 001 - Registration Validation">
+        <p class="diagram-caption">Figure 12: UI-001 Test Result - Customer Registration Validation</p>
+    </div>
+
+    <h4>UI-002: Companion Listing Filters</h4>
+    <p><strong>Test Case:</strong> Apply filters and search</p>
+    <p><strong>Expected Result:</strong> Results dynamically filtered, correct companions shown</p>
+    <div class="diagram-container" style="max-width: 500px;">
+        <img src="./images/test-case/test-ui-002.png" alt="UI Test 002 - Companion Filters">
+        <p class="diagram-caption">Figure 13: UI-002 Test Result</p>
+    </div>
+
+    <h4>UI-003: Profile Page Responsive Design</h4>
+    <p><strong>Test Case:</strong> View companion profile on mobile device (viewport width ≤ 576px)</p>
+    <p><strong>Expected Result:</strong> The profile should adapt to a mobile-friendly single-column layout. Images and
+        buttons resize appropriately, tags wrap without overflow, all sections stack vertically, and the layout avoids
+        horizontal scrolling. The navbar and container padding adjust for small screens, text sizes scale down for
+        readability, and forms remain easy to use on touch devices.</p>
+    <div class="diagram-container" style="max-width: 500px;">
+        <img src="./images/test-case/test-ui-003.png" alt="UI Test 003 - Mobile Responsive">
+        <p class="diagram-caption">Figure 14: UI-003 Test Result</p>
+    </div>
+
+    <h4>UI-004: Booking Form Functionality</h4>
+    <p><strong>Test Case:</strong> Select date/time and submit booking</p>
+    <p><strong>Expected Result:</strong> Date picker works, price calculated, booking created</p>
+    <div class="diagram-container" style="max-width: 500px;">
+        <img src="./images/test-case/test-ui-004.png" alt="UI Test 004 - Booking Form">
+        <p class="diagram-caption">Figure 15: UI-004 Test Result</p>
+    </div>
+
+    <!-- <h4>UI-005: Dashboard Navigation</h4>
+    <p><strong>Test Case:</strong> Navigate between dashboard tabs</p>
+    <p><strong>Expected Result:</strong> Tab switching smooth, correct content displayed</p>
+    <div class="diagram-container" style="max-width: 500px;">
+        <img src="./images/test-ui-005.png" alt="UI Test 005 - Dashboard Tabs">
+        <p class="diagram-caption">Figure 16: UI-005 Test Result</p>
+    </div> -->
+
+
+    <!-- Section vii: Scrum Project Management -->
+    <!-- <div class="chapter" id="section-7">
+        <div class="chapter-number">SECTION vii</div>
+        <h1>Scrum Project Management</h1>
+
+        <p>
+            The RentACompanion project follows Agile Scrum methodology for iterative development and continuous
+            delivery.
+            This section outlines the project backlog, sprint planning, and delivery timeline.
+        </p>
+
+        <h3 id="product-backlog">1. Product Backlog</h3>
+
+        <h4>Sprint 1: Foundation (Week 1-2)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-001</td>
+                    <td>As a user, I want to register an account so that I can access the platform</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-002</td>
+                    <td>As a user, I want to login with email and password so that I can access my account</td>
+                    <td>High</td>
+                    <td>3</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-003</td>
+                    <td>As an admin, I want role-based access control so that users have appropriate permissions</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-004</td>
+                    <td>As a companion, I want to create my profile so that customers can find me</td>
+                    <td>High</td>
+                    <td>8</td>
+                    <td>Completed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Sprint 2: Core Features (Week 3-4)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-005</td>
+                    <td>As a customer, I want to browse companions so that I can find someone suitable</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-006</td>
+                    <td>As a customer, I want to filter companions by location, rate, and age</td>
+                    <td>Medium</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-007</td>
+                    <td>As a customer, I want to view companion profiles with photos and details</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-008</td>
+                    <td>As a customer, I want to create a booking request for a companion</td>
+                    <td>High</td>
+                    <td>8</td>
+                    <td>Completed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Sprint 3: Booking & Payment (Week 5-6)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-009</td>
+                    <td>As a companion, I want to approve/reject booking requests</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-010</td>
+                    <td>As a customer, I want to pay for approved bookings using multiple payment methods</td>
+                    <td>High</td>
+                    <td>13</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>US-011</td>
+                    <td>As a user, I want to receive notifications about booking status changes</td>
+                    <td>Medium</td>
+                    <td>8</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>US-012</td>
+                    <td>As a customer, I want to view my booking history and payment records</td>
+                    <td>Medium</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Sprint 4: Reviews & Engagement (Week 7-8)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-013</td>
+                    <td>As a customer, I want to leave a review after completing a booking</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-014</td>
+                    <td>As a customer, I want to save companions to my favorites list</td>
+                    <td>Low</td>
+                    <td>3</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-015</td>
+                    <td>As a companion, I want to view my earnings and statistics</td>
+                    <td>Medium</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-016</td>
+                    <td>As a companion, I want to set my weekly availability schedule</td>
+                    <td>Medium</td>
+                    <td>8</td>
+                    <td>Completed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Sprint 5: Safety & Administration (Week 9-10)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-017</td>
+                    <td>As a user, I want to report inappropriate behavior or content</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-018</td>
+                    <td>As an admin, I want to review reports and take action (suspend/ban users)</td>
+                    <td>High</td>
+                    <td>8</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-019</td>
+                    <td>As an admin, I want to manage all users, companions, bookings, and reviews</td>
+                    <td>High</td>
+                    <td>13</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-020</td>
+                    <td>As an admin, I want to verify companion profiles before they go live</td>
+                    <td>High</td>
+                    <td>5</td>
+                    <td>To Do</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Sprint 6: Polish & Testing (Week 11-12)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User Story</th>
+                    <th>Priority</th>
+                    <th>Story Points</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>US-021</td>
+                    <td>As a developer, I want comprehensive unit tests for all critical functions</td>
+                    <td>High</td>
+                    <td>13</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>US-022</td>
+                    <td>As a user, I want the interface to be fully responsive on mobile devices</td>
+                    <td>High</td>
+                    <td>8</td>
+                    <td>Completed</td>
+                </tr>
+                <tr>
+                    <td>US-023</td>
+                    <td>As a developer, I want security testing to ensure no vulnerabilities</td>
+                    <td>High</td>
+                    <td>8</td>
+                    <td>In Progress</td>
+                </tr>
+                <tr>
+                    <td>US-024</td>
+                    <td>As a user, I want fast page load times (< 3 seconds)</td>
+                    <td>Medium</td>
+                    <td>5</td>
+                    <td>In Progress</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>2. Sprint Planning</h3>
+        <h4>Sprint Duration</h4>
+        <ul>
+            <li><strong>Sprint Length:</strong> 2 weeks</li>
+            <li><strong>Total Sprints:</strong> 6</li>
+            <li><strong>Project Duration:</strong> 12 weeks</li>
+        </ul>
+
+        <h4>Team Roles</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Responsibilities</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Product Owner</strong></td>
+                    <td>Define requirements, prioritize backlog, accept deliverables</td>
+                </tr>
+                <tr>
+                    <td><strong>Scrum Master</strong></td>
+                    <td>Facilitate meetings, remove blockers, ensure process adherence</td>
+                </tr>
+                <tr>
+                    <td><strong>Frontend Developer</strong></td>
+                    <td>HTML/CSS/JavaScript, responsive design, UI components</td>
+                </tr>
+                <tr>
+                    <td><strong>Backend Developer</strong></td>
+                    <td>API development, business logic, database integration</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Engineer</strong></td>
+                    <td>Schema design, optimization, data integrity</td>
+                </tr>
+                <tr>
+                    <td><strong>QA Engineer</strong></td>
+                    <td>Test planning, execution, bug reporting</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>Scrum Ceremonies</h4>
+        <ul>
+            <li><strong>Sprint Planning:</strong> 2 hours at start of each sprint</li>
+            <li><strong>Daily Standup:</strong> 15 minutes daily at 9:00 AM</li>
+            <li><strong>Sprint Review:</strong> 1 hour at end of each sprint (demo to stakeholders)</li>
+            <li><strong>Sprint Retrospective:</strong> 1 hour after sprint review (team improvement discussion)</li>
+        </ul>
+
+        <h3>3. Definition of Done</h3>
+        <p>A user story is considered "Done" when:</p>
+        <ul>
+            <li>✅ Code is written and follows coding standards</li>
+            <li>✅ Unit tests written and passing (80%+ code coverage)</li>
+            <li>✅ Integration tests passing</li>
+            <li>✅ Code reviewed and approved by peer</li>
+            <li>✅ Documentation updated (API docs, code comments)</li>
+            <li>✅ Feature deployed to staging environment</li>
+            <li>✅ QA testing completed with no critical bugs</li>
+            <li>✅ Product Owner acceptance obtained</li>
+        </ul>
+
+        <h3>4. Release Plan</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Release</th>
+                    <th>Date</th>
+                    <th>Features</th>
+                    <th>Environment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Alpha</strong></td>
+                    <td>Week 4</td>
+                    <td>User registration, companion profiles, basic browsing</td>
+                    <td>Development</td>
+                </tr>
+                <tr>
+                    <td><strong>Beta</strong></td>
+                    <td>Week 8</td>
+                    <td>Booking system, payment integration, reviews</td>
+                    <td>Staging</td>
+                </tr>
+                <tr>
+                    <td><strong>RC 1</strong></td>
+                    <td>Week 10</td>
+                    <td>All features, admin dashboard, reporting</td>
+                    <td>Staging</td>
+                </tr>
+                <tr>
+                    <td><strong>Production</strong></td>
+                    <td>Week 12</td>
+                    <td>Complete system with all features tested</td>
+                    <td>Production</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <strong>Project Status:</strong> Currently in Sprint 3 (Booking & Payment). On track for Week 12 production
+            release.
+            Payment gateway integration and notification system are in progress.
+        </div>
+    </div> -->
+
+</body>
+
+</html>

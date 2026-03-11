@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<style>
+    /* Print Styles */
+    @media print {
+
+        /* Hide everything not related to the receipt */
+        .dashboard-sidebar,
+        .dashboard-header-row,
+        .mobile-toggle,
+        .btn,
+        .alert,
+        .card-header,
+        .mb-4:has(.btn-outline-secondary),
+        .col-xl-4,
+        hr.my-4,
+        .user-info,
+        .card-header-row {
+            display: none !important;
+        }
+
+        /* Reset main layout for print */
+        body {
+            background-color: white !important;
+            color: #1a1a1a !important;
+            font-size: 11pt;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container-fluid,
+        .row,
+        .col-lg-10 {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
+
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+            margin-bottom: 0 !important;
+        }
+
+        .card-body {
+            padding: 0 !important;
+        }
+
+        /* Show Receipt Layout only on print */
+        .receipt-container {
+            display: block !important;
+            padding: 40px;
+        }
+
+        .receipt-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .from-to-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .section-label {
+            color: #0d3b66;
+            font-weight: 800;
+            font-size: 10pt;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .receipt-title {
+            color: #0d3b66;
+            font-size: 32pt;
+            font-weight: 800;
+            margin: 0;
+            text-align: right;
+        }
+
+        .receipt-meta {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .receipt-meta p {
+            margin: 0;
+            font-size: 10pt;
+        }
+
+        .receipt-meta strong {
+            color: #0d3b66;
+            margin-right: 10px;
+        }
+
+        .table-receipt {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .table-receipt th {
+            background-color: #0d3b66;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 10pt;
+            text-transform: uppercase;
+        }
+
+        .table-receipt td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 10pt;
+        }
+
+        .table-receipt .text-end {
+            text-align: right;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 50px;
+        }
+
+        .totals-table {
+            width: 300px;
+        }
+
+        .totals-table td {
+            padding: 8px 10px;
+            font-size: 10pt;
+        }
+
+        .totals-table .total-row {
+            background-color: #e9ecef;
+            font-weight: 800;
+            color: #0d3b66;
+        }
+
+        .terms-section {
+            margin-top: 50px;
+            font-size: 9pt;
+        }
+
+        .terms-section h6 {
+            color: #0d3b66;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .receipt-footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8pt;
+            color: #666;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 50px;
+        }
+
+        /* Hide screen elements */
+        .col-xl-8,
+        #printableArea>div:not(.receipt-container) {
+            display: none !important;
+        }
+    }
+
+    /* Screen Styles */
+    .receipt-container {
+        display: none;
+    }
+</style>
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4 mb-5" id="printableArea">
+                <!-- Professional Printable Receipt -->
+                <div class="receipt-container">
+                    <div class="receipt-top">
+                        <div class="from-section">
+                            <div class="section-label">From</div>
+                            <div class="fw-bold">{{ platform_name }}</div>
+                            <div class="text-muted small">Your Premium Companion Service</div>
+                            <div class="text-muted small">123 Business Avenue, Suite 100</div>
+                            <div class="text-muted small">Phnom Penh, Cambodia</div>
+                        </div>
+                        <div class="logo-placeholder">
+                            <div class="receipt-title">RECEIPT</div>
+                            <div class="receipt-meta">
+                                <p><strong>Receipt #:</strong> {{ "%.7d"|format(payment.payment_id) }}</p>
+                                <p><strong>Receipt Date:</strong> {{ payment.paid_at.strftime('%m/%d/%Y') if
+                                    payment.paid_at else 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="from-to-section">
+                        <div class="to-section">
+                            <div class="section-label">To</div>
+                            <div class="fw-bold">{{ customer.full_name if customer else 'Valued Customer' }}</div>
+                            <div class="text-muted small">{{ customer.user.email if customer else 'N/A' }}</div>
+                            <div class="text-muted small">{{ customer.location if customer and customer.location else
+                                'N/A' }}</div>
+                        </div>
+                    </div>
+
+                    <table class="table-receipt">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">QTY</th>
+                                <th style="width: 50%;">Description</th>
+                                <th style="width: 20%;" class="text-end">Unit Price</th>
+                                <th style="width: 20%;" class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    Companion Service - {{ companion.display_name if companion else 'N/A' }}
+                                    <br>
+                                    <small class="text-muted">Booking #BK-{{ booking.booking_id if booking else 'N/A'
+                                        }}</small>
+                                </td>
+                                <td class="text-end">${{ "%.2f"|format(payment.amount) }}</td>
+                                <td class="text-end">${{ "%.2f"|format(payment.amount) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="totals-section">
+                        <table class="totals-table">
+                            <tr>
+                                <td>Subtotal</td>
+                                <td class="text-end">${{ "%.2f"|format(payment.amount) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Sales Tax (0%)</td>
+                                <td class="text-end">$0.00</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td><strong>Total</strong></td>
+                                <td class="text-end"><strong>${{ "%.2f"|format(payment.amount) }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="terms-section">
+                        <h6>Terms and Conditions</h6>
+                        <p>Payment is due at the time of booking. All services are non-refundable once the companion has
+                            reached the meeting location.</p>
+                        <p>This is a computer-generated receipt and does not require a signature.</p>
+                        <p>Thank you for your business!</p>
+                    </div>
+
+                    <div class="receipt-footer">
+                        <div><strong>Tel:</strong> +855 12 345 678</div>
+                        <div><strong>Email:</strong> support@{{ platform_name|lower|replace(' ', '') }}.com</div>
+                        <div><strong>Web:</strong> www.{{ platform_name|lower|replace(' ', '') }}.com</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-header-row">
+                    <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Transaction Details</h2>
+                    <div class="user-info">
+                        <span class="d-none d-md-inline">Welcome, {{ current_user.username if current_user else 'Admin'
+                            }}!</span>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-alt me-2"></i>Profile</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div class="mb-4">
+                    <a href="{{ url_for('payments') }}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Payments
+                    </a>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Left Column: Transaction Summary -->
+                    <div class="col-xl-8">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div
+                                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Transaction Information</h5>
+                                <span
+                                    class="badge {% if payment.status.value == 'PAID' %}bg-success{% elif payment.status.value == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %} px-3 py-2">
+                                    {{ payment.status.value }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded bg-light">
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                                style="font-size: 0.7rem;">Transaction ID</small>
+                                            <span class="fs-5 fw-bold text-dark">#TX-{{ payment.payment_id }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded bg-light">
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                                style="font-size: 0.7rem;">Payment Method</small>
+                                            <span class="fs-5 fw-bold text-dark">
+                                                <i class="fas fa-credit-card me-2"></i>{{ payment.method.value }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded bg-light">
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                                style="font-size: 0.7rem;">Date & Time</small>
+                                            <span class="fw-semibold text-dark">
+                                                {{ payment.paid_at.strftime('%B %d, %Y at %I:%M %p') if payment.paid_at
+                                                else 'N/A' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded bg-light">
+                                            <small class="text-muted d-block text-uppercase fw-bold mb-1"
+                                                style="font-size: 0.7rem;">Associated Booking</small>
+                                            <span class="fw-bold text-dark">
+                                                #BK-{{ booking.booking_id if booking else 'N/A' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <h6 class="fw-bold mb-3">Amount Summary</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td class="ps-0">Total Amount</td>
+                                                <td class="text-end fw-bold">${{ "%.2f"|format(payment.amount) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ps-0 border-top text-muted">Platform Fee (15%)</td>
+                                                <td class="text-end border-top text-muted">-${{
+                                                    "%.2f"|format(platform_fee) }}</td>
+                                            </tr>
+                                            <tr class="fs-5">
+                                                <td class="ps-0 border-top fw-bold">Companion Earning</td>
+                                                <td class="text-end border-top fw-bold text-success">${{
+                                                    "%.2f"|format(companion_earning) }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Related Parties -->
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h6 class="mb-0 fw-bold">Customer</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if customer %}
+                                        <div class="d-flex align-items-center mb-3">
+                                            {% if customer.profile_photo %}
+                                            <img src="{{ customer.profile_photo }}" class="rounded-circle me-3"
+                                                width="50" height="50" style="object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ customer.full_name }}</div>
+                                                <small class="text-muted">{{ customer.user.email }}</small>
+                                            </div>
+                                        </div>
+                                        <a href="{{ url_for('view_customer', user_id=customer.user_id) }}"
+                                            class="btn btn-sm btn-outline-primary w-100">
+                                            View Customer Profile
+                                        </a>
+                                        {% else %}
+                                        <p class="text-muted small mb-0">Customer information not available</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h6 class="mb-0 fw-bold">Companion</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if companion %}
+                                        <div class="d-flex align-items-center mb-3">
+                                            {% set primary_photo = companion.photos|selectattr('is_primary',
+                                            'true')|first %}
+                                            {% if primary_photo %}
+                                            <img src="{{ primary_photo.photo_url }}" class="rounded-circle me-3"
+                                                width="50" height="50" style="object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 50px; height: 50px;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ companion.display_name }}</div>
+                                                <small class="text-muted">{{ companion.user.email }}</small>
+                                            </div>
+                                        </div>
+                                        <a href="{{ url_for('view_companion_detail', id=companion.companion_id) }}"
+                                            class="btn btn-sm btn-outline-primary w-100">
+                                            View Companion Profile
+                                        </a>
+                                        {% else %}
+                                        <p class="text-muted small mb-0">Companion information not available</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Sidebar Actions -->
+                    <div class="col-xl-4">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h6 class="mb-0 fw-bold">Actions</h6>
+                            </div>
+                            <div class="card-body">
+                                {% if payment.status.value != 'REFUNDED' %}
+                                <div class="alert alert-warning small mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Refunding a payment will automatically cancel the associated booking.
+                                </div>
+                                <button class="btn btn-warning w-100 mb-3 py-2 fw-bold" onclick="confirmRefund()">
+                                    <i class="fas fa-undo me-2"></i>Process Refund
+                                </button>
+                                {% else %}
+                                <div class="alert alert-danger mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    This transaction was refunded on {{ payment.paid_at.strftime('%b %d, %Y') if
+                                    payment.paid_at else 'N/A' }}.
+                                </div>
+                                {% endif %}
+                                <button class="btn btn-outline-secondary w-100 py-2 fw-bold mt-3"
+                                    onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Print Receipt
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Payment Logs Placeholder -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h6 class="mb-0 fw-bold">Payment History</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush small">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <div>
+                                            <div class="fw-bold">Transaction Completed</div>
+                                            <div class="text-muted">{{ payment.paid_at.strftime('%b %d, %Y %I:%M %p') if
+                                                payment.paid_at else 'N/A' }}</div>
+                                        </div>
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <div>
+                                            <div class="fw-bold">Payment Authorized</div>
+                                            <div class="text-muted">{{ payment.paid_at.strftime('%b %d, %Y %I:%M %p') if
+                                                payment.paid_at else 'N/A' }}</div>
+                                        </div>
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmRefund() {
+            Swal.fire({
+                title: 'Confirm Refund?',
+                html: `Are you sure you want to refund this transaction?<br>Amount: <strong>$ {{ "%.2f"|format(payment.amount) }}</strong><br><br><small class="text-muted">This action cannot be undone.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, refund it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ url_for('refund_payment', id=payment.payment_id) }}";
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                {% include 'admin/header.html' with context %}
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card1 users">
+                            <div class="icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="stats-number">{{ "{:,}".format(total_users or 0) }}</div>
+                            <h6 class="stats-label">Total Users</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card1 users">
+                            <div class="icon">
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                            <div class="stats-number">{{ active_companions or 0 }}</div>
+                            <h6 class="stats-label">Active Companions</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card1 bookings">
+                            <div class="icon">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <div class="stats-number">{{ "{:,}".format(total_bookings or 0) }}</div>
+                            <h6 class="stats-label">Total Bookings</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card1 revenue">
+                            <div class="icon">
+                                <i class="fa-solid fa-dollar-sign"></i>
+                            </div>
+                            <div class="stats-number">${{ "{:,.0f}".format(monthly_revenue or 0) }}</div>
+                            <h6 class="stats-label">Revenue (Month)</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom p-4 pb-3">
+                        <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1 text-warning">
+                            <i class="fa-solid fa-clock me-2"></i> Action Required: Pending Approvals
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light-subtle">
+                                    <tr class="small text-muted">
+                                        <th class="ps-4">Candidate</th>
+                                        <th>Applied Date</th>
+                                        <th>Location</th>
+                                        <th>Documents</th>
+                                        <th class="pe-4 text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if pending_companions %}
+                                    {% for companion in pending_companions %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                {% if companion.avatar %}
+                                                <div class="flex-shrink-0 me-3">
+                                                    <img src="{{ companion.avatar }}" class="rounded-circle" style="width: 42px; height: 42px; object-fit: cover;" alt="">
+                                                </div>
+                                                {% else %}
+                                                <div class="flex-shrink-0 me-3">
+                                                    <i class="fa-solid fa-circle-user text-secondary" style="font-size: 2.5rem;"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <div class="small fw-bold text-dark">{{ companion.display_name }}</div>
+                                                    <div class="text-muted mt-1" style="font-size: 0.75rem;">{{ companion.age }} yrs</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="small">{{ companion.applied_date.strftime('%b %d, %Y') if companion.applied_date else 'N/A' }}</td>
+                                        <td class="small">{{ companion.location or 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge bg-success">Verified</span>
+                                            <span class="badge bg-success">ID</span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <button class="btn btn-sm btn-warning text-white fw-bold px-3"
+                                                onclick="viewCompanion('{{ companion.companion_id }}', '{{ companion.display_name }}')">
+                                                Review
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                            <p>No pending approvals</p>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bookings -->
+                <!-- <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Recent Bookings</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-primary active">All</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary">Pending</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary">Completed</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary">Cancelled</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Client</th>
+                                    <th>Companion</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">#BC-2024-0145</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://i.pravatar.cc/40?img=1" class="rounded-circle me-2"
+                                                width="40" alt="">
+                                            <span>John Doe</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40"
+                                                class="rounded-circle me-2" width="40" alt="">
+                                            <span>Sarah Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 20, 2024</td>
+                                    <td class="fw-bold text-primary">$235</td>
+                                    <td><span class="badge badge-confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">#BC-2024-0144</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://i.pravatar.cc/40?img=5" class="rounded-circle me-2"
+                                                width="40" alt="">
+                                            <span>Alex Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40"
+                                                class="rounded-circle me-2" width="40" alt="">
+                                            <span>Emma Davis</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 19, 2024</td>
+                                    <td class="fw-bold text-primary">$390</td>
+                                    <td><span class="badge badge-completed">Completed</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">#BC-2024-0143</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://i.pravatar.cc/40?img=11" class="rounded-circle me-2"
+                                                width="40" alt="">
+                                            <span>Michael Chen</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=40"
+                                                class="rounded-circle me-2" width="40" alt="">
+                                            <span>Mia Anderson</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 18, 2024</td>
+                                    <td class="fw-bold text-primary">$180</td>
+                                    <td><span class="badge badge-pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 p-3 text-center">
+                    <a href="#" class="text-primary fw-bold">View All Bookings <i
+                            class="fas fa-arrow-right"></i></a>
+                </div>
+            </div> -->
+
+                <!-- User Management & Reports -->
+                <!-- <div class="row g-4 mb-4">
+                <div class="col-md-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0 p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0">User Management</h5>
+                                <div class="input-group" style="width: 300px;">
+                                    <input type="text" class="form-control" placeholder="Search users...">
+                                    <button class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Type</th>
+                                            <th>Joined</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://i.pravatar.cc/40?img=1"
+                                                        class="rounded-circle me-2" width="40" alt="">
+                                                    <div>
+                                                        <div class="fw-bold">John Doe</div>
+                                                        <small class="text-muted">john@email.com</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-info">Customer</span></td>
+                                            <td>Dec 2023</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                        data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="#"><i
+                                                                    class="fas fa-eye"></i> View Profile</a></li>
+                                                        <li><a class="dropdown-item" href="#"><i
+                                                                    class="fas fa-edit"></i> Edit</a></li>
+                                                        <li><a class="dropdown-item text-danger" href="#"><i
+                                                                    class="fas fa-ban"></i> Suspend</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40"
+                                                        class="rounded-circle me-2" width="40" alt="">
+                                                    <div>
+                                                        <div class="fw-bold">Sarah Johnson</div>
+                                                        <small class="text-muted">sarah@email.com</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-primary">Companion</span></td>
+                                            <td>Nov 2023</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                        data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="#"><i
+                                                                    class="fas fa-eye"></i> View Profile</a></li>
+                                                        <li><a class="dropdown-item" href="#"><i
+                                                                    class="fas fa-edit"></i> Edit</a></li>
+                                                        <li><a class="dropdown-item text-danger" href="#"><i
+                                                                    class="fas fa-ban"></i> Suspend</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white border-0 p-4">
+                            <h5 class="fw-bold mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> Add New Companion
+                                </button>
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-envelope"></i> Send Announcement
+                                </button>
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-file-export"></i> Export Data
+                                </button>
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-cog"></i> Platform Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm border-danger">
+                        <div class="card-header bg-white border-0 p-4">
+                            <h5 class="fw-bold mb-0 text-danger">
+                                <i class="fas fa-flag"></i> Pending Reports
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger mb-2">
+                                <strong>3 new reports</strong> require attention
+                            </div>
+                            <button class="btn btn-danger w-100">
+                                <i class="fas fa-exclamation-triangle"></i> Review Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+                <!-- Analytics Overview -->
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0 p-4 pb-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1 text-muted">Revenue Overview</h6>
+                                    <h3 class="fw-bold mb-0 mt-2">${{ "{:,.0f}".format(this_month_revenue or 0) }}</h3>
+                                    <small class="{% if month_growth_percent >= 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                        <i class="fa-solid {% if month_growth_percent >= 0 %}fa-arrow-trend-up{% else %}fa-arrow-trend-down{% endif %} me-1"></i>
+                                        {{ month_growth_percent or '+0' }}% 
+                                        <span class="text-muted fw-normal">vs last month</span>
+                                    </small>
+                                </div>
+                                <div class="bg-light rounded p-2 text-center" style="min-width: 90px;">
+                                    <small class="text-muted d-block" style="font-size: 0.7rem;">Last Month</small>
+                                    <span class="fw-bold">${{ "{:,.0f}".format(last_month_revenue or 0) }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body p-3">
+                                <div id="revenueChart" style="min-height: 280px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0 p-4 pb-0">
+                                <h6 class="fw-bold mb-0 text-uppercase small letter-spacing-1 text-muted">Platform Statistics</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-3 h-100">
+                                    <div class="col-6">
+                                        <div class="border-0 rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center" style="background-color: var(--bs-primary-bg-subtle);">
+                                            <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                                                <i class="fa-solid fa-bullseye text-primary fs-5"></i>
+                                            </div>
+                                            <h2 class="fw-bold text-dark mb-1">{{ success_rate or '0' }}%</h2>
+                                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Success Rate</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border-0 rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center" style="background-color: var(--bs-warning-bg-subtle);">
+                                            <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                                                <i class="fa-solid fa-star text-warning fs-5"></i>
+                                            </div>
+                                            <h2 class="fw-bold text-dark mb-1">{{ avg_rating or '0' }}</h2>
+                                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Avg Rating</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border-0 rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center" style="background-color: var(--bs-success-bg-subtle);">
+                                            <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                                                <i class="fa-solid fa-bolt text-success fs-5"></i>
+                                            </div>
+                                            <h2 class="fw-bold text-dark mb-1">{{ active_today or 0 }}</h2>
+                                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Active Today</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border-0 rounded p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center" style="background-color: var(--bs-info-bg-subtle);">
+                                            <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3" style="width: 48px; height: 48px;">
+                                                <i class="fa-solid fa-user-plus text-info fs-5"></i>
+                                            </div>
+                                            <h2 class="fw-bold text-dark mb-1">+{{ new_signups or 0 }}</h2>
+                                            <small class="text-muted fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">New Signups</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Profile Modals -->
+    {% for companion in pending_companions %}
+    <div class="modal fade" id="viewProfileModal-{{ companion.companion_id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Companion Profile Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            {% if companion.avatar %}
+                            <img src="{{ companion.avatar }}" class="img-fluid rounded mb-3" alt="" style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                            <i class="fa-solid fa-circle-user fa-8x text-secondary mb-3"></i>
+                            {% endif %}
+                            <h5 class="fw-bold">{{ companion.display_name }}</h5>
+                            <p class="text-muted">{{ companion.age }} years old</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="fw-bold mb-3">Personal Information</h6>
+                            <div class="mb-2"><strong>Email:</strong> {{ companion.user_email }}</div>
+                            <div class="mb-2"><strong>Phone:</strong> {{ companion.user_phone }}</div>
+                            <div class="mb-2"><strong>Location:</strong> {{ companion.location or 'N/A' }}</div>
+                            <div class="mb-3"><strong>Languages:</strong> {{ companion.languages }}</div>
+
+                            <!-- We'll keep these static for now unless we add verification logic later -->
+                            <h6 class="fw-bold mb-3">Verification Status</h6>
+                            <div class="mb-2"><span class="badge bg-success">ID Verified</span></div>
+                            <div class="mb-2"><span class="badge bg-success">Background Check Passed</span></div>
+
+                            <h6 class="fw-bold mb-3 mt-3">About</h6>
+                            <p>{{ companion.bio }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{{ url_for('view_companion', id=companion.companion_id) }}" class="btn btn-outline-primary me-auto">Full Details Page</a>
+                    <button type="button" class="btn btn-danger" onclick="rejectCompanion('{{ companion.companion_id }}')">Reject</button>
+                    <button type="button" class="btn btn-success" onclick="approveCompanion('{{ companion.companion_id }}')">Approve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        // Initialize Revenue Chart
+        document.addEventListener('DOMContentLoaded', function() {
+            var options = {
+                series: [{
+                    name: 'Revenue',
+                    data: [3100, 4000, 2800, 5100, 4200, 6900, parseInt('{{ this_month_revenue or 0 }}')]
+                }],
+                chart: {
+                    height: 280,
+                    type: 'area',
+                    fontFamily: 'inherit',
+                    toolbar: { show: false },
+                    sparkline: { enabled: false }
+                },
+                colors: ['#4361ee'],
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.05,
+                        stops: [0, 90, 100]
+                    }
+                },
+                xaxis: {
+                    categories: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                    axisBorder: { show: false },
+                    axisTicks: { show: false },
+                    labels: { style: { colors: '#64748b' } }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function (value) { return "$" + value.toLocaleString(); },
+                        style: { colors: '#64748b' }
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f5f9',
+                    strokeDashArray: 4,
+                    yaxis: { lines: { show: true } },
+                    padding: { top: 0, right: 0, bottom: 0, left: 10 }
+                },
+                tooltip: { theme: 'light' }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#revenueChart"), options);
+            chart.render();
+        });
+        function viewCompanion(id, name) {
+            window.location.href = `/admin/companions/view/${id}`;
+        }
+        function approveCompanion(id) {
+            Swal.fire({
+                title: 'Approve Companion?',
+                text: "This user will be notified and can start accepting bookings immediately.",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Yes, Approve'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitForm(`/admin/companions/approve/${id}`);
+                }
+            });
+        }
+
+        function rejectCompanion(id) {
+            Swal.fire({
+                title: 'Reject Application',
+                input: 'textarea',
+                inputLabel: 'Reason for Rejection',
+                inputPlaceholder: 'Tell the user why (e.g. Profile photos must be clear)...',
+                inputAttributes: { 'aria-label': 'Type your reason' },
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Confirm Rejection',
+                inputValidator: (value) => {
+                    if (!value) return 'You must provide a reason!'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitForm(`/admin/companions/reject/${id}`, { reason: result.value });
+                }
+            });
+        }
+
+        function submitForm(action, data = {}) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+
+            for (const key in data) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = data[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+
+</html>

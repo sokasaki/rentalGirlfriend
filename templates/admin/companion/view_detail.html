@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+<style>
+    /* Enhanced Photo Cards */
+    .photo-card {
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 1/1;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .photo-card:hover {
+        border-color: #4361ee;
+        transform: translateY(-5px);
+    }
+
+    .sticky-action-bar {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: calc(100% - 285px);
+        /* Adjust based on sidebar width */
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #e0e6ed;
+        padding: 1rem 2rem;
+        z-index: 1000;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .photo-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(67, 97, 238, 0.2);
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .photo-card:hover .photo-overlay {
+        opacity: 1;
+    }
+</style>
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4 mb-5">
+                {% set header_title = 'Companion Details' %}
+{% include 'admin/header.html' with context %}
+                <!-- Back Button -->
+                <a href="{{ url_for('companions') }}" class="btn btn-sm btn-outline-secondary mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Directory
+                </a>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        {% for category, message in messages %}
+                        Swal.fire({
+                            icon: '{{ "success" if category == "success" else "error" if category in ["error", "danger"] else "warning" if category == "warning" else "info" }}',
+                            title: '{{ "Success!" if category == "success" else "Error!" if category in ["error", "danger"] else "Warning!" if category == "warning" else "Notice" }}',
+                            text: {{ message | tojson }},
+                        confirmButtonColor: '{{ "#28a745" if category == "success" else "#dc3545" if category in ["error", "danger"] else "#ffc107" if category == "warning" else "#17a2b8" }}',
+                        timer: 4000,
+                        timerProgressBar: true,
+                        });
+                    {% endfor %}
+                    });
+                </script>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Page Header -->
+
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <!-- About Companion -->
+                        <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+                            <div class="card-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-md-4 bg-light border-end d-flex flex-column">
+                                        <div class="position-relative flex-grow-1">
+                                            {% set primary_photo = photos|selectattr('is_primary')|list|first if photos
+                                            else none %}
+                                            {% set display_photo = primary_photo.photo_url if primary_photo else
+                                            (photos[0].photo_url if photos else none) %}
+
+                                            {% if display_photo %}
+                                            <img src="{{ display_photo }}" class="w-100 h-100 object-fit-cover"
+                                                alt="{{ companion.display_name }}"
+                                                style="cursor: zoom-in; min-height: 500px;"
+                                                onclick="openLightbox('{{ display_photo }}')">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center bg-light h-100"
+                                                style="min-height: 500px;">
+                                                <div class="text-center">
+                                                    <i class="fas fa-user-alt fa-3x text-muted mb-2"></i>
+                                                    <p class="small text-muted mb-0">No Profile Image</p>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+
+                                            {% if primary_photo %}
+                                            <span
+                                                class="badge bg-primary position-absolute top-0 start-0 m-3 shadow-sm">
+                                                <i class="fas fa-star me-1"></i> Primary
+                                            </span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="p-3 mt-auto border-top bg-white">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted fw-bold text-uppercase"
+                                                    style="font-size: 0.65rem;">Hourly Rate</small>
+                                                <span class="text-success fw-bold">${{ companion.rate_per_hour }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-8 p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-4">
+                                            <div>
+                                                <h4 class="fw-bold mb-1">{{ companion.display_name }}</h4>
+                                                <span class="badge rounded-pill bg-light text-dark">
+                                                    {{ companion.age }} Years Old • {{ companion.gender.value if
+                                                    companion.gender else 'Not Specified' }}
+                                                </span>
+                                            </div>
+                                            <button class="btn btn-light btn-sm rounded-circle"
+                                                title="View full details">
+                                                <i class="fas fa-external-link-alt"></i>
+                                            </button>
+                                        </div>
+
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Biography</h6>
+                                        <div class="p-3 rounded mb-4 {% if not companion.bio %}bg-light border{% else %}bg-light{% endif %}"
+                                            style="white-space: pre-wrap; min-height: 50px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; color: #4a5568;">
+                                            {% if companion.bio %}
+                                            <p>{{ companion.bio }}</p>
+                                            {% else %}
+                                            <span class="text-muted"><i class="fas fa-info-circle me-1"></i>User has not
+                                                provided a biography yet.</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Contact Information
+                                        </h6>
+                                        <div class="row g-3">
+                                            <div class="col-sm-6">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-primary rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-envelope fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Email Address</small>
+                                                        <span class="text-dark fw-medium text-truncate d-block">{{
+                                                            user.email }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-success rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-phone fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Phone Number</small>
+                                                        <span class="text-dark fw-medium">{{ user.phone or 'No Link'
+                                                            }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-danger rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-map-marker-alt fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Base Location</small>
+                                                        <span class="text-dark fw-medium">{{ companion.location or
+                                                            'Address Not Set' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submitted Gallery -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="mb-0 fw-bold">Submitted Gallery ({{ photos|length }})</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    {% for photo in photos %}
+                                    <div class="col-md-3 col-sm-4">
+                                        <div class="photo-card" onclick="openLightbox('{{ photo.photo_url }}')">
+                                            <img src="{{ photo.photo_url }}" class="w-100 h-100 object-fit-cover">
+                                            <div class="photo-overlay">
+                                                <i class="fas fa-search-plus text-white fa-2x"></i>
+                                            </div>
+                                            {% if photo.is_primary %}
+                                            <span
+                                                class="badge bg-primary position-absolute top-0 start-0 m-2 shadow-sm">Main
+                                                Photo</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div
+                                class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                                <h5 class="mb-0 fw-bold"><i
+                                        class="fas fa-calendar-alt me-2 text-primary"></i>Availability</h5>
+                                <span class="badge bg-soft-primary text-primary px-3">{{ availability|length }} Days
+                                    Set</span>
+                            </div>
+                            <div class="card-body pt-0">
+                                {% if availability %}
+                                <div class="table-responsive">
+                                    <table class="table table-borderless align-middle">
+                                        <thead class="text-muted small text-uppercase">
+                                            <tr>
+                                                <th class="fw-bold" style="letter-spacing: 0.5px;">Day</th>
+                                                <th class="fw-bold" style="letter-spacing: 0.5px;">Start Time</th>
+                                                <th class="fw-bold" style="letter-spacing: 0.5px;">End Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for avail in availability %}
+                                            <tr class="border-bottom-faint">
+                                                <td class="py-3">
+                                                    <span class="fw-bold text-dark">{{ avail.day_of_week.value if
+                                                        avail.day_of_week else 'N/A' }}</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="far fa-clock me-2 text-muted small"></i>
+                                                        <span class="fw-semibold">{{ avail.start_time.strftime('%I:%M
+                                                            %p') }}</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center text-secondary">
+                                                        <i class="fas fa-arrow-right me-2 opacity-25"></i>
+                                                        <span class="fw-semibold">{{ avail.end_time.strftime('%I:%M %p')
+                                                            }}</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <div class="text-center py-4 bg-light rounded-3">
+                                    <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                                    <p class="text-muted mb-0">No availability schedule set</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Booking History -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="mb-0 fw-bold">Booking History <span class="text-muted fw-normal ms-2">({{
+                                        bookings|length }})</span></h5>
+                            </div>
+                            <div class="card-body pt-0">
+                                {% if bookings %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="border-0 rounded-start ps-3">Customer</th>
+                                                <th class="border-0">Date</th>
+                                                <th class="border-0">Duration</th>
+                                                <th class="border-0">Amount</th>
+                                                <th class="border-0 rounded-end text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for booking in bookings %}
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="me-3">
+                                                            {% if booking.customer and booking.customer.profile_photo %}
+                                                            <img src="{{ booking.customer.profile_photo }}"
+                                                                class="rounded-circle"
+                                                                style="width: 35px; height: 35px; object-fit: cover; border: 1px solid #eee;"
+                                                                alt="Customer">
+                                                            {% else %}
+                                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                                                style="width: 35px; height: 35px; border: 1px solid #eee;">
+                                                                <i class="fas fa-user text-muted extra-small"></i>
+                                                            </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="fw-bold">{{ booking.customer.full_name if
+                                                            booking.customer else 'Unknown' }}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-bold text-dark">{{ booking.start_time.strftime('%b
+                                                        %d, %Y') }}</div>
+                                                    <small class="text-muted">{{ booking.start_time.strftime('%I:%M %p')
+                                                        }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border fw-normal">
+                                                        <i class="far fa-hourglass me-1 text-primary"></i>
+                                                        {{ ((booking.end_time - booking.start_time).seconds // 3600) }}
+                                                        hrs
+                                                    </span>
+                                                </td>
+                                                <td><span class="fw-bold text-success">${{
+                                                        "{:,.2f}".format(booking.total_price) }}</span></td>
+                                                <td class="text-center">
+                                                    {% set status_class = 'success' if booking.status.value in
+                                                    ['COMPLETED', 'PAID'] else 'warning' if booking.status.value in
+                                                    ['PENDING', 'APPROVED'] else 'danger' %}
+                                                    <span class="badge rounded-pill bg-{{ status_class }} px-3 py-2"
+                                                        style="min-width: 90px; font-size: 0.75rem; letter-spacing: 0.5px;">
+                                                        {{ booking.status.value }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-light border-dashed text-center py-4">
+                                    <i class="fas fa-history text-muted mb-2 d-block fa-lg"></i>
+                                    No past bookings found.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Reviews -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div
+                                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Customer Reviews</h5>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-star text-warning me-1"></i>
+                                    <span class="fw-bold">{{ reviews|length }} Reviews</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                {% if reviews %}
+                                <div class="row g-3">
+                                    {% for review in reviews %}
+                                    <div class="col-12">
+                                        <div class="p-3 rounded-3 border bg-white shadow-xs">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    <div
+                                                        class="bg-warning text-white px-2 py-1 rounded me-2 fw-bold small">
+                                                        {{ review.rating }}.0
+                                                    </div>
+                                                    <div class="text-warning small">
+                                                        {% for i in range(5) %}
+                                                        <i
+                                                            class="{% if i < review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted extra-small">
+                                                    <i class="far fa-calendar-alt me-1"></i>{{
+                                                    review.created_at.strftime('%d %b %Y') }}
+                                                </span>
+                                            </div>
+                                            <p class="mb-0 text-dark-emphasis fst-italic"
+                                                style="font-size: 0.9rem; border-left: 3px solid #e9ecef; padding-left: 12px;">
+                                                "{{ review.comment or 'No comment provided' }}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-5">
+                                    <img src="{{ url_for('static', filename='img/empty-reviews.svg') }}" class="mb-3 opacity-50"
+                                        style="width: 60px;" alt="No reviews">
+                                    <p class="text-muted">No feedback has been submitted yet.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xl-4">
+                        <!-- Profile Strength -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-3">Profile Strength</h6>
+                                {% set score = 0 %}
+                                {% if companion.bio %}{% set score = score + 40 %}{% endif %}
+                                {% if photos %}{% set score = score + 30 %}{% endif %}
+                                {% if availability %}{% set score = score + 30 %}{% endif %}
+
+                                <div class="d-flex align-items-center mb-2">
+                                    <h2 class="mb-0 fw-bold">{{ score }}%</h2>
+                                    <span class="ms-2 text-muted">Complete</span>
+                                </div>
+                                <div class="progress mb-4" style="height: 6px;">
+                                    <div class="progress-bar bg-{{ 'danger' if score < 50 else 'warning' if score < 100 else 'success' }}"
+                                        style="width: {{ score }}%"></div>
+                                </div>
+
+                                <div class="small">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span><i
+                                                class="fas fa-check-circle {{ 'text-success' if companion.bio else 'text-muted' }} me-2"></i>Biography</span>
+                                        <span class="text-muted">{{ companion.bio|length if companion.bio else 0 }}
+                                            chars</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span><i
+                                                class="fas fa-check-circle {{ 'text-success' if photos else 'text-muted' }} me-2"></i>Identity
+                                            Photos</span>
+                                        <span class="text-muted">{{ photos|length }} total</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Details -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-3">Registration Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <strong>{{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A'
+                                            }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Date of Birth</small>
+                                        <strong>{{ companion.date_of_birth.strftime('%b %d, %Y') if
+                                            companion.date_of_birth else 'N/A' }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Age</small>
+                                        <strong>{{ companion.age }} years old</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Gender</small>
+                                        <strong>{{ companion.gender.value if companion.gender else 'N/A' }}</strong>
+                                    </div>
+                                    <div class="col-12">
+                                        <small class="text-muted d-block">Hourly Rate</small>
+                                        <strong class="text-success fs-5">${{ companion.rate_per_hour }}</strong>
+                                    </div>
+                                </div>
+                                <hr class="my-3">
+                                <div class="mb-2">
+                                    <small class="text-muted d-block mb-1">Languages</small>
+                                    {% if companion.languages %}
+                                    {% for lang in companion.languages %}
+                                    <span class="badge bg-light text-dark me-1">{{ lang }}</span>
+                                    {% endfor %}
+                                    {% else %}
+                                    <span class="text-muted">Not specified</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block mb-1">Personality Traits</small>
+                                    {% if companion.personality_traits %}
+                                    {% for trait in companion.personality_traits %}
+                                    <span class="badge bg-light text-dark me-1 mb-1">{{ trait }}</span>
+                                    {% endfor %}
+                                    {% else %}
+                                    <span class="text-muted">Not specified</span>
+                                    {% endif %}
+                                </div>
+                                {% if companion.avg_rating %}
+                                <hr class="my-3">
+                                <div>
+                                    <small class="text-muted d-block mb-1">Average Rating</small>
+                                    <div class="d-flex align-items-center">
+                                        <span class="h5 mb-0 me-2">{{ companion.avg_rating }}</span>
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sticky-action-bar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6 d-none d-md-block">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Review all profile details, photos, and contact information for accuracy and policy compliance
+                        before approving.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-3 justify-content-md-end">
+                        <button class="btn btn-success px-5 py-2 fw-bold shadow-sm">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button id="btnApprove" class="btn btn-danger px-5 py-2 fw-bold shadow-sm"
+                            onclick="deleteCompanion({{ companion.companion_id }}, '{{ companion.display_name }}')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Photo Lightbox Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="photoModalLabel">Photo Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="modalImg" src="" class="img-fluid w-100" alt="Preview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Lightbox functionality
+        function openLightbox(url) {
+            const modal = new bootstrap.Modal(document.getElementById('photoModal'));
+            document.getElementById('modalImg').src = url;
+            modal.show();
+        }
+
+        function deleteCompanion(id, name) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Delete companion: ${name}? This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit delete form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/companions/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

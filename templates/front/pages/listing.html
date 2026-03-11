@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Companions - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+
+    <!-- Page Header -->
+    <section class="text-center py-5"
+        style="background: linear-gradient(135deg, var(--millennial-pink-lighter) 0%, var(--soft-pink) 100%);">
+        <div class="container">
+            <h1 class="display-5 fw-bold mb-3" style="font-weight: 800; letter-spacing: -1.5px;">Browse Companions</h1>
+            <p class="lead text-muted mb-0" style="font-weight: 400;">Find the perfect companion for your next event or
+                outing</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-5" style="margin-top: 0px;">
+        <div class="container">
+            <div class="row">
+                <!-- Filters Sidebar -->
+                <div class="col-lg-3 mb-4">
+                    <button class="btn btn-primary d-lg-none w-100 mb-3" id="toggleFilters">
+                        <i class="fas fa-filter me-2"></i>Filters
+                    </button>
+                    <form id="filtersForm" method="get" class="filters-card">
+                        <h5 class="fw-bold mb-4" style="font-size: 1.1rem;">Filters</h5>
+
+                        <!-- Search -->
+                        <div class="filter-section">
+                            <label class="filter-label">Search</label>
+                            <input type="text" class="form-control search-input" name="search" id="searchCompanions"
+                                placeholder="Search by name..." value="{{ search or '' }}">
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="filter-section">
+                            <label class="filter-label">Price Range</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="small text-muted">Per hour</span>
+                                <span id="priceValue" class="small fw-bold" style="color: var(--primary-color);">{{ "$"
+                                    }}{{ max_price|int }}</span>
+                            </div>
+                            <input type="range" class="form-range" id="priceRange" name="max_price"
+                                min="{{ min_available_price|int }}" max="{{ max_available_price|int }}"
+                                value="{{ max_price|int }}" step="5">
+                            <input type="hidden" name="min_price" value="{{ min_available_price|int }}">
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>${{ min_available_price|int }}</span>
+                                <span>${{ max_available_price|int }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Personality -->
+                        <div class="filter-section">
+                            <div class="filter-collapse-header" onclick="toggleFilterSection('personalityCollapse')">
+                                <label class="filter-label mb-0">Personality</label>
+                                <i class="fas fa-chevron-down filter-chevron" id="personalityChevron"></i>
+                            </div>
+                            <div class="filter-collapse-content" id="personalityCollapse">
+                                <div class="d-flex flex-wrap gap-1 mt-2" id="personalityFilters">
+                                    {% for trait in available_traits %}
+                                    <span class="filter-chip" data-filter="{{ trait|lower }}">{{ trait }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <input type="hidden" name="personality" id="personalityInput"
+                                value="{{ personality|join(',') if personality else '' }}">
+                        </div>
+
+                        <!-- Age Range -->
+                        <div class="filter-section">
+                            <label class="filter-label">Age Range</label>
+                            <select class="form-select" name="age_range">
+                                <option value="" {% if age_range=='' %}selected{% endif %}>All Ages</option>
+                                <option value="18-24" {% if age_range=='18-24' %}selected{% endif %}>18-24</option>
+                                <option value="25-30" {% if age_range=='25-30' %}selected{% endif %}>25-30</option>
+                                <option value="31-35" {% if age_range=='31-35' %}selected{% endif %}>31-35</option>
+                                <option value="36+" {% if age_range=='36+' %}selected{% endif %}>36+</option>
+                            </select>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="filter-section">
+                            <label class="filter-label">Availability</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="availableToday"
+                                    name="available_today">
+                                <label class="form-check-label small" for="availableToday">Available Today</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="availableWeekend"
+                                    name="available_weekend">
+                                <label class="form-check-label small" for="availableWeekend">Available
+                                    Weekends</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('listing') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo-alt me-2"></i>Reset Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Companions Grid -->
+                <div class="col-lg-9">
+                    <div class="results-header">
+                        <p class="results-count mb-0"><strong>{{ total_companions }}</strong> companions available</p>
+                        <form method="get" class="d-inline">
+                            <select class="form-select w-auto sort-dropdown" name="sort" id="sortSelect"
+                                onchange="this.form.submit()">
+                                <option value="featured" {% if sort_by=='featured' %}selected{% endif %}><i
+                                        class="fas fa-star"></i> Featured</option>
+                                <option value="price_low" {% if sort_by=='price_low' %}selected{% endif %}>Price: Low to
+                                    High</option>
+                                <option value="price_high" {% if sort_by=='price_high' %}selected{% endif %}>Price: High
+                                    to Low</option>
+                                <option value="rating" {% if sort_by=='rating' %}selected{% endif %}>Rating: Highest
+                                </option>
+                            </select>
+                        </form>
+                    </div>
+
+                    <div class="row g-4">
+                        {% if companions %}
+                        {% for companion in companions %}
+                        <div class="col-6 col-md-4 col-lg-4">
+                            <a href="{{ url_for('profile', companion_id=companion.companion_id) }}"
+                                class="card-link d-block h-100 text-decoration-none">
+                                <div class="companion-card h-100 d-flex flex-column">
+                                    <div class="position-relative overflow-hidden">
+                                        <img src="{{ companion.photo_url }}" class="card-img-top"
+                                            alt="{{ companion.display_name }}">
+                                        <button class="favorite-btn" data-companion-id="{{ companion.companion_id }}"
+                                            data-favorited="{{ 'true' if companion.companion_id in favorited_ids else 'false' }}"
+                                            onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this);">
+                                            <i class="{{ 'fas' if companion.companion_id in favorited_ids else 'far' }} fa-heart"
+                                                style="{{ 'color: #e91e8c;' if companion.companion_id in favorited_ids else '' }}"></i>
+                                        </button>
+                                        <span class="price-badge-overlay">${{ "{:,.0f}".format(companion.rate_per_hour)
+                                            }}/hr</span>
+                                    </div>
+                                    <div class="card-body p-3 d-flex flex-column flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h5 class="companion-name text-truncate mb-0"
+                                                style="max-width: calc(100% - 60px);">{{ companion.display_name }}</h5>
+                                            <span class="rating-badge">
+                                                <i class="fas fa-star"></i> {{ companion.avg_rating }}
+                                            </span>
+                                        </div>
+                                        <p class="companion-description text-line-clamp-2 mb-3">{{ companion.bio or ''
+                                            }}</p>
+                                        <div class="personality-tags-wrapper mt-auto">
+                                            {% for trait in companion.personality_traits[:1] %}
+                                            <span class="personality-tag"><i class="fas fa-heart"></i>{{ trait }}</span>
+                                            {% endfor %}
+                                            {% if companion.personality_traits|length > 1 %}
+                                            <span class="personality-tag personality-tag-more"><i
+                                                    class="fas fa-plus"></i>{{
+                                                companion.personality_traits|length - 1 }} more</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info text-center py-5" role="alert">
+                                <i class="fas fa-search fa-3x mb-3"></i>
+                                <p class="mb-0">No companions found matching your criteria. Try adjusting your filters.
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if total_pages > 1 %}
+                    <nav class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if has_prev %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill me-2"
+                                    href="{{ url_for('listing', page=current_page-1) }}">Previous</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link rounded-pill me-2" href="#">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            {% for page_num in range(1, total_pages + 1) %}
+                            {% if page_num == current_page %}
+                            <li class="page-item active">
+                                <a class="page-link rounded-circle me-2" href="#">{{ page_num }}</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link rounded-circle me-2"
+                                    href="{{ url_for('listing', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if has_next %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill"
+                                    href="{{ url_for('listing', page=current_page+1) }}">Next</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link rounded-pill" href="#">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'front/footer.html' %}
+
+    <script>
+        // ── Mobile filter toggle ──────────────────────────
+        const toggleBtn = document.getElementById('toggleFilters');
+        const filtersPanel = document.getElementById('filtersForm');
+        if (toggleBtn && filtersPanel) {
+            // Hide panel by default on mobile
+            if (window.innerWidth < 992) {
+                filtersPanel.style.display = 'none';
+            }
+            toggleBtn.addEventListener('click', function () {
+                const isHidden = filtersPanel.style.display === 'none';
+                filtersPanel.style.display = isHidden ? 'block' : 'none';
+                toggleBtn.innerHTML = isHidden
+                    ? '<i class="fas fa-times me-2"></i>Close Filters'
+                    : '<i class="fas fa-filter me-2"></i>Filters';
+            });
+        }
+
+        // ── Price range live label ────────────────────────
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        if (priceRange && priceValue) {
+            priceRange.addEventListener('input', function () {
+                priceValue.textContent = '$' + parseInt(this.value).toLocaleString();
+            });
+        }
+
+        // ── Personality chip toggle ───────────────────────
+        const personalityInput = document.getElementById('personalityInput');
+        const chips = document.querySelectorAll('.filter-chip');
+        // Pre-select chips from URL params
+        if (personalityInput && personalityInput.value) {
+            const selected = personalityInput.value.split(',').map(s => s.trim().toLowerCase());
+            chips.forEach(chip => {
+                if (selected.includes(chip.dataset.filter)) {
+                    chip.classList.add('active');
+                }
+            });
+        }
+        chips.forEach(chip => {
+            chip.addEventListener('click', function () {
+                this.classList.toggle('active');
+                const activeFilters = [...document.querySelectorAll('.filter-chip.active')]
+                    .map(c => c.dataset.filter);
+                if (personalityInput) {
+                    personalityInput.value = activeFilters.join(',');
+                }
+            });
+        });
+
+        // ── Filter section collapse ───────────────────────
+        function toggleFilterSection(id) {
+            const content = document.getElementById(id);
+            const chevron = document.getElementById(id.replace('Collapse', 'Chevron'));
+            if (!content) return;
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+            content.style.maxHeight = isOpen ? '0px' : content.scrollHeight + 'px';
+            if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+        // Open all filter sections by default
+        document.querySelectorAll('.filter-collapse-content').forEach(el => {
+            el.style.maxHeight = el.scrollHeight + 'px';
+        });
+    </script>
+    {% include 'front/footer.html' %}
+</body>
+
+</html>

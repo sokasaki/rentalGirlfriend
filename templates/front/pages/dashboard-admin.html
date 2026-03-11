@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 dashboard-sidebar">
+                <div class="p-3">
+                    <nav class="dashboard-nav">
+                        <a href="#overview" class="nav-link active">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="#users" class="nav-link">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="#companions" class="nav-link">
+                            <i class="fas fa-user-friends"></i> Companions
+                            <span class="badge bg-warning ms-auto">12</span>
+                        </a>
+                        <a href="#bookings" class="nav-link">
+                            <i class="fas fa-calendar-check"></i> Bookings
+                        </a>
+                        <a href="#payments" class="nav-link">
+                            <i class="fas fa-credit-card"></i> Payments
+                        </a>
+                        <a href="#reports" class="nav-link">
+                            <i class="fas fa-flag"></i> Reports
+                            <span class="badge bg-danger ms-auto">3</span>
+                        </a>
+                        <a href="#reviews" class="nav-link">
+                            <i class="fas fa-star"></i> Reviews
+                        </a>
+                        <a href="#analytics" class="nav-link">
+                            <i class="fas fa-chart-line"></i> Analytics
+                        </a>
+                        <a href="#settings" class="nav-link">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                <h2 class="fw-bold mb-4">Admin Dashboard Overview</h2>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-2">Total Users</h6>
+                                    <div class="stats-number">2,847</div>
+                                    <small class="text-success"><i class="fas fa-arrow-up"></i> 12% this month</small>
+                                </div>
+                                <i class="fas fa-users fa-3x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-2">Active Companions</h6>
+                                    <div class="stats-number">542</div>
+                                    <small class="text-success"><i class="fas fa-arrow-up"></i> 8% this month</small>
+                                </div>
+                                <i class="fas fa-user-friends fa-3x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-2">Total Bookings</h6>
+                                    <div class="stats-number">12,456</div>
+                                    <small class="text-success"><i class="fas fa-arrow-up"></i> 15% this month</small>
+                                </div>
+                                <i class="fas fa-calendar-check fa-3x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-2">Revenue (Month)</h6>
+                                    <div class="stats-number">$84,250</div>
+                                    <small class="text-success"><i class="fas fa-arrow-up"></i> 22% this month</small>
+                                </div>
+                                <i class="fas fa-dollar-sign fa-3x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 p-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-clock text-warning"></i> Pending Companion Approvals
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Companion</th>
+                                        <th>Applied Date</th>
+                                        <th>Age</th>
+                                        <th>Location</th>
+                                        <th>Documents</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50"
+                                                    class="rounded-circle me-2" width="40" alt="">
+                                                <div>
+                                                    <div class="fw-bold">Jessica Williams</div>
+                                                    <small class="text-muted">jessica@email.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>Jan 15, 2024</td>
+                                        <td>25</td>
+                                        <td>New York, NY</td>
+                                        <td>
+                                            <span class="badge bg-success">Verified</span>
+                                            <span class="badge bg-success">ID</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal"
+                                                data-bs-target="#viewProfileModal">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-success me-1">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-danger">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=50"
+                                                    class="rounded-circle me-2" width="40" alt="">
+                                                <div>
+                                                    <div class="fw-bold">Amanda Brown</div>
+                                                    <small class="text-muted">amanda@email.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>Jan 14, 2024</td>
+                                        <td>28</td>
+                                        <td>Los Angeles, CA</td>
+                                        <td>
+                                            <span class="badge bg-success">Verified</span>
+                                            <span class="badge bg-success">ID</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary me-1" data-bs-toggle="modal"
+                                                data-bs-target="#viewProfileModal">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-success me-1">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-danger">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bookings -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Recent Bookings</h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary active">All</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary">Pending</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary">Completed</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary">Cancelled</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Booking ID</th>
+                                        <th>Client</th>
+                                        <th>Companion</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">#BC-2024-0145</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=1" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>John Doe</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40"
+                                                    class="rounded-circle me-2" width="30" alt="">
+                                                <span>Sarah Johnson</span>
+                                            </div>
+                                        </td>
+                                        <td>Jan 20, 2024</td>
+                                        <td class="fw-bold text-primary">$235</td>
+                                        <td><span class="badge badge-confirmed">Confirmed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#BC-2024-0144</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=5" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Alex Johnson</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40"
+                                                    class="rounded-circle me-2" width="30" alt="">
+                                                <span>Emma Davis</span>
+                                            </div>
+                                        </td>
+                                        <td>Jan 19, 2024</td>
+                                        <td class="fw-bold text-primary">$390</td>
+                                        <td><span class="badge badge-completed">Completed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#BC-2024-0143</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=11" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Michael Chen</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=40"
+                                                    class="rounded-circle me-2" width="30" alt="">
+                                                <span>Mia Anderson</span>
+                                            </div>
+                                        </td>
+                                        <td>Jan 18, 2024</td>
+                                        <td class="fw-bold text-primary">$180</td>
+                                        <td><span class="badge badge-pending">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-3 text-center">
+                        <a href="#" class="text-primary fw-bold">View All Bookings <i
+                                class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Reports Management -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Reports Management</h5>
+                            <div class="d-flex gap-2">
+                                <select class="form-select form-select-sm" style="width: auto;">
+                                    <option>All Types</option>
+                                    <option>User</option>
+                                    <option>Companion</option>
+                                    <option>Booking</option>
+                                </select>
+                                <select class="form-select form-select-sm" style="width: auto;">
+                                    <option>All Status</option>
+                                    <option>Pending</option>
+                                    <option>Resolved</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Report ID</th>
+                                        <th>Reporter</th>
+                                        <th>Target Type</th>
+                                        <th>Target</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Reported At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold">#RPT-001</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=8" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Sarah Miller</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-info">User</span></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=12" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>John Smith</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;"
+                                                title="User was harassing me through messages and making inappropriate comments during our conversation.">
+                                                User was harassing me through messages...
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-pending">Pending</span></td>
+                                        <td>Jan 26, 2024 10:30 AM</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#viewReportModal">View</button>
+                                                <button class="btn btn-sm btn-outline-success">Resolve</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#RPT-002</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=15" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>David Lee</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning">Companion</span></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40"
+                                                    class="rounded-circle me-2" width="30" alt="">
+                                                <span>Lisa Anderson</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;"
+                                                title="Companion did not show up for the scheduled appointment and did not respond to any messages.">
+                                                Companion did not show up for scheduled...
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-pending">Pending</span></td>
+                                        <td>Jan 25, 2024 3:15 PM</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#viewReportModal">View</button>
+                                                <button class="btn btn-sm btn-outline-success">Resolve</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#RPT-003</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=20" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Emily Wilson</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-danger">Booking</span></td>
+                                        <td>
+                                            <span class="fw-bold">#BC-2024-0145</span>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;"
+                                                title="The booking location was different from what was agreed upon. Safety concern.">
+                                                Booking location different from agreed...
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-pending">Pending</span></td>
+                                        <td>Jan 24, 2024 8:45 PM</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#viewReportModal">View</button>
+                                                <button class="btn btn-sm btn-outline-success">Resolve</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#RPT-004</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=25" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Tom Harris</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-info">User</span></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=30" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Mike Brown</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;"
+                                                title="User attempted to negotiate payment outside of platform. Violation of terms.">
+                                                User attempted to negotiate payment...
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-completed">Resolved</span></td>
+                                        <td>Jan 23, 2024 2:00 PM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                                                data-bs-target="#viewReportModal">View</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">#RPT-005</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://i.pravatar.cc/40?img=35" class="rounded-circle me-2"
+                                                    width="30" alt="">
+                                                <span>Rachel Green</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge bg-warning">Companion</span></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40"
+                                                    class="rounded-circle me-2" width="30" alt="">
+                                                <span>Sophia Martinez</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-truncate" style="max-width: 200px;"
+                                                title="Companion profile photos were misleading and did not match the person who showed up.">
+                                                Profile photos were misleading...
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-completed">Resolved</span></td>
+                                        <td>Jan 22, 2024 11:20 AM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                                                data-bs-target="#viewReportModal">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-3 text-center">
+                        <a href="#" class="text-primary fw-bold">View All Reports <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- User Management & Reports -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">User Management</h5>
+                                    <div class="input-group" style="width: 300px;">
+                                        <input type="text" class="form-control" placeholder="Search users...">
+                                        <button class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Type</th>
+                                                <th>Joined</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://i.pravatar.cc/40?img=1"
+                                                            class="rounded-circle me-2" width="30" alt="">
+                                                        <div>
+                                                            <div class="fw-bold">John Doe</div>
+                                                            <small class="text-muted">john@email.com</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><span class="badge bg-info">Customer</span></td>
+                                                <td>Dec 2023</td>
+                                                <td><span class="badge bg-success">Active</span></td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            data-bs-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="#"><i
+                                                                        class="fas fa-eye"></i> View Profile</a></li>
+                                                            <li><a class="dropdown-item" href="#"><i
+                                                                        class="fas fa-edit"></i> Edit</a></li>
+                                                            <li><a class="dropdown-item text-danger" href="#"><i
+                                                                        class="fas fa-ban"></i> Suspend</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40"
+                                                            class="rounded-circle me-2" width="30" alt="">
+                                                        <div>
+                                                            <div class="fw-bold">Sarah Johnson</div>
+                                                            <small class="text-muted">sarah@email.com</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td><span class="badge bg-primary">Companion</span></td>
+                                                <td>Nov 2023</td>
+                                                <td><span class="badge bg-success">Active</span></td>
+                                                <td>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                            data-bs-toggle="dropdown">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a class="dropdown-item" href="#"><i
+                                                                        class="fas fa-eye"></i> View Profile</a></li>
+                                                            <li><a class="dropdown-item" href="#"><i
+                                                                        class="fas fa-edit"></i> Edit</a></li>
+                                                            <li><a class="dropdown-item text-danger" href="#"><i
+                                                                        class="fas fa-ban"></i> Suspend</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-header bg-white border-0 p-4">
+                                <h5 class="fw-bold mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-user-plus"></i> Add New Companion
+                                    </button>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-envelope"></i> Send Announcement
+                                    </button>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-file-export"></i> Export Data
+                                    </button>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-cog"></i> Platform Settings
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm border-danger">
+                            <div class="card-header bg-white border-0 p-4">
+                                <h5 class="fw-bold mb-0 text-danger">
+                                    <i class="fas fa-flag"></i> Pending Reports
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-danger mb-2">
+                                    <strong>3 new reports</strong> require attention
+                                </div>
+                                <button class="btn btn-danger w-100">
+                                    <i class="fas fa-exclamation-triangle"></i> Review Reports
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Overview -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 p-4">
+                                <h5 class="fw-bold mb-0">Revenue Analytics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>This Month</span>
+                                        <span class="fw-bold text-primary">$84,250</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Last Month</span>
+                                        <span class="fw-bold">$68,900</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 10px;">
+                                        <div class="progress-bar bg-secondary" style="width: 70%"></div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <h3 class="fw-bold text-success mb-0">+22%</h3>
+                                    <small class="text-muted">Growth this month</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 p-4">
+                                <h5 class="fw-bold mb-0">Platform Statistics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center g-3">
+                                    <div class="col-6">
+                                        <div class="border rounded p-3">
+                                            <h4 class="fw-bold text-primary mb-1">95.2%</h4>
+                                            <small class="text-muted">Success Rate</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-3">
+                                            <h4 class="fw-bold text-primary mb-1">4.8</h4>
+                                            <small class="text-muted">Avg Rating</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-3">
+                                            <h4 class="fw-bold text-primary mb-1">1,245</h4>
+                                            <small class="text-muted">Active Today</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded p-3">
+                                            <h4 class="fw-bold text-primary mb-1">89</h4>
+                                            <small class="text-muted">New Signups</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Profile Modal -->
+    <div class="modal fade" id="viewProfileModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Companion Profile Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300"
+                                class="img-fluid rounded mb-3" alt="">
+                            <h5 class="fw-bold">Jessica Williams</h5>
+                            <p class="text-muted">25 years old</p>
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="fw-bold mb-3">Personal Information</h6>
+                            <div class="mb-2"><strong>Email:</strong> jessica@email.com</div>
+                            <div class="mb-2"><strong>Phone:</strong> +1 (555) 123-4567</div>
+                            <div class="mb-2"><strong>Location:</strong> New York, NY</div>
+                            <div class="mb-3"><strong>Languages:</strong> English, Spanish</div>
+
+                            <h6 class="fw-bold mb-3">Verification Status</h6>
+                            <div class="mb-2"><span class="badge bg-success">ID Verified</span></div>
+                            <div class="mb-2"><span class="badge bg-success">Background Check Passed</span></div>
+
+                            <h6 class="fw-bold mb-3 mt-3">About</h6>
+                            <p>Passionate about art, music, and meaningful conversations. Love exploring new restaurants
+                                and cultural events.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger">Reject Application</button>
+                    <button type="button" class="btn btn-success">Approve Application</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Report Modal -->
+    <div class="modal fade" id="viewReportModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Report Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="text-muted small">Report ID</label>
+                                <div class="fw-bold">#RPT-001</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Reporter</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/40?img=8" class="rounded-circle me-2" width="40"
+                                        alt="">
+                                    <div>
+                                        <div class="fw-bold">Sarah Miller</div>
+                                        <small class="text-muted">sarah@email.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Target Type</label>
+                                <div><span class="badge bg-info">User</span></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Target</label>
+                                <div class="d-flex align-items-center">
+                                    <img src="https://i.pravatar.cc/40?img=12" class="rounded-circle me-2" width="40"
+                                        alt="">
+                                    <div>
+                                        <div class="fw-bold">John Smith</div>
+                                        <small class="text-muted">john.smith@email.com</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="text-muted small">Status</label>
+                                <div><span class="badge badge-pending">Pending</span></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Reported At</label>
+                                <div class="fw-bold">January 26, 2024 at 10:30 AM</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small">Related Booking</label>
+                                <div class="fw-bold text-primary">#BC-2024-0142</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="text-muted small">Reason for Report</label>
+                                <div class="bg-light p-3 rounded">
+                                    User was harassing me through messages and making inappropriate comments during our
+                                    conversation. I felt unsafe and uncomfortable. He kept asking for personal
+                                    information outside the platform and tried to negotiate payment directly. This is a
+                                    clear violation of platform policies and I believe this user should be investigated
+                                    immediately for the safety of other companions.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="text-muted small">Evidence / Additional Information</label>
+                                <div class="bg-light p-3 rounded">
+                                    <ul class="mb-0">
+                                        <li>Screenshots of inappropriate messages</li>
+                                        <li>Conversation timestamps: Jan 26, 2024 9:15 AM - 10:00 AM</li>
+                                        <li>User attempted contact via external messaging apps</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Admin Action Required:</strong> This report requires immediate investigation.
+                                Review message history, check for similar reports, and determine appropriate action
+                                (warning, suspension, or permanent ban).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning">Issue Warning</button>
+                    <button type="button" class="btn btn-danger">Suspend User</button>
+                    <button type="button" class="btn btn-success">Mark as Resolved</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+</body>
+
+</html>

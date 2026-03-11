@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff69b4'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white'>♥</text></svg>">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23ff69b4'/><text x='50' y='70' font-size='60' text-anchor='middle' fill='white'>♥</text></svg>">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#e91e63">
+
+    <title>{{ platform_name }} - Find Your Perfect Companion</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+
+    <!-- Hero Section -->
+    <section class="hero-section-modern">
+        <div class="container">
+            <div class="row align-items-center min-vh-100 py-5 flex-column-reverse flex-lg-row position-relative">
+                <div class="col-lg-6 mb-5 mb-lg-0 hero-content reveal reveal-left">
+                    <span class="badge bg-white text-primary px-4 py-2 rounded-pill mb-4 shadow-sm"
+                        style="box-shadow: 0 4px 15px rgba(255, 107, 157, 0.15); border: 1px solid rgba(255, 107, 157, 0.2); font-weight: 600; letter-spacing: 0.5px;">
+                        <i class="fas fa-star text-warning me-2"></i>Trusted by 10,000+ users
+                    </span>
+                    <h1 class="display-3 fw-bold mb-4"
+                        style="line-height: 1.15; color: var(--dark-text); letter-spacing: -2px;">
+                        Find
+                        Your Perfect<br><span class="text-primary">Companion</span></h1>
+                    <p class="lead mb-5 text-muted" style="font-size: 1.15rem; max-width: 90%;">
+                        Connect with verified
+                        companions for dates, events, or quality
+                        time together. Safe, professional, and memorable experiences.</p>
+                    <div class="d-flex gap-3 flex-wrap mb-5">
+                        <a href="{{ url_for('listing') }}"
+                            class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-premium"
+                            style="background: linear-gradient(135deg, #ff6b9d 0%, #ffa366 100%); border: none; font-weight: 600;">
+                            Browse Now <i class="fas fa-arrow-right ms-2 fs-6"></i>
+                        </a>
+                        <a href="{{ url_for('register') }}"
+                            class="btn btn-outline-dark btn-lg px-5 py-3 rounded-pill fw-semibold border-2 hover-lift">
+                            Join Free
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 hero-image reveal reveal-right delay-200">
+                    <div class="hero-image-wrapper">
+                        <img src="{{ url_for('static', filename='images/hero-main.jpg') }}" alt="Happy Companion"
+                            class="img-fluid rounded-5 shadow-lg">
+                        <div class="floating-card modern-glass-card hover-lift">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="avatar-group d-flex">
+                                    <img src="{{ url_for('static', filename='images/avatar-1.jpg') }}"
+                                        class="rounded-circle border-2 border-white shadow-sm" width="45" height="45"
+                                        alt="">
+                                    <img src="{{ url_for('static', filename='images/avatar-2.jpg') }}"
+                                        class="rounded-circle border-2 border-white shadow-sm" width="45" height="45"
+                                        alt="" style="margin-left: -15px;">
+                                    <img src="{{ url_for('static', filename='images/avatar-3.jpg') }}"
+                                        class="rounded-circle border-2 border-white shadow-sm" width="45" height="45"
+                                        alt="" style="margin-left: -15px;">
+                                </div>
+                                <div class="ms-1">
+                                    <div class="fw-bold fs-5 text-dark" style="letter-spacing: -0.5px;"><span
+                                            id="activeUsers">2,458</span> <span class="fw-semibold fs-6">users
+                                            online</span></div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success rounded-circle me-2 pulse-dot"
+                                            style="width: 8px; height: 8px;"></div>
+                                        <small class="text-muted fw-medium text-uppercase"
+                                            style="font-size: 0.65rem; letter-spacing: 1px;">Live Now</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Stats Row -->
+            <div class="row hero-stats-row justify-content-center reveal reveal-up delay-300">
+                <div class="col-lg-8">
+                    <div class="row g-4 mt-2 text-center">
+                        <div class="col-4">
+                            <div class="stats-box modern-glass-card hover-lift p-4 text-center">
+                                <h2 class="display-5 fw-bold mb-1 text-primary" style="letter-spacing: -2px;">{{
+                                    total_companions }}+</h2>
+                                <small class="text-muted text-uppercase fw-semibold"
+                                    style="letter-spacing: 1px; font-size: 0.7rem;">Verified</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-box modern-glass-card hover-lift p-4 text-center">
+                                <h2 class="display-5 fw-bold mb-1 text-primary" style="letter-spacing: -2px;">{{
+                                    "{:,.0f}".format(total_bookings / 1000) }}K+
+                                </h2>
+                                <small class="text-muted text-uppercase fw-semibold"
+                                    style="letter-spacing: 1px; font-size: 0.7rem;">Bookings</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-box modern-glass-card hover-lift p-4 text-center">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <h2 class="display-5 fw-bold mb-1 text-primary" style="letter-spacing: -2px;">{{
+                                        "%.1f"|format(avg_rating) }}</h2>
+                                    <i class="fas fa-star text-warning ms-1 fs-5 mt-1"></i>
+                                </div>
+                                <small class="text-muted text-uppercase fw-semibold"
+                                    style="letter-spacing: 1px; font-size: 0.7rem;">Avg Rating</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Companions Section -->
+    <section class="py-5 my-5" style="background: var(--very-light-gray);">
+        <div class="container">
+            <div class="text-center mb-5 reveal reveal-up">
+                <h2 class="display-5 fw-bold" style="color: var(--dark-text);">Featured Companions</h2>
+                <p class="lead text-muted">Meet our top-rated and most popular companions</p>
+            </div>
+            <div class="row g-4">
+                {% for companion in featured_companions %}
+                <!-- Companion Card {{ loop.index }} -->
+                <div class="col-6 col-md-3 col-lg-3 reveal reveal-up delay-{{ loop.index * 100 }}">
+                    <a href="{{ url_for('profile', companion_id=companion.companion_id) }}"
+                        class="card-link d-block h-100 text-decoration-none">
+                        <div class="companion-card h-100 d-flex flex-column">
+                            <div class="position-relative overflow-hidden">
+                                <img src="{{ companion.photo_url }}" class="card-img-top"
+                                    alt="{{ companion.display_name }}">
+                                <button class="favorite-btn" data-companion-id="{{ companion.companion_id }}"
+                                    data-favorited="{{ 'true' if companion.companion_id in favorited_ids else 'false' }}"
+                                    onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(this);">
+                                    <i class="{{ 'fas' if companion.companion_id in favorited_ids else 'far' }} fa-heart"
+                                        style="{{ 'color: #e91e8c;' if companion.companion_id in favorited_ids else '' }}"></i>
+                                </button>
+                                <span class="price-badge-overlay">${{ "{:,.0f}".format(companion.rate_per_hour)
+                                    }}/hr</span>
+                            </div>
+                            <div class="card-body p-3 d-flex flex-column flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="companion-name text-truncate mb-0" style="max-width: calc(100% - 60px);">
+                                        {{ companion.display_name }}</h5>
+                                    {% if companion.avg_rating > 0 %}
+                                    <span class="rating-badge">
+                                        <i class="fas fa-star"></i> {{ "%.1f"|format(companion.avg_rating) }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <p class="companion-description text-line-clamp-2 mb-3">{{ companion.bio or '' }}</p>
+                                <div class="personality-tags-wrapper mt-auto">
+                                    {% for trait in companion.personality_traits[:1] %}
+                                    <span class="personality-tag"><i class="fas fa-heart"></i>{{ trait }}</span>
+                                    {% endfor %}
+                                    {% if companion.personality_traits|length > 1 %}
+                                    <span class="personality-tag personality-tag-more"><i class="fas fa-plus"></i>{{
+                                        companion.personality_traits|length - 1 }} more</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-5 pt-3">
+                <a href="{{ url_for('listing') }}"
+                    class="btn btn-outline-primary btn-lg rounded-pill px-5 border-2 fw-semibold hover-lift"
+                    style="font-family: 'Inter', sans-serif;">View
+                    All
+                    Companions</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5" style="background: var(--very-light-gray);">
+        <div class="container py-5">
+            <div class="text-center mb-5 pb-3 reveal reveal-up">
+                <span class="badge bg-white text-primary px-4 py-2 rounded-pill mb-4 shadow-sm"
+                    style="border: 1px solid rgba(255, 107, 157, 0.2); font-weight: 600; letter-spacing: 0.5px;">
+                    <i class="fas fa-magic me-2"></i>Simple Process
+                </span>
+                <h2 class="display-4 fw-bold mb-3" style="color: var(--dark-text); letter-spacing: -2px;">How It Works
+                </h2>
+                <p class="lead text-muted fs-5">Get started in three simple steps</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4 reveal reveal-up delay-100">
+                    <div class="modern-card text-center p-5 h-100">
+                        <div class="step-number mb-4">01</div>
+                        <div class="step-icon-modern mb-4">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Browse & Choose</h4>
+                        <p class="text-muted">Explore verified companions. Filter by interests, location, and
+                            availability to find your perfect match.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal reveal-up delay-200">
+                    <div class="modern-card text-center p-5 h-100">
+                        <div class="step-number mb-4">02</div>
+                        <div class="step-icon-modern mb-4">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Book Your Time</h4>
+                        <p class="text-muted">Select your preferred date, time, and duration. Complete the secure
+                            booking process instantly.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 reveal reveal-up delay-300">
+                    <div class="modern-card text-center p-5 h-100">
+                        <div class="step-number mb-4">03</div>
+                        <div class="step-icon-modern mb-4">
+                            <i class="fas fa-smile-beam"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Enjoy Together</h4>
+                        <p class="text-muted">Meet your companion and enjoy quality time together. Rate your experience
+                            and book again anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust & Safety Section -->
+    <section class="py-5 bg-gradient-modern">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0 text-white pe-lg-5">
+                    <span
+                        class="badge bg-white bg-opacity-25 text-white px-4 py-2 rounded-pill mb-4 border border-white border-opacity-25"
+                        style="backdrop-filter: blur(10px); font-weight: 600; letter-spacing: 1px;">
+                        <i class="fas fa-shield-check me-2"></i>100% SECURE
+                    </span>
+                    <h2 class="display-4 fw-bold mb-4" style="letter-spacing: -2px; line-height: 1.1;">Your Safety is
+                        Our Priority</h2>
+                    <p class="lead mb-5 opacity-90 fw-light">We take safety seriously. All companions are verified,
+                        background-checked, and reviewed by our community.</p>
+                    <div class="row g-4">
+                        <div class="col-sm-6">
+                            <div class="safety-feature">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Identity Verified</h5>
+                                <p class="mb-0 opacity-75 small">Background checked profiles</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="safety-feature">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Secure Payments</h5>
+                                <p class="mb-0 opacity-75 small">Encrypted transactions</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="safety-feature">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">24/7 Support</h5>
+                                <p class="mb-0 opacity-75 small">Always here to help</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="safety-feature">
+                                <div class="feature-icon mb-3">
+                                    <i class="fas fa-undo"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Money Back</h5>
+                                <p class="mb-0 opacity-75 small">100% guarantee</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="safety-image-wrapper">
+                        <img src="{{ url_for('static', filename='images/safety.jpg') }}" alt="Safety"
+                            class="img-fluid rounded-5 shadow-lg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5" style="background: var(--very-light-gray);">
+        <div class="container">
+            <div class="text-center mb-5 reveal reveal-up">
+                <h2 class="display-5 fw-bold" style="color: var(--dark-text);">What Our Clients Say</h2>
+                <p class="lead text-muted">Real reviews from real experiences</p>
+            </div>
+            <div class="testimonial-carousel">
+                <!-- Testimonial Slide 1 -->
+                <div class="testimonial-slide active">
+                    <div class="row g-4">
+                        {% for testimonial in testimonials %}
+                        <div class="col-md-4 reveal reveal-up delay-{{ loop.index * 100 }}">
+                            <div class="testimonial-card modern-glass-card hover-lift p-4 h-100">
+                                <div class="testimonial-stars mb-3 text-warning">
+                                    {% for i in range(testimonial.rating) %}
+                                    <i class="fas fa-star"></i>
+                                    {% endfor %}
+                                    {% for i in range(5 - testimonial.rating) %}
+                                    <i class="far fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                                <p class="testimonial-text fst-italic text-muted mb-4" style="line-height: 1.6;">"{{
+                                    testimonial.comment }}"</p>
+                                <div class="testimonial-author d-flex align-items-center mt-auto">
+                                    <img src="{{ testimonial.customer_photo }}" alt="{{ testimonial.customer_name }}"
+                                        class="testimonial-avatar rounded-circle border-2 shadow-sm me-3" width="50"
+                                        height="50" style="object-fit: cover;">
+                                    <div class="testimonial-author-info">
+                                        <div class="testimonial-author-name fw-bold text-dark">{{
+                                            testimonial.customer_name }}</div>
+                                        <div class="testimonial-author-title small text-muted text-uppercase"
+                                            style="letter-spacing: 0.5px; font-size: 0.75rem;">{{ testimonial.title }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5" style="background: var(--very-light-gray);">
+        <div class="container text-center reveal reveal-up">
+            <h2 class="display-5 fw-bold mb-4" style="color: var(--dark-text);">Ready to Find Your Perfect Companion?
+            </h2>
+            <p class="lead mb-4 text-muted">Join thousands of satisfied clients who found their ideal companion</p>
+            <a href="{{ url_for('listing') }}" class="btn btn-primary btn-lg rounded-pill px-5"
+                style="background: linear-gradient(135deg, #ff6b9d 0%, #ffa366 100%); border: none; box-shadow: 0 12px 30px rgba(255, 107, 157, 0.35);">
+                <i class="fas fa-rocket me-2"></i>Get Started Now
+            </a>
+        </div>
+    </section>
+    {% include 'front/footer.html' %}
+
+    <!-- Scroll Reveal Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const reveals = document.querySelectorAll('.reveal');
+
+            const revealOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function (entries, observer) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('active');
+                        // Optional: stop observing once revealed
+                        // observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+
+            reveals.forEach(reveal => {
+                revealOnScroll.observe(reveal);
+            });
+
+            // Immediately reveal elements already in viewport on load
+            setTimeout(() => {
+                reveals.forEach(reveal => {
+                    const windowHeight = window.innerHeight;
+                    const elementTop = reveal.getBoundingClientRect().top;
+                    const elementVisible = 150;
+
+                    if (elementTop < windowHeight - elementVisible) {
+                        reveal.classList.add('active');
+                    }
+                });
+            }, 100); // Small delay to ensure CSS is painted
+        });
+    </script>
+</body>
+
+</html>

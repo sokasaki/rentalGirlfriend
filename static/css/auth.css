@@ -1,0 +1,250 @@
+/* Authentication Pages - Login, Registration, Password Reset */
+
+/* Override body padding for auth pages */
+body.auth-page {
+  padding-top: 0 !important;
+}
+
+/* Auth Card Container */
+.auth-card {
+  background: var(--glass-light);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Auth Page Heading */
+.auth-heading {
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+/* Auth Page Subtext */
+.auth-subtext {
+  font-weight: 400;
+}
+
+/* Auth Section */
+.auth-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+/* Form Labels in Auth */
+.auth-form .form-label {
+  font-weight: 600;
+  color: var(--dark-text);
+}
+
+/* Form Controls in Auth */
+.auth-form .form-control,
+.auth-form .form-select {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1.5px solid rgba(255, 107, 157, 0.15);
+  border-radius: 0.875rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+}
+
+.auth-form .form-control:focus,
+.auth-form .form-select:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--millennial-pink);
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 157, 0.15);
+}
+
+/* Auth Buttons */
+.auth-btn {
+  font-weight: 600;
+  padding: 0.625rem 1.5rem;
+  transition: all 0.3s ease;
+  border-radius: 50px;
+}
+
+/* Primary Auth Button */
+.auth-btn.btn-primary {
+  background-color: var(--millennial-pink);
+  border-color: var(--millennial-pink);
+}
+
+.auth-btn.btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--millennial-pink) 0%,
+    var(--light-orange) 100%
+  );
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 107, 157, 0.35);
+}
+
+/* Auth Links */
+.auth-link {
+  color: var(--millennial-pink);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Step Indicator */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.step.active,
+.step.completed {
+  opacity: 1;
+}
+
+.step-number {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--light-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--millennial-pink);
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.step.active .step-number {
+  background: var(--millennial-pink);
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+.step.completed .step-number {
+  background: #28a745;
+  color: white;
+}
+
+/* Form Steps */
+.form-step {
+  display: none;
+}
+
+.form-step.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* Success Checkmark */
+.success-checkmark {
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto 2rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--millennial-pink) 0%,
+    var(--light-orange) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Next Step Card */
+.next-step-card {
+  transition: all 0.3s ease;
+}
+
+.next-step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(255, 107, 157, 0.15) !important;
+}
+
+.next-step-card .step-number {
+  font-size: 1.5rem;
+}
+
+/* Auth Form Checkbox */
+.auth-form .form-check-input {
+  border-color: rgba(255, 107, 157, 0.3);
+  transition: all 0.3s ease;
+}
+
+.auth-form .form-check-input:checked {
+  background-color: var(--millennial-pink);
+  border-color: var(--millennial-pink);
+}
+
+.auth-form .form-check-input:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 107, 157, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .step-indicator {
+    margin-bottom: 1.5rem;
+  }
+
+  .step-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.9rem;
+  }
+
+  .auth-section {
+    padding: 1rem 0;
+  }
+}

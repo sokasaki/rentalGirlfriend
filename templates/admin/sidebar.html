@@ -1,0 +1,78 @@
+<div class="col-lg-2 col-md-3 dashboard-sidebar">
+    <!-- Brand -->
+    <a href="{{ url_for('admin_home') }}" class="sidebar-brand text-center">
+        <div class="brand-icon mx-auto">
+            <i class="fa-solid fa-heart"></i>
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">{{ platform_name }}</span>
+            <span class="brand-subtitle">Admin Panel</span>
+        </div>
+    </a>
+
+    <nav class="dashboard-nav">
+        <a href="{{ url_for('admin_home') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">
+            <i class="fa-solid fa-gauge-high"></i> Dashboard
+        </a>
+        {% if has_perm('manage_users') %}
+        <a href="{{ url_for('users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">
+            <i class="fa-solid fa-users"></i> Users
+        </a>
+        {% endif %}
+        {% if has_perm('manage_roles') %}
+        <a href="{{ url_for('roles') }}" class="nav-link {% if active_page == 'roles' %}active{% endif %}">
+            <i class="fa-solid fa-user-shield"></i> Roles
+        </a>
+        {% endif %}
+        {% if has_perm('manage_companions') %}
+        <a href="{{ url_for('companions') }}" class="nav-link {% if active_page == 'companions' %}active{% endif %}">
+            <i class="fa-solid fa-user-group"></i>
+            <span>Companions</span>
+            <span class="badge bg-warning">{{ pending_count }}</span>
+        </a>
+        {% endif %}
+        {% if has_perm('manage_bookings') %}
+        <a href="{{ url_for('bookings') }}" class="nav-link {% if active_page == 'bookings' %}active{% endif %}">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </a>
+        {% endif %}
+        {% if has_perm('manage_payments') %}
+        <a href="{{ url_for('payments') }}" class="nav-link {% if active_page == 'payments' %}active{% endif %}">
+            <i class="fa-solid fa-credit-card"></i> Payments
+        </a>
+        {% endif %}
+        {% if has_perm('manage_reports') %}
+        <a href="{{ url_for('reports') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
+            <i class="fa-solid fa-flag"></i>
+            <span>Reports</span>
+            <span class="badge bg-danger">3</span>
+        </a>
+        {% endif %}
+        {% if has_perm('manage_reviews') %}
+        <a href="{{ url_for('reviews') }}" class="nav-link {% if active_page == 'reviews' %}active{% endif %}">
+            <i class="fa-solid fa-star"></i> Reviews
+        </a>
+        {% endif %}
+        {% if has_perm('manage_broadcast') %}
+        <a href="{{ url_for('broadcast_page') }}" class="nav-link {% if active_page == 'broadcast' %}active{% endif %}">
+            <i class="fa-solid fa-bullhorn"></i> Broadcast
+        </a>
+        {% endif %}
+        {% if has_perm('manage_analytics') %}
+        <a href="{{ url_for('analytics') }}" class="nav-link {% if active_page == 'analytics' %}active{% endif %}">
+            <i class="fa-solid fa-chart-line"></i> Analytics
+        </a>
+        {% endif %}
+        {% if has_perm('manage_settings') %}
+        <a href="{{ url_for('settings') }}" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
+            <i class="fa-solid fa-gear"></i> Settings
+        </a>
+        {% endif %}
+
+        <div class="mt-auto"></div>
+        <hr class="text-white mx-3">
+        <a href="{{ url_for('logout') }}" class="nav-link text-danger py-2">
+            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+        </a>
+    </nav>
+</div>

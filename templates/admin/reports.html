@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Layout Wrapper -->
+            <div class="col-lg-10 col-md-9">
+                <div class="row g-0">
+                    <!-- Main Content -->
+                    <div class="col-lg-9 col-md-8 p-4">
+                        {% set header_title = 'Trust & Safety' %}
+{% set header_class = 'mb-4' %}
+{% include 'admin/header.html' with context %}
+
+                        <!-- Critical Alerts -->
+                        {% if pending_count > 0 %}
+                        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center mb-4 py-3"
+                            style="border-radius: 12px; background: linear-gradient(to right, #fef2f2, #fff);">
+                            <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-bolt-lightning"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-danger">High Priority Moderation Required</div>
+                                <div class="small text-muted">There are {{ pending_count }} reports pending review that
+                                    require
+                                    immediate action.</div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Reports Ledger -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-0 p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">Moderation Queue</h5>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-light text-muted uppercase-label d-none d-md-inline"
+                                            id="activeFilterLabel">All Reports</span>
+                                        <button class="btn btn-light btn-sm rounded-pill px-3 border d-none"
+                                            id="clearFilterBtn" onclick="setFilter('all')">
+                                            <i class="fa-solid fa-xmark me-1"></i> Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-light text-muted uppercase-label small">
+                                            <tr>
+                                                <th class="ps-4 py-3">ID</th>
+                                                <th class="py-3">Reporter</th>
+                                                <th class="py-3">Subject</th>
+                                                <th class="py-3">Status</th>
+                                                <th class="py-3">Created</th>
+                                                <th class="text-end pe-4 py-3">Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for report, reporter in reports %}
+                                            <tr data-status="{{ report.status.value | lower }}"
+                                                data-status-raw="{{ report.status.value }}">
+                                                <td class="ps-4">
+                                                    <span class="fw-bold text-dark">#{{ report.report_id }}</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                                            style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                                            <i class="fa-solid fa-user-ninja"></i>
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold small">{{ reporter.username or
+                                                                reporter.email }}
+                                                            </div>
+                                                            <div class="text-muted" style="font-size: 0.65rem;">User ID:
+                                                                {{
+                                                                reporter.id }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge {% if report.target_type.value == 'COMPANION' %}bg-primary-subtle text-primary border-primary-subtle{% else %}bg-info-subtle text-info border-info-subtle{% endif %} border rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">
+                                                        <i
+                                                            class="fa-solid {% if report.target_type.value == 'COMPANION' %}fa-user-tie{% else %}fa-user{% endif %} me-1"></i>{{
+                                                        report.target_type.value }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    {% if report.status.value == 'PENDING' %}
+                                                    <span
+                                                        class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3"
+                                                        style="font-size: 0.65rem;">
+                                                        <i class="fa-solid fa-clock-rotate-left me-1"></i> PENDING
+                                                    </span>
+                                                    {% elif report.status.value == 'AWAITING_INFO' %}
+                                                    <span
+                                                        class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3"
+                                                        style="font-size: 0.65rem;">
+                                                        <i class="fa-solid fa-message me-1"></i> AWAITING INFO
+                                                    </span>
+                                                    {% else %}
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3"
+                                                        style="font-size: 0.65rem;">
+                                                        <i class="fa-solid fa-circle-check me-1"></i> RESOLVED
+                                                    </span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-muted small">
+                                                    {{ report.created_at.strftime('%Y-%m-%d') }}
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <a href="{{ url_for('report_detail', report_id=report.report_id) }}"
+                                                        class="btn btn-light btn-sm rounded-pill border fw-bold px-3">
+                                                        VIEW <i class="fa-solid fa-chevron-right ms-1"
+                                                            style="font-size: 0.7rem;"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="6" class="text-center py-5">
+                                                    <i
+                                                        class="fa-solid fa-shield-slash fa-3x mb-3 text-muted opacity-25"></i>
+                                                    <p class="text-muted mb-0">No reports requiring moderation at this
+                                                        time.</p>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-3 col-md-4 p-4 border-start bg-white shadow-sm sticky-top"
+                        style="height: 100vh; overflow-y: auto;">
+                        <h5 class="fw-bold mb-4">Report Analytics</h5>
+
+                        <div class="nav flex-column gap-3 mb-4">
+                            <div class="filter-card p-3 rounded-4 border bg-light transition-base" data-filter="all"
+                                style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="uppercase-label small text-muted">Total Submissions</span>
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                        <i class="fa-solid fa-list-check"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-0">{{ total_count }}</h3>
+                            </div>
+
+                            <div class="filter-card p-3 rounded-4 border bg-white transition-base shadow-sm"
+                                data-filter="pending"
+                                style="cursor: pointer; border-left: 4px solid var(--bs-warning) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="uppercase-label small text-muted">Awaiting Action</span>
+                                    <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                        <i class="fa-solid fa-clock"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-0 text-warning">{{ pending_count }}</h3>
+                            </div>
+
+                            <div class="filter-card p-3 rounded-4 border bg-white transition-base"
+                                data-filter="awaiting_info"
+                                style="cursor: pointer; border-left: 4px solid var(--bs-info) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="uppercase-label small text-muted">Awaiting Info</span>
+                                    <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                        <i class="fa-solid fa-comment-dots"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-0 text-info">{{ awaiting_count }}</h3>
+                            </div>
+
+                            <div class="filter-card p-3 rounded-4 border bg-white transition-base"
+                                data-filter="resolved"
+                                style="cursor: pointer; border-left: 4px solid var(--bs-success) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="uppercase-label small text-muted">Successfully Resolved</span>
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width: 28px; height: 28px; font-size: 0.7rem;">
+                                        <i class="fa-solid fa-check-double"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold mb-0 text-success">{{ resolved_count }}</h3>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="p-4 bg-dark text-white rounded-4 shadow-lg mb-4">
+                            <h6 class="fw-bold mb-3 uppercase-label small text-warning"><i
+                                    class="fa-solid fa-chart-line me-2"></i>Status Breakdown</h6>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar"
+                                    style="width: {{ (pending_count / total_count * 100) if total_count else 0 }}%">
+                                </div>
+                                <div class="progress-bar bg-info" role="progressbar"
+                                    style="width: {{ (awaiting_count / total_count * 100) if total_count else 0 }}%">
+                                </div>
+                                <div class="progress-bar bg-success" role="progressbar"
+                                    style="width: {{ (resolved_count / total_count * 100) if total_count else 0 }}%">
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between flex-wrap gap-2 small opacity-75">
+                                <span><i class="fa-solid fa-circle text-warning me-1"></i> Pending</span>
+                                <span><i class="fa-solid fa-circle text-info me-1"></i> Info</span>
+                                <span><i class="fa-solid fa-circle text-success me-1"></i> Done</span>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 text-center border-dashed mt-auto">
+                            <p class="small text-muted mb-0">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                Resolved reports are archived but remain searchable in history.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div class="modal fade" id="reportDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+                <div class="modal-header border-0 text-white p-4"
+                    style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0"><i class="fas fa-flag me-2"></i>Report Details</h5>
+                        <p class="mb-0 opacity-75 small" id="modalReportId">Loading...</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="reportDetailBody">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4" id="reportDetailFooter"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.view-report-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const reportId = this.dataset.reportId;
+                const modal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+                document.getElementById('modalReportId').textContent = `Report #${reportId}`;
+                document.getElementById('reportDetailBody').innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
+                document.getElementById('reportDetailFooter').innerHTML = '';
+                modal.show();
+
+                try {
+                    const resp = await fetch(`/admin/report-detail/${reportId}`);
+                    const d = await resp.json();
+
+                    const statusColors = { PENDING: 'warning', AWAITING_INFO: 'info', RESOLVED: 'success' };
+                    const statusColor = statusColors[d.status] || 'secondary';
+
+                    let responseSection = '';
+                    if (d.user_response) {
+                        responseSection = `
+                            <div class="mt-3 p-3 rounded-3" style="background:#f0fdf4; border-left: 4px solid #22c55e;">
+                                <div class="fw-semibold text-success mb-1"><i class="fas fa-reply me-2"></i>User Response</div>
+                                <p class="mb-0 small">${d.user_response}</p>
+                            </div>`;
+                    } else if (d.status === 'AWAITING_INFO') {
+                        responseSection = `
+                            <div class="mt-3 p-3 rounded-3" style="background:#fef9c3; border-left: 4px solid #eab308;">
+                                <div class="fw-semibold text-warning mb-1"><i class="fas fa-clock me-2"></i>Waiting for user response</div>
+                                <p class="mb-0 small text-muted">Info requested on ${d.info_requested_at || '—'}. No response yet.</p>
+                            </div>`;
+                    }
+
+                    document.getElementById('reportDetailBody').innerHTML = `
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size:0.65rem;">Reporter</div>
+                                    <div class="fw-semibold">${d.reporter_username}</div>
+                                    <div class="small text-muted">${d.reporter_email}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <div class="small text-muted text-uppercase fw-bold mb-1" style="font-size:0.65rem;">Reported Target</div>
+                                    <div class="fw-semibold">${d.target_name}</div>
+                                    <div><span class="badge bg-secondary-soft text-secondary">${d.target_type}</span> <span class="small text-muted">ID: ${d.target_id}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="fw-semibold text-dark"><i class="fas fa-comment-alt me-2 text-primary"></i>Report Reason</div>
+                                <span class="badge bg-${statusColor}">${d.status.replace('_', ' ')}</span>
+                            </div>
+                            <div class="p-3 bg-light rounded-3 small" style="white-space: pre-wrap;">${d.full_reason}</div>
+                            ${responseSection}
+                        </div>
+
+                        <div class="row g-2 mt-1">
+                            <div class="col-6">
+                                <div class="small text-muted"><i class="fas fa-calendar-alt me-1"></i><strong>Submitted:</strong> ${d.created_at}</div>
+                            </div>
+                            ${d.info_requested_at ? `<div class="col-6"><div class="small text-muted"><i class="fas fa-info-circle me-1"></i><strong>Info Requested:</strong> ${d.info_requested_at}</div></div>` : ''}
+                        </div>`;
+
+                    document.getElementById('reportDetailFooter').innerHTML = `
+                        <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>`;
+
+                } catch (err) {
+                    document.getElementById('reportDetailBody').innerHTML = '<div class="text-center text-danger py-4"><i class="fas fa-exclamation-circle fa-2x mb-2 d-block"></i>Failed to load report details.</div>';
+                }
+            });
+        });
+
+        // ── Stats Card Filter ──────────────────────────────────────────
+        function setFilter(filter) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            const cards = document.querySelectorAll('.filter-card');
+            const label = document.getElementById('activeFilterLabel');
+            const clearBtn = document.getElementById('clearFilterBtn');
+
+            // Show/hide rows
+            rows.forEach(row => {
+                const status = row.dataset.status;
+                row.style.display = (filter === 'all' || status === filter) ? '' : 'none';
+            });
+
+            // Highlight active card
+            cards.forEach(c => {
+                const isActive = c.dataset.filter === filter;
+                c.style.outline = isActive ? '3px solid #0d6efd' : '';
+                c.style.transform = isActive && filter !== 'all' ? 'translateY(-4px)' : '';
+                c.style.boxShadow = isActive && filter !== 'all' ? '0 8px 24px rgba(13,110,253,0.18)' : '';
+            });
+
+            // Show filter label
+            if (filter === 'all') {
+                label.classList.add('d-none');
+                clearBtn.classList.add('d-none');
+            } else {
+                const labels = { pending: '⏳ Pending', awaiting_info: '⌛ Awaiting Info', resolved: '✅ Resolved' };
+                label.textContent = labels[filter] || filter;
+                label.classList.remove('d-none');
+                clearBtn.classList.remove('d-none');
+            }
+        }
+
+        document.querySelectorAll('.filter-card').forEach(card => {
+            card.addEventListener('click', () => setFilter(card.dataset.filter));
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    {% include 'front/header.html' %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Confirmation Section -->
+    <section class="py-5" style="background: var(--very-light-gray);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Success Message -->
+                    <div class="text-center mb-5">
+                        <div class="success-icon mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 6rem;"></i>
+                        </div>
+                        <h1 class="display-4 fw-bold mb-3" style="font-weight: 800; letter-spacing: -1.5px;">Booking
+                            Confirmed!</h1>
+                        <p class="lead text-muted" style="font-weight: 400;">Your companion booking has been
+                            successfully confirmed</p>
+                        <p class="text-muted" style="font-weight: 400;">Booking ID: <span
+                                class="fw-bold">#BC-2024-0145</span></p>
+                    </div>
+
+                    <!-- Booking Details Card -->
+                    <div class="card border-0 shadow-lg mb-4"
+                        style="background: var(--glass-light); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8) !important;">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4" style="font-weight: 800; letter-spacing: -0.5px;">Booking Details
+                            </h5>
+
+                            <!-- Companion Info -->
+                            <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                                <img src="../images/confirmation.jpg" class="rounded-3 me-3" alt="Sarah Johnson"
+                                    style="width: 100px; height: 100px; object-fit: cover;">
+                                <div>
+                                    <h5 class="fw-bold mb-1">Sarah Johnson</h5>
+                                    <div class="rating mb-2">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <span class="fw-bold">4.9</span>
+                                        <span class="text-muted">(127 reviews)</span>
+                                    </div>
+                                    <div class="tags">
+                                        <span class="badge bg-pink-soft text-pink">Friendly</span>
+                                        <span class="badge bg-pink-soft text-pink">Professional</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Date & Time -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Date</label>
+                                    <p class="fw-bold mb-0"><i class="fas fa-calendar text-primary me-2"></i>Saturday,
+                                        January 20, 2024</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Time</label>
+                                    <p class="fw-bold mb-0"><i class="fas fa-clock text-primary me-2"></i>7:00 PM -
+                                        11:00 PM</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Duration</label>
+                                    <p class="fw-bold mb-0"><i class="fas fa-hourglass-half text-primary me-2"></i>4
+                                        hours</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small">Location</label>
+                                    <p class="fw-bold mb-0"><i class="fas fa-map-marker-alt text-primary me-2"></i>Grand
+                                        Hotel, Manhattan</p>
+                                </div>
+                            </div>
+
+                            <!-- Special Requests -->
+                            <div class="mb-4 pb-4 border-bottom">
+                                <label class="text-muted small">Special Requests</label>
+                                <p class="mb-0">Business dinner event, formal attire preferred</p>
+                            </div>
+
+                            <!-- Price Breakdown -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Base rate (4 hours @ $50/hr)</span>
+                                    <span>$200.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service fee</span>
+                                    <span>$20.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax</span>
+                                    <span>$15.00</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold h5 mb-0">
+                                    <span>Total</span>
+                                    <span class="text-primary">$235.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method Card -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Payment Method</h5>
+                            <div class="d-flex align-items-center">
+                                <i class="fab fa-cc-visa fa-3x text-primary me-3"></i>
+                                <div>
+                                    <p class="mb-0 fw-bold">Visa ending in 4242</p>
+                                    <small class="text-muted">Payment processed securely</small>
+                                </div>
+                                <span class="badge bg-success ms-auto">Paid</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact & Support -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Need Help?</h5>
+                            <p class="text-muted mb-3">If you have any questions or need to make changes to your
+                                booking, our support team is here to help.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a href="#" class="btn btn-outline-primary w-100 rounded-pill">
+                                        <i class="fas fa-envelope me-2"></i>Contact Support
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="#" class="btn btn-outline-primary w-100 rounded-pill">
+                                        <i class="fas fa-comment me-2"></i>Message Companion
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancellation Policy -->
+                    <div class="alert alert-info">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>Cancellation Policy</h6>
+                        <p class="mb-0 small">Free cancellation up to 24 hours before your booking. Cancellations within
+                            24 hours are subject to a 50% cancellation fee.</p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+                        <a href="dashboard-customer.html" class="btn btn-primary btn-lg rounded-pill px-5">
+                            <i class="fas fa-th-large me-2"></i>Go to Dashboard
+                        </a>
+                        <button class="btn btn-outline-primary btn-lg rounded-pill px-5" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Confirmation
+                        </button>
+                    </div>
+
+                    <!-- Email Confirmation Notice -->
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            <i class="fas fa-envelope me-2"></i>
+                            A confirmation email has been sent to <span class="fw-bold">your@email.com</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Next Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">What Happens Next?</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-bell fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">You'll Receive Reminders</h5>
+                        <p class="text-muted">We'll send you reminders 24 hours and 2 hours before your booking.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-comments fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Stay Connected</h5>
+                        <p class="text-muted">You can message your companion anytime through your dashboard.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-star fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Leave a Review</h5>
+                        <p class="text-muted">After your booking, share your experience by leaving a review.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../js/app.js"></script>
+    {% include 'front/footer.html' %}
+</body>
+
+</html>

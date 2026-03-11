@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+<style>
+    /* Custom Styles for Booking Details */
+    .detail-icon {
+        width: 45px;
+        height: 45px;
+        background: rgba(67, 97, 238, 0.1);
+        color: #4361ee;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .status-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    .status-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e0e6ed;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 2rem;
+    }
+
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        left: -34px;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #4361ee;
+        border: 2px solid white;
+    }
+
+    .sticky-action-bar {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: calc(100% - 285px);
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #e0e6ed;
+        padding: 1rem 2rem;
+        z-index: 1000;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 991px) {
+        .sticky-action-bar {
+            width: 100%;
+        }
+    }
+
+    /* Subtitle backgrounds for statuses */
+    .bg-success-subtle {
+        background-color: rgba(40, 167, 69, 0.1) !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+</style>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'admin/sidebar.html' %}
+
+            <div class="col-lg-10 col-md-9 p-4 mb-5">
+                <div class="dashboard-header-row">
+                    <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="d-flex align-items-center">
+                        <h2 class="mb-0">Booking Details</h2>
+                        <span class="badge rounded-pill bg-light text-primary ms-3">#BC-{{ booking.booking_id }}</span>
+                    </div>
+                    <div class="user-info">
+                        <span
+                            class="badge {% if booking.status.value == 'COMPLETED' %}bg-success{% elif booking.status.value == 'PENDING' %}bg-warning{% elif booking.status.value == 'REJECTED' %}bg-danger{% else %}bg-primary{% endif %} px-3 py-2">
+                            {{ booking.status.value }}
+                        </span>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('bookings') }}" class="btn btn-sm btn-outline-secondary mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+                </a>
+
+                <div class="row g-4">
+                    <!-- Left Column: Participant Summaries -->
+                    <div class="col-xl-8">
+                        <div class="row g-4">
+                            <!-- Client Card -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Client Information</h6>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="me-3">
+                                                {% if booking.customer.profile_photo %}
+                                                <img src="{{ booking.customer.profile_photo }}" class="rounded-circle"
+                                                    style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #f8f9fa;">
+                                                {% else %}
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                                    style="width: 60px; height: 60px; border: 3px solid #f8f9fa;">
+                                                    <i class="fas fa-user text-muted fa-lg"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-1 fw-bold">{{ booking.customer.full_name }}</h5>
+                                                <a href="{{ url_for('view_customer', user_id=booking.customer.user_id) }}"
+                                                    class="small text-primary text-decoration-none">View Profile <i
+                                                        class="fas fa-external-link-alt ms-1"
+                                                        style="font-size: 0.7rem;"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="small">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Email</span>
+                                                <span class="fw-medium">{{ booking.customer.user.email }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Phone</span>
+                                                <span class="fw-medium">{{ booking.customer.user.phone or 'N/A'
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Companion Card -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Companion Information
+                                        </h6>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="me-3">
+                                                {% set primary_photo = booking.companion.photos|selectattr('is_primary',
+                                                'true')|first %}
+                                                {% if primary_photo %}
+                                                <img src="{{ primary_photo.photo_url }}" class="rounded-circle"
+                                                    style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #f8f9fa;">
+                                                {% else %}
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                                    style="width: 60px; height: 60px; border: 3px solid #f8f9fa;">
+                                                    <i class="fas fa-user-tie text-muted fa-lg"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-1 fw-bold">{{ booking.companion.display_name }}</h5>
+                                                <a href="#" class="small text-primary text-decoration-none">View Profile
+                                                    <i class="fas fa-external-link-alt ms-1"
+                                                        style="font-size: 0.7rem;"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="small">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Email</span>
+                                                <span class="fw-medium">{{ booking.companion.user.email }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span class="text-muted">Rate</span>
+                                                <span class="fw-medium">${{
+                                                    "{:.2f}".format(booking.companion.rate_per_hour) }}/hr</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Service Details -->
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body p-4">
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-4">Service Details</h6>
+                                        <div class="row g-4">
+                                            <div class="col-md-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="detail-icon">
+                                                        <i class="fas fa-calendar-alt"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Execution Date</small>
+                                                        <span class="fw-bold">{{ booking.start_time.strftime('%b %d,
+                                                            %Y') }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="detail-icon">
+                                                        <i class="fas fa-clock"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Start Time</small>
+                                                        <span class="fw-bold">{{ booking.start_time.strftime('%I:%M %p')
+                                                            }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="detail-icon">
+                                                        <i class="fas fa-hourglass-half"></i>
+                                                    </div>
+                                                    <div>
+                                                        <small class="text-muted d-block">Duration</small>
+                                                        <span class="fw-bold">{{ ((booking.end_time -
+                                                            booking.start_time).total_seconds() / 3600)|round(1) }}
+                                                            Hours</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mt-4">
+                                                <div class="p-3 bg-light rounded-3">
+                                                    <div class="d-flex align-items-start text-dark">
+                                                        <i class="fas fa-map-marker-alt mt-1 me-3 text-danger"></i>
+                                                        <div>
+                                                            <small class="text-muted d-block mb-1">Service
+                                                                Location</small>
+                                                            <span class="fw-medium">{{ booking.meeting_location or 'Not
+                                                                specified' }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Review Section -->
+                            {% if review %}
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm overflow-hidden">
+                                    <div class="card-header bg-white border-0 py-3">
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-0">Client Feedback</h6>
+                                    </div>
+                                    <div class="card-body bg-light mx-3 mb-3 rounded-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="text-warning">
+                                                {% for i in range(5) %}
+                                                <i
+                                                    class="{% if i < review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                                {% endfor %}
+                                                <span class="ms-2 fw-bold text-dark">{{ review.rating }}.0</span>
+                                            </div>
+                                            <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y')
+                                                }}</small>
+                                        </div>
+                                        <p class="mb-0 text-dark-emphasis fst-italic">"{{ review.comment }}"</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Financial Summary & Actions -->
+                    <div class="col-xl-4">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-4">Financial Summary</h6>
+                                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                                    <span class="text-muted">Hourly Rate</span>
+                                    <span class="fw-bold">${{ "{:.2f}".format(booking.companion.rate_per_hour) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                                    <span class="text-muted">Duration</span>
+                                    <span class="fw-bold">{{ ((booking.end_time - booking.start_time).total_seconds() /
+                                        3600)|round(1) }} hrs</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-4 mt-2">
+                                    <h5 class="mb-0 fw-bold">Total Price</h5>
+                                    <h5 class="mb-0 fw-bold text-primary">${{ "{:.2f}".format(booking.total_price) }}
+                                    </h5>
+                                </div>
+
+                                <div
+                                    class="p-3 rounded-3 {% if payment and payment.status.value == 'COMPLETED' %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %} d-flex align-items-center">
+                                    <i
+                                        class="fas {% if payment and payment.status.value == 'COMPLETED' %}fa-check-circle{% else %}fa-clock{% endif %} me-3 fa-lg"></i>
+                                    <div>
+                                        <small class="d-block text-uppercase fw-bold"
+                                            style="font-size: 0.6rem; letter-spacing: 0.5px;">Payment Status</small>
+                                        <span class="fw-bold">{{ payment.status.value if payment else 'NOT PAID'
+                                            }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Log -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-4">Activity Log</h6>
+                                <div class="status-timeline small">
+                                    <div class="timeline-item">
+                                        <div class="fw-bold">Booking Requested</div>
+                                        <div class="text-muted">Client initiated request</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="fw-bold">Companion Notified</div>
+                                        <div class="text-muted">Notification sent to companion</div>
+                                    </div>
+                                    {% if booking.status.value != 'PENDING' %}
+                                    <div class="timeline-item mb-0 pb-0">
+                                        <div class="fw-bold">Status Updated to {{ booking.status.value }}</div>
+                                        <div class="text-muted">Action performed by system/user</div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Action Bar -->
+    <div class="sticky-action-bar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6 d-none d-md-block">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Administrative Control: You can manage booking status and resolve disputes.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-3 justify-content-md-end">
+                        <button class="btn btn-warning px-4 py-2 fw-bold shadow-sm"
+                            onclick="cancelBooking({{ booking.booking_id }})" {% if booking.status.value in
+                            ['REJECTED', 'CANCELLED' , 'COMPLETED' ] %}disabled{% endif %}>
+                            <i class="fas fa-ban me-2"></i>Cancel Booking
+                        </button>
+                        <button class="btn btn-danger px-4 py-2 fw-bold shadow-sm"
+                            onclick="deleteBooking({{ booking.booking_id }})">
+                            <i class="fas fa-trash-alt me-2"></i>Delete Record
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cancelBooking(id) {
+            Swal.fire({
+                title: 'Cancel Booking?',
+                text: "Are you sure? This will notify both parties.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, cancel it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/bookings/cancel/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function deleteBooking(id) {
+            Swal.fire({
+                title: 'Delete Booking?',
+                text: "This action is irreversible and will remove all logs.",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it forever!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/bookings/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

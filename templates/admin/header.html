@@ -1,0 +1,27 @@
+<div class="dashboard-header-row {{ header_class | default('') }}">
+    <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <h2>{{ header_title | default('Dashboard Overview') }}</h2>
+    <div class="user-info">
+        <span class="d-none d-md-inline">Welcome, {{ 'Admin' if is_admin else current_user.username if current_user else 'Admin' }}!</span>
+        <div class="dropdown">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                data-bs-toggle="dropdown">
+                <i class="fa-solid fa-circle-user"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user me-2"></i>Profile</a>
+                </li>
+                <li><a class="dropdown-item" href="{{ url_for('settings') }}"><i class="fa-solid fa-gear me-2"></i>Settings</a>
+                </li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i
+                            class="fa-solid fa-right-from-bracket me-2"></i>Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

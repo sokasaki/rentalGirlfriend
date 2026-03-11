@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+<style>
+    /* Enhanced Photo Cards */
+    .photo-card {
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 1/1;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .photo-card:hover {
+        border-color: #4361ee;
+        transform: translateY(-5px);
+    }
+
+    .sticky-action-bar {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: calc(100% - 285px);
+        /* Adjust based on sidebar width */
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid #e0e6ed;
+        padding: 1rem 2rem;
+        z-index: 1000;
+        box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .photo-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(67, 97, 238, 0.2);
+        opacity: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+
+    .photo-card:hover .photo-overlay {
+        opacity: 1;
+    }
+</style>
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4 mb-5">
+                <div class="dashboard-header-row">
+                    <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Customer Details</h2>
+                    <div class="user-info">
+                        <span class="d-none d-md-inline">Welcome, Admin!</span>
+                        <div class="dropdown">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                                data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-alt me-2"></i>Profile</a>
+                                </li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Back Button -->
+                <a href="{{ url_for('users') }}" class="btn btn-sm btn-outline-secondary mb-3">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Users
+                </a>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        {% for category, message in messages %}
+                        Swal.fire({
+                            icon: '{{ "success" if category == "success" else "error" if category in ["error", "danger"] else "warning" if category == "warning" else "info" }}',
+                            title: '{{ "Success!" if category == "success" else "Error!" if category in ["error", "danger"] else "Warning!" if category == "warning" else "Notice" }}',
+                            text: {{ message | tojson }},
+                        confirmButtonColor: '{{ "#28a745" if category == "success" else "#dc3545" if category in ["error", "danger"] else "#ffc107" if category == "warning" else "#17a2b8" }}',
+                        timer: 4000,
+                        timerProgressBar: true,
+                        });
+                    {% endfor %}
+                    });
+                </script>
+                {% endif %}
+                {% endwith %}
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <!-- About Customer -->
+                        <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+                            <div class="card-body p-0">
+                                <div class="row g-0">
+                                    <div class="col-md-4 bg-light border-end d-flex flex-column">
+                                        <div class="position-relative flex-grow-1">
+                                            {% if customer.profile_photo %}
+                                            <img src="{{ customer.profile_photo }}" class="w-100 h-100 object-fit-cover"
+                                                alt="{{ customer.full_name }}"
+                                                style="cursor: zoom-in; min-height: 400px;"
+                                                onclick="openLightbox('{{ customer.profile_photo }}')">
+                                            {% else %}
+                                            <div class="d-flex align-items-center justify-content-center bg-light h-100"
+                                                style="min-height: 400px;">
+                                                <div class="text-center">
+                                                    <i class="fas fa-user-alt fa-3x text-muted mb-2"></i>
+                                                    <p class="small text-muted mb-0">No Profile Photo</p>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="p-3 mt-auto border-top bg-white">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted fw-bold text-uppercase"
+                                                    style="font-size: 0.65rem;">Total Spent</small>
+                                                <span class="text-primary fw-bold">${{ "{:,.2f}".format(total_spent)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-8 p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-4">
+                                            <div>
+                                                <h4 class="fw-bold mb-1">{{ customer.full_name }}</h4>
+                                                <span class="badge rounded-pill bg-light text-dark">
+                                                    {{ customer.gender.value if customer.gender else 'Not Specified' }}
+                                                    • Customer Account
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-2">Biography</h6>
+                                        <div class="p-3 rounded mb-4 bg-light"
+                                            style="white-space: pre-wrap; min-height: 50px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; color: #4a5568;">
+                                            {% if customer.bio %}
+                                            {{ customer.bio }}
+                                            {% else %}
+                                            <span class="text-muted"><i class="fas fa-info-circle me-1"></i>User has not
+                                                provided a biography yet.</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <h6 class="text-uppercase text-muted small fw-bold mb-3">Contact Information
+                                        </h6>
+                                        <div class="row g-3">
+                                            <div class="col-sm-6">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-primary rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-envelope fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Email Address</small>
+                                                        <span class="text-dark fw-medium text-truncate d-block">{{
+                                                            user.email }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-success rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-phone fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Phone Number</small>
+                                                        <span class="text-dark fw-medium">{{ user.phone or 'Not Linked'
+                                                            }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="d-flex align-items-center p-2 rounded border bg-white">
+                                                    <div class="bg-light text-danger rounded me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 35px; height: 35px;">
+                                                        <i class="fas fa-map-marker-alt fa-sm"></i>
+                                                    </div>
+                                                    <div class="overflow-hidden">
+                                                        <small class="text-muted d-block"
+                                                            style="font-size: 0.7rem;">Location</small>
+                                                        <span class="text-dark fw-medium">{{ customer.location or
+                                                            'Address Not Set' }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Booking History -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="mb-0 fw-bold">Booking History <span class="text-muted fw-normal ms-2">({{
+                                        booking_count }})</span></h5>
+                            </div>
+                            <div class="card-body pt-0">
+                                {% if bookings %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="border-0 rounded-start ps-3">Companion</th>
+                                                <th class="border-0">Date</th>
+                                                <th class="border-0">Duration</th>
+                                                <th class="border-0">Amount</th>
+                                                <th class="border-0 rounded-end text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for booking in bookings %}
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <div class="d-flex align-items-center">
+                                                        {% set primary_photo =
+                                                        booking.companion.photos|selectattr('is_primary', 'true')|first
+                                                        %}
+                                                        <div class="me-3">
+                                                            {% if primary_photo %}
+                                                            <img src="{{ primary_photo.photo_url }}"
+                                                                class="rounded-circle"
+                                                                style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #eee;"
+                                                                alt="{{ booking.companion.display_name }}">
+                                                            {% else %}
+                                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                                                style="width: 40px; height: 40px; border: 2px solid #eee;">
+                                                                <i class="fas fa-user text-muted fa-sm"></i>
+                                                            </div>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="fw-bold">{{ booking.companion.display_name }}</div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-bold text-dark">{{ booking.start_time.strftime('%b
+                                                        %d, %Y') }}</div>
+                                                    <small class="text-muted">{{ booking.start_time.strftime('%I:%M %p')
+                                                        }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border fw-normal">
+                                                        <i class="far fa-hourglass me-1 text-primary"></i>
+                                                        {{ ((booking.end_time - booking.start_time).seconds // 3600) }}
+                                                        hrs
+                                                    </span>
+                                                </td>
+                                                <td><span class="fw-bold text-success">${{
+                                                        "{:,.2f}".format(booking.total_price) }}</span></td>
+                                                <td class="text-center">
+                                                    {% set status_class = 'success' if booking.status.value in
+                                                    ['COMPLETED', 'PAID'] else 'warning' if booking.status.value in
+                                                    ['PENDING', 'APPROVED'] else 'danger' %}
+                                                    <span class="badge rounded-pill bg-{{ status_class }} px-3 py-2"
+                                                        style="min-width: 90px; font-size: 0.75rem; letter-spacing: 0.5px;">
+                                                        {{ booking.status.value }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-light border-dashed text-center py-4">
+                                    <i class="fas fa-history text-muted mb-2 d-block fa-lg"></i>
+                                    No past bookings found.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Reviews Section (Optional for customers) -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div
+                                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 fw-bold">Customer Reviews</h5>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-star text-warning me-1"></i>
+                                    <span class="fw-bold">{{ (reviews|length) if reviews else 0 }} Reviews</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                {% if reviews %}
+                                <div class="row g-3">
+                                    {% for review in reviews %}
+                                    <div class="col-12">
+                                        <div class="p-3 rounded-3 border bg-white shadow-xs">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div class="d-flex align-items-center">
+                                                    <div
+                                                        class="bg-warning text-white px-2 py-1 rounded me-2 fw-bold small">
+                                                        {{ review.rating }}.0
+                                                    </div>
+                                                    <div class="text-warning small">
+                                                        {% for i in range(5) %}
+                                                        <i
+                                                            class="{% if i < review.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <span class="text-muted extra-small">
+                                                    <i class="far fa-calendar-alt me-1"></i>{{
+                                                    review.created_at.strftime('%d %b %Y') }}
+                                                </span>
+                                            </div>
+                                            <p class="mb-0 text-dark-emphasis fst-italic"
+                                                style="font-size: 0.9rem; border-left: 3px solid #e9ecef; padding-left: 12px;">
+                                                "{{ review.comment or 'No comment provided' }}"
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-5">
+                                    <p class="text-muted">No feedback has been submitted yet.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-xl-4">
+                        <!-- Profile Strength -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-3">Profile Strength</h6>
+                                {% set score = 0 %}
+                                {% if customer.bio %}{% set score = score + 50 %}{% endif %}
+                                {% if customer.profile_photo %}{% set score = score + 50 %}{% endif %}
+
+                                <div class="d-flex align-items-center mb-2">
+                                    <h2 class="mb-0 fw-bold">{{ score }}%</h2>
+                                    <span class="ms-2 text-muted">Complete</span>
+                                </div>
+                                <div class="progress mb-4" style="height: 6px;">
+                                    <div class="progress-bar bg-{{ 'danger' if score < 50 else 'warning' if score < 100 else 'success' }}"
+                                        style="width: {{ score }}%"></div>
+                                </div>
+
+                                <div class="small">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span><i
+                                                class="fas fa-check-circle {{ 'text-success' if customer.bio else 'text-muted' }} me-2"></i>Biography</span>
+                                        <span class="text-muted">{{ customer.bio|length if customer.bio else 0 }}
+                                            chars</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span><i
+                                                class="fas fa-check-circle {{ 'text-success' if customer.profile_photo else 'text-muted' }} me-2"></i>Profile
+                                            Photo</span>
+                                        <span class="text-muted">{{ 'Uploaded' if customer.profile_photo else 'Missing'
+                                            }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Details -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body">
+                                <h6 class="text-uppercase text-muted small fw-bold mb-3">Registration Details</h6>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Registered</small>
+                                        <strong>{{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A'
+                                            }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Date of Birth</small>
+                                        <strong>{{ customer.date_of_birth.strftime('%b %d, %Y') if
+                                            customer.date_of_birth else 'N/A' }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Gender</small>
+                                        <strong>{{ customer.gender.value if customer.gender else 'N/A' }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Total Bookings</small>
+                                        <strong>{{ booking_count }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sticky-action-bar">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-6 d-none d-md-block">
+                    <p class="mb-0 text-muted small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Review customer activity and profile information. Admin can manage this user account here.
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-3 justify-content-md-end">
+                        <a href="{{ url_for('edit_user', user_id=user.user_id) }}"
+                            class="btn btn-success px-5 py-2 fw-bold shadow-sm">
+                            <i class="fas fa-edit me-1"></i>Edit User
+                        </a>
+                        <button class="btn btn-danger px-5 py-2 fw-bold shadow-sm"
+                            onclick="deleteUser({{ user.user_id }}, '{{ user.email }}')">
+                            <i class="fas fa-trash me-1"></i>Delete User
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Photo Lightbox Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="photoModalLabel">Photo Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0">
+                    <img id="modalImg" src="" class="img-fluid w-100" alt="Preview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Lightbox functionality
+        function openLightbox(url) {
+            const modal = new bootstrap.Modal(document.getElementById('photoModal'));
+            document.getElementById('modalImg').src = url;
+            modal.show();
+        }
+
+        function deleteUser(id, email) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Delete user: ${email}? This action cannot be undone!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/users/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

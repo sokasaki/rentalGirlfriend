@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content Container -->
+            <div class="col-lg-10 col-md-9">
+                <div class="row g-0">
+                    <!-- Main Content -->
+                    <div class="col-lg-9 col-md-8 p-4">
+                        {% set header_title = 'Platform Analytics' %}
+{% set header_class = 'mb-4' %}
+{% include 'admin/header.html' with context %}
+
+                        <!-- Revenue Chart -->
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div
+                                class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                                <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-line text-primary me-2"></i>Revenue
+                                    Trend
+                                </h5>
+                                <div class="text-muted small">Period: {{ selected_range }} Days</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="height: 350px; position: relative;">
+                                    <canvas id="revenueChart"></canvas>
+                                </div>
+                                <div class="row text-start mt-4 bg-light p-3 rounded-3 g-3">
+                                    <div class="col-md-3 col-6">
+                                        <small class="text-muted d-block uppercase-label">Highest Day</small>
+                                        <div class="fw-bold text-success">{% if peak_day %}${{
+                                            "{:,.2f}".format(peak_day.total)
+                                            }} ({{ peak_day.day }}){% else %}N/A{% endif %}</div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <small class="text-muted d-block uppercase-label">Lowest Day</small>
+                                        <div class="fw-bold text-danger">{% if lowest_day %}${{
+                                            "{:,.2f}".format(lowest_day.total) }} ({{ lowest_day.day }}){% else %}N/A{%
+                                            endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <small class="text-muted d-block uppercase-label">Average/Day</small>
+                                        <div class="fw-bold">${{ "{:,.2f}".format(avg_per_day) if avg_per_day else 0 }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-6">
+                                        <small class="text-muted d-block uppercase-label">Platform Goal</small>
+                                        <div class="fw-bold text-primary">On Track</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analytics Grid -->
+                        <div class="row g-4 mb-4">
+                            <!-- User Growth -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0"><i
+                                                class="fa-solid fa-user-plus text-info me-2"></i>User Growth
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div style="height: 250px;">
+                                            <canvas id="userGrowthChart"></canvas>
+                                        </div>
+                                        <div class="row text-center mt-3 g-2">
+                                            <div class="col-4">
+                                                <div class="fw-bold text-primary h4 mb-0">{{ new_users }}</div>
+                                                <small class="text-muted uppercase-label"
+                                                    style="font-size: 0.65rem;">New</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="fw-bold text-success h4 mb-0">Active</div>
+                                                <small class="text-muted uppercase-label"
+                                                    style="font-size: 0.65rem;">Status</small>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="fw-bold text-warning h4 mb-0">High</div>
+                                                <small class="text-muted uppercase-label"
+                                                    style="font-size: 0.65rem;">Input</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Platform Statistics -->
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0"><i
+                                                class="fa-solid fa-bolt text-warning me-2"></i>Performance
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="border rounded-3 p-3 text-center transition-hover bg-white">
+                                                    <h4 class="fw-bold text-primary mb-1">{{ success_rate }}%</h4>
+                                                    <small class="text-muted uppercase-label">Success Rate</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="border rounded-3 p-3 text-center transition-hover bg-white">
+                                                    <h4 class="fw-bold text-success mb-1">4.9</h4>
+                                                    <small class="text-muted uppercase-label">Avg Rating</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="border rounded-3 p-3 text-center transition-hover bg-white">
+                                                    <h4 class="fw-bold text-info mb-1">{{ total_bookings }}</h4>
+                                                    <small class="text-muted uppercase-label">Bookings</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="border rounded-3 p-3 text-center transition-hover bg-white">
+                                                    <h4 class="fw-bold text-warning mb-1">${{
+                                                        "{:,.0f}".format(avg_per_day|float) }}</h4>
+                                                    <small class="text-muted uppercase-label">Avg Daily</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Performers & Map Distribution -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-medal text-warning me-2"></i>Top
+                                            Companions</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if top_companions %}
+                                        {% for companion in top_companions %}
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm me-3">
+                                                    <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                                        style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                        {{ loop.index }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">{{ companion.name }}</div>
+                                                    <small class="text-muted">{{ companion.bookings }} sessions</small>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-success">${{
+                                                    "{:,.2f}".format(companion.revenue) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div class="text-center py-5">
+                                            <i class="fa-solid fa-users-slash fa-3x text-light mb-3"></i>
+                                            <p class="text-muted">No high-performing data.</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0"><i
+                                                class="fa-solid fa-location-dot text-danger me-2"></i>Geo
+                                            Peaks</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if top_locations %}
+                                        {% for location in top_locations %}
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between mb-1 align-items-end">
+                                                <span class="fw-bold small">{{ location.name }}</span>
+                                                <small class="text-muted" style="font-size: 0.7rem;">{{ location.count
+                                                    }} ({{
+                                                    location.percent }}%)</small>
+                                            </div>
+                                            <div class="progress" style="height: 6px; border-radius: 3px;">
+                                                <div class="progress-bar bg-primary" role="progressbar"
+                                                    style="width: {{ location.percent }}%;"></div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% else %}
+                                        <div class="text-center py-5">
+                                            <i class="fa-solid fa-map-location fa-3x text-light mb-3"></i>
+                                            <p class="text-muted">No geographic data.</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-3 col-md-4 p-4 border-start bg-white shadow-sm sticky-top"
+                        style="height: 100vh; overflow-y: auto;">
+                        <h5 class="fw-bold mb-4">Analytics Controls</h5>
+
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-body">
+                                <label class="form-label fw-bold small text-muted uppercase-label">Time Range</label>
+                                <select class="form-select mb-3" id="rangeSelect"
+                                    onchange="window.location.href='/admin/analytics?range=' + this.value">
+                                    <option value="7" {% if selected_range=='7' %}selected{% endif %}>Last 7 Days
+                                    </option>
+                                    <option value="30" {% if selected_range=='30' %}selected{% endif %}>Last 30 Days
+                                    </option>
+                                    <option value="90" {% if selected_range=='90' or not selected_range %}selected{%
+                                        endif %}>
+                                        Last 90 Days</option>
+                                    <option value="12m" {% if selected_range=='12m' %}selected{% endif %}>Last 12 Months
+                                    </option>
+                                </select>
+                                <button class="btn btn-primary w-100" data-bs-toggle="modal"
+                                    data-bs-target="#reportModal">
+                                    <i class="fa-solid fa-file-invoice me-2"></i> FORMAL REPORT
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="kpi-stack">
+                            <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stats-icon-sm bg-primary-subtle text-primary me-2">
+                                        <i class="fa-solid fa-dollar-sign"></i>
+                                    </div>
+                                    <small class="text-muted uppercase-label">Revenue</small>
+                                </div>
+                                <div class="h4 fw-bold mb-0">${{ "{:,.2f}".format(total_revenue) }}</div>
+                                <small class="text-success small"><i class="fa-solid fa-caret-up"></i> +{{
+                                    conversion_rate
+                                    }}%</small>
+                            </div>
+
+                            <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stats-icon-sm bg-info-subtle text-info me-2">
+                                        <i class="fa-solid fa-calendar-check"></i>
+                                    </div>
+                                    <small class="text-muted uppercase-label">Bookings</small>
+                                </div>
+                                <div class="h4 fw-bold mb-0">{{ total_bookings }}</div>
+                                <small class="text-muted small">Total sessions</small>
+                            </div>
+
+                            <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stats-icon-sm bg-success-subtle text-success me-2">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                    </div>
+                                    <small class="text-muted uppercase-label">New Users</small>
+                                </div>
+                                <div class="h4 fw-bold mb-0">{{ new_users }}</div>
+                                <small class="text-muted small">Platform growth</small>
+                            </div>
+
+                            <div class="stats-card kpi-item mb-3 p-3 border rounded shadow-sm bg-white">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stats-icon-sm bg-warning-subtle text-warning me-2">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                    </div>
+                                    <small class="text-muted uppercase-label">Conv. Rate</small>
+                                </div>
+                                <div class="h4 fw-bold mb-0">{{ conversion_rate }}%</div>
+                                <small class="text-muted small">Success KPI</small>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 mt-4">
+                            <small class="text-muted">
+                                <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+                                Data updates every 15 minutes to preserve system performance.
+                            </small>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Chart.js - Revenue Trend
+        const revCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(revCtx, {
+            type: 'line',
+            data: {
+                labels: {{ revenue_labels | tojson }},
+        datasets: [{
+            label: 'Revenue ($)',
+            data: {{ revenue_values | tojson }},
+            borderColor: '#4361ee',
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6
+                }]
+            },
+        options: {
+            responsive: true,
+                maintainAspectRatio: false,
+                    plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                    ticks: {
+                        callback: function(value) { return '$' + value; }
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+        });
+
+        // Chart.js - User Growth
+        const userCtx = document.getElementById('userGrowthChart').getContext('2d');
+        const userChart = new Chart(userCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ user_labels | tojson }},
+        datasets: [{
+            label: 'New Registrations',
+            data: {{ user_values | tojson }},
+            backgroundColor: '#4cc9f0',
+            borderRadius: 4
+                }]
+            },
+        options: {
+            responsive: true,
+                maintainAspectRatio: false,
+                    plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                        grid: { color: '#f1f5f9' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+        });
+
+        function toggleDateInputs() {
+            const type = document.getElementById('reportTypeSelect').value;
+            const input = document.getElementById('reportDateInput');
+            const label = document.getElementById('periodLabel');
+
+            if (type === 'yearly') {
+                input.type = 'number';
+                input.min = '2024';
+                input.max = new Date().getFullYear();
+                input.value = new Date().getFullYear();
+                label.innerText = 'Select Year';
+            } else if (type === 'monthly') {
+                input.type = 'month';
+                input.value = new Date().toISOString().slice(0, 7);
+                label.innerText = 'Select Month';
+            } else {
+                input.type = 'date';
+                input.value = new Date().toISOString().split('T')[0];
+                label.innerText = 'Select Date';
+            }
+        }
+    </script>
+    <!-- Report Selection Modal (Global) -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-header border-0 bg-primary text-white p-4">
+                    <h5 class="modal-title fw-bold" id="reportModalLabel"><i
+                            class="fa-solid fa-file-pdf me-2"></i>Generate Formal Report</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <form action="/admin/report/generate" method="GET" target="_blank">
+                    <div class="modal-body p-4">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted uppercase-label">Report
+                                Type</label>
+                            <select name="report_type" class="form-select" id="reportTypeSelect"
+                                onchange="toggleDateInputs()">
+                                <option value="daily">Daily Breakdown</option>
+                                <option value="weekly">Weekly Summary</option>
+                                <option value="monthly">Monthly Analysis</option>
+                                <option value="yearly">Yearly Overview</option>
+                            </select>
+                        </div>
+                        <div id="dateInputGroup" class="mb-4">
+                            <label class="form-label fw-bold small text-muted uppercase-label" id="periodLabel"
+                                for="reportDateInput">Target Date</label>
+                            <input type="date" name="date" id="reportDateInput" class="form-control"
+                                value="{{ now.strftime('%Y-%m-%d') }}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted uppercase-label">Export
+                                Format</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check border rounded p-3 flex-grow-1">
+                                    <input class="form-check-input" type="radio" name="format" value="pdf"
+                                        id="formatPdf" checked>
+                                    <label class="form-check-label ms-1 fw-bold" for="formatPdf">PDF
+                                        Document</label>
+                                </div>
+                                <div class="form-check border rounded p-3 flex-grow-1">
+                                    <input class="form-check-input" type="radio" name="format" value="excel"
+                                        id="formatExcel">
+                                    <label class="form-check-label ms-1 fw-bold" for="formatExcel">Excel/CSV</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-light rounded-3">
+                            <small class="text-muted">
+                                <i class="fa-solid fa-circle-info me-2 text-primary"></i>
+                                Reports are styled for A4 printing and professional archiving.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">DOWNLOAD
+                            REPORT</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

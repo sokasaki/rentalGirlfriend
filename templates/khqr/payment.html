@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHQR Payment - RentACompanion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --khqr-red: #e11d27;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* Main Card Container */
+        .khqr-card {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            margin: 50px auto;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--khqr-red);
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .header::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 40px 40px;
+            border-color: transparent transparent transparent var(--khqr-red);
+            transform: rotate(90deg);
+        }
+
+        .khqr-logo-text {
+            color: white;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        /* Merchant Information Section */
+        .merchant-info {
+            padding: 30px 25px 20px;
+            text-align: left;
+        }
+
+        .merchant-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .merchant-name {
+            font-size: 18px;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .amount-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+
+        .currency {
+            font-size: 20px;
+            font-weight: normal;
+            margin-left: 8px;
+        }
+
+        /* Dashed Divider */
+        .divider {
+            border: none;
+            border-top: 2px dashed #ddd;
+            margin: 15px 0;
+            width: 100%;
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .qr-wrapper {
+            position: relative;
+            padding: 10px;
+        }
+
+        .qr-wrapper img {
+            width: 260px;
+            height: 260px;
+            display: block;
+        }
+
+        /* The black center logo */
+        .qr-center-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-center-logo img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+
+        /* Status Container */
+        .status-container {
+            padding: 20px 25px 30px;
+            text-align: center;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+
+        .status-text.success {
+            color: #28a745 !important;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .status-text.error {
+            color: #dc3545 !important;
+            font-weight: bold;
+        }
+
+        .spinner {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        .cancel-btn {
+            display: block;
+            width: 85%;
+            margin: 0 auto;
+            background: #eee;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background: #ddd;
+        }
+
+        .md5-display {
+            text-align: center;
+            font-size: 10px;
+            color: #ccc;
+            margin-top: 15px;
+            padding: 0 20px;
+            word-break: break-all;
+        }
+
+        .back-link {
+            text-align: center;
+            padding-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--khqr-red);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="khqr-card">
+        <div class="header">
+            <div class="khqr-logo-text">KHQR</div>
+        </div>
+
+        <div class="merchant-info">
+            <div class="merchant-label">Merchant</div>
+            <div class="merchant-name">{{ merchant_name or 'RentACompanion' }}</div>
+            <div class="amount-display">{{ amount }} <span class="currency">{{ currency }}</span></div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="qr-section">
+            <div class="qr-wrapper">
+                <img id="qrImage" src="data:image/png;base64,{{ qr_base64 }}" alt="QR Code">
+                <div class="qr-center-logo">
+                    <img src="{{ url_for('static', filename='asset/images.png') }}" alt="Logo">
+                </div>
+            </div>
+        </div>
+
+        <div class="status-container">
+            <div class="status-text" id="statusText">
+                <span class="spinner" id="spinner">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                </span>
+                Waiting for payment...
+            </div>
+        </div>
+
+        <button onclick="window.history.back()" class="cancel-btn">Back</button>
+
+        <div class="md5-display">MD5: {{ md5 }}</div>
+    </div>
+
+    <div class="back-link">
+        <a href="{{ url_for('profile') }}">← Return to Profile</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const md5Value = "{{ md5 }}";
+        const statusElement = document.getElementById('statusText');
+        const spinnerElement = document.getElementById('spinner');
+
+        async function checkKHQRPayment() {
+            try {
+                const response = await fetch('/khqr/check-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ md5: md5Value })
+                });
+
+                const result = await response.json();
+
+                // Check if payment is successful (responseCode 0 or "0")
+                if (result.responseCode === 0 || result.responseCode === "0" || result.responseCode === "00") {
+                    statusElement.innerHTML = '<i class="fas fa-check-circle" style="color: #28a745; font-size: 20px;"></i> Payment Successful!';
+                    statusElement.classList.add('success');
+                    spinnerElement.style.display = 'none';
+
+                    // Redirect after 2 seconds
+                    setTimeout(() => {
+                        if (result.redirect) {
+                            window.location.href = result.redirect;
+                        } else {
+                            window.location.href = "{{ url_for('profile') }}";
+                        }
+                    }, 2000);
+                    return true;
+                }
+            } catch (error) {
+                console.error("Payment check error:", error);
+            }
+            return false;
+        }
+
+        // Check every 3 seconds
+        const pollInterval = setInterval(async () => {
+            const isPaid = await checkKHQRPayment();
+            if (isPaid) {
+                clearInterval(pollInterval);
+            }
+        }, 3000);
+
+        // Stop polling after 10 minutes
+        setTimeout(() => {
+            clearInterval(pollInterval);
+            statusElement.innerHTML = 'Payment verification timed out. Please try again.';
+            statusElement.classList.add('error');
+            spinnerElement.style.display = 'none';
+        }, 600000);
+    </script>
+</body>
+
+</html>

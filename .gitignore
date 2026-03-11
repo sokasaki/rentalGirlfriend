@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+
+# Environment variables
+.env
+.flaskenv
+
+# Database
+instance/
+mydb.db
+*.sqlite3
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Maintenance & Utility Scripts
+add_column.py
+add_username_column.py
+backfill_usernames.py
+BOOKING_MESSAGES_REPORT.py
+check_*.py
+check_db.sql
+clear_data.py
+diag_*.py
+fix_admin_welcome.py
+list_companions.py
+verify_*.py
+reset_database.py
+seed_*.py
+test_*.py
+
+# Metadata & Temp
+flask.log
+messages.pot
+data-dictionary.html
+*.md
+!README.md

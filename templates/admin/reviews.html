@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+<style>
+    .rating-distribution-bar {
+        height: 12px;
+        border-radius: 6px;
+        background-color: #f1f5f9;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    .distribution-fill {
+        height: 100%;
+        transition: width 0.6s ease;
+    }
+
+    /* Premium Filter Styles */
+    .filter-section {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 2rem;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex-grow: 1;
+    }
+
+    .search-input-group i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        z-index: 5;
+    }
+
+    .search-input-group .form-control {
+        padding-left: 3rem;
+        height: 48px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: #fdfdfd;
+    }
+
+    .filter-groups-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-light);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .filter-pill {
+        padding: 0.5rem 1.25rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        background: white;
+        border: 1px solid var(--border-color);
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .filter-pill:hover {
+        border-color: var(--accent-purple);
+        color: var(--accent-purple);
+        background: rgba(88, 64, 115, 0.05);
+    }
+
+    .filter-pill.active {
+        background: var(--accent-purple);
+        color: white;
+        border-color: var(--accent-purple);
+        box-shadow: 0 4px 12px rgba(88, 64, 115, 0.2);
+    }
+
+    .filter-pill.active i {
+        color: white !important;
+    }
+</style>
+
+<body>
+    <!-- Dashboard Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content Container -->
+            <div class="col-lg-10 col-md-9">
+                <div class="row g-0">
+                    <!-- Main Content -->
+                    <div class="col-lg-9 col-md-8 p-4">
+                        {% set header_title = 'Reviews & Sentiment' %}
+{% set header_class = 'mb-4' %}
+{% include 'admin/header.html' with context %}
+
+                        <!-- Review Feed -->
+                        <div class="card border-0 shadow-sm mb-4 bg-white">
+                            <div class="card-header bg-white border-0 p-4">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <h5 class="fw-bold mb-0">Platform Feedback</h5>
+                                    <div class="d-flex gap-2">
+                                        <form method="GET" action="{{ url_for('reviews') }}" class="d-flex gap-2">
+                                            <div class="input-group input-group-sm" style="width: 250px;">
+                                                <span class="input-group-text bg-light border-end-0"><i
+                                                        class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                                <input type="text" class="form-control bg-light border-start-0"
+                                                    placeholder="Search content or author..." name="search"
+                                                    value="{{ search_query }}">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm px-3">SEARCH</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-4">
+                                {% if reviews %}
+                                {% for review in reviews %}
+                                <div class="review-item {% if not loop.last %}border-bottom{% endif %} pb-4 mb-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="d-flex align-items-center">
+                                            {% if review.booking.customer.profile_photo %}
+                                            <img src="{{ review.booking.customer.profile_photo }}"
+                                                class="rounded-circle me-3 border shadow-sm" width="50" height="50"
+                                                style="object-fit: cover;">
+                                            {% else %}
+                                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm"
+                                                style="width: 50px; height: 50px;">
+                                                <i class="fa-solid fa-user fa-lg"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ review.booking.customer.full_name }}</div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="text-muted small">Client ID: #{{
+                                                        review.booking.customer.id|string|truncate(8, True, '')
+                                                        }}</span>
+                                                    {% if review.status.value == 'PENDING' %}
+                                                    <span
+                                                        class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2"
+                                                        style="font-size: 0.6rem;">MODERATION REQUIRED</span>
+                                                    {% elif review.status.value == 'APPROVED' %}
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2"
+                                                        style="font-size: 0.6rem;">PUBLISHED</span>
+                                                    {% elif review.status.value == 'REJECTED' %}
+                                                    <span
+                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2"
+                                                        style="font-size: 0.6rem;">REJECTED</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="text-warning mb-1">
+                                                {% for i in range(5) %}
+                                                <i
+                                                    class="fa-{% if i < review.rating %}solid{% else %}regular{% endif %} fa-star"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <small class="text-muted">{{ review.created_at.strftime('%b %d, %Y')
+                                                }}</small>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-light rounded-3 p-3 mb-3 border-start border-4 border-primary position-relative">
+                                        <i class="fa-solid fa-quote-left position-absolute text-primary opacity-10"
+                                            style="top: 10px; left: 10px; font-size: 2rem;"></i>
+                                        <p class="mb-2 text-dark"
+                                            style="line-height: 1.6; position: relative; z-index: 1;">
+                                            "{{ review.comment or 'User left no comment.' }}"
+                                        </p>
+                                        <div class="d-flex align-items-center mt-2 small">
+                                            <span class="text-muted me-2">Feedback for:</span>
+                                            <span class="fw-bold text-primary"><i
+                                                    class="fa-solid fa-user-tie me-1"></i>{{
+                                                review.booking.companion.display_name }}</span>
+                                        </div>
+                                    </div>
+
+                                    {% if review.reply %}
+                                    <div class="ms-4 p-3 bg-white border rounded shadow-sm mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fa-solid fa-reply fa-rotate-180 text-muted me-2"></i>
+                                            <small class="fw-bold text-success"><i
+                                                    class="fa-solid fa-check-circle me-1"></i>COMPANION RESPONSE</small>
+                                            <small class="text-muted ms-auto small">{{ review.replied_at.strftime('%b
+                                                %d, %Y')
+                                                if review.replied_at else 'Recently' }}</small>
+                                        </div>
+                                        <p class="mb-0 small text-muted fst-italic">{{ review.reply }}</p>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="d-flex gap-2">
+                                        {% if review.status.value == 'PENDING' %}
+                                        <button class="btn btn-success btn-sm px-3 rounded-pill fw-bold"
+                                            onclick="approveReview({{ review.review_id }})">
+                                            <i class="fa-solid fa-check me-1"></i> APPROVE
+                                        </button>
+                                        <button class="btn btn-warning btn-sm px-3 rounded-pill fw-bold"
+                                            onclick="rejectReview({{ review.review_id }})">
+                                            <i class="fa-solid fa-times me-1"></i> REJECT
+                                        </button>
+                                        {% endif %}
+                                        <a href="{{ url_for('view_booking', booking_id=review.booking.booking_id) }}"
+                                            class="btn btn-light btn-sm px-3 rounded-pill fw-bold border">
+                                            <i class="fa-solid fa-eye me-1"></i> CONTEXT
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-bold ms-auto"
+                                            onclick="deleteReview({{ review.review_id }})">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="text-center py-5">
+                                    <div class="mb-3 opacity-25">
+                                        <i class="fa-solid fa-comments fa-5x text-muted"></i>
+                                    </div>
+                                    <h5 class="fw-bold">No feedback found</h5>
+                                    <p class="text-muted mb-4">Try adjusting your filters or search terms.</p>
+                                    <a href="{{ url_for('reviews') }}"
+                                        class="btn btn-primary rounded-pill px-4 fw-bold">CLEAR
+                                        FILTERS</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-3 col-md-4 p-4 border-start bg-white shadow-sm sticky-top"
+                        style="height: 100vh; overflow-y: auto;">
+                        <h5 class="fw-bold mb-4">Sentiment Metrics</h5>
+
+                        <div class="card border-0 bg-dark text-white mb-4 shadow-lg overflow-hidden"
+                            style="border-radius: 12px;">
+                            <div class="card-body p-4 text-center">
+                                <h1 class="fw-bold mb-0 text-warning" style="font-size: 3rem;">{{
+                                    "%.1f"|format(avg_rating or 0)
+                                    }}</h1>
+                                <div class="text-warning mb-2 fs-5">
+                                    {% for i in range(5) %}
+                                    <i
+                                        class="fa-{% if i < (avg_rating or 0)|int %}solid{% elif i == (avg_rating or 0)|int and (avg_rating or 0) % 1 >= 0.5 %}solid fa-star-half-stroke{% else %}regular{% endif %} fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                                <small class="uppercase-label opacity-75">Global Sentiment Score</small>
+                                <hr class="opacity-10 my-3">
+                                <div class="d-flex justify-content-between small opacity-75">
+                                    <span>Total Count:</span>
+                                    <span class="fw-bold">{{ total_reviews }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold small text-muted uppercase-label mb-3">Rating Breakdown</h6>
+                        <div class="mb-4">
+                            {% for star in range(5, 0, -1) %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="small fw-bold" style="width: 50px;">{{ star }} <i
+                                        class="fa-solid fa-star text-warning small"></i></div>
+                                <div class="progress flex-grow-1 mx-2" style="height: 6px;">
+                                    <div class="progress-bar bg-warning" role="progressbar"
+                                        style="width: {{ (distribution[star] / total_reviews * 100) if total_reviews else 0 }}%">
+                                    </div>
+                                </div>
+                                <div class="small text-muted text-end" style="width: 35px;">{{ distribution[star] }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold small text-muted uppercase-label mb-3">Moderation Filters</h6>
+                        <div class="nav flex-column gap-2 mb-4">
+                            <a href="{{ url_for('reviews') }}"
+                                class="btn btn-{% if not rating_filter %}primary{% else %}outline-secondary{% endif %} btn-sm text-start py-2 px-3 fw-bold rounded-3">
+                                <i class="fa-solid fa-list me-2"></i> Show All Feed
+                            </a>
+                            <a href="{{ url_for('reviews', rating='pending') }}"
+                                class="btn btn-{% if rating_filter == 'pending' %}warning{% else %}outline-secondary{% endif %} btn-sm text-start py-2 px-3 fw-bold rounded-3">
+                                <i class="fa-solid fa-clock-rotate-left me-2"></i> Pending Policy Review
+                                {% if pending_moderation > 0 %}
+                                <span class="badge bg-danger rounded-pill ms-auto">{{ pending_moderation }}</span>
+                                {% endif %}
+                            </a>
+                        </div>
+
+                        <h6 class="fw-bold small text-muted uppercase-label mb-3">Rating Filters</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
+                            {% for r in ['5', '4', '3', '1-2'] %}
+                            <a href="{{ url_for('reviews', rating=r) }}"
+                                class="btn btn-{% if rating_filter == r %}primary{% else %}outline-light text-dark border{% endif %} btn-sm px-3 rounded-pill fw-bold">
+                                {{ r }} <i class="fa-solid fa-star text-warning small"></i>
+                            </a>
+                            {% endfor %}
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 text-center border-dashed mt-auto">
+                            <p class="small text-muted mb-0">
+                                <i class="fa-solid fa-shield-check text-success me-1"></i>
+                                Automated spam detection is active for all new submissions.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout/Animations -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function approveReview(id) {
+            Swal.fire({
+                title: 'Approve review?',
+                text: "This review will become public on the companion's profile.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, approve it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/reviews/approve/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function rejectReview(id) {
+            Swal.fire({
+                title: 'Reject review?',
+                text: "This review will not be shown to others.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, reject it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/reviews/reject/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function deleteReview(id) {
+            Swal.fire({
+                title: 'Delete this review?',
+                text: "This action is irreversible and will remove the rating from stats.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/reviews/delete/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        // Initialize tooltips if any
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+</body>
+
+</html>

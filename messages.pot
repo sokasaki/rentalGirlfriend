@@ -1,0 +1,134 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-03-10 11:08+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: templates/front/footer.html:12
+msgid ""
+"Your trusted platform\n"
+"                    for finding perfect companions for any occasion. "
+"Safe, verified, and premium."
+msgstr ""
+
+#: templates/front/footer.html:27
+msgid "Company"
+msgstr ""
+
+#: templates/front/footer.html:30
+msgid "About Us"
+msgstr ""
+
+#: templates/front/footer.html:32
+msgid "Careers"
+msgstr ""
+
+#: templates/front/footer.html:34
+msgid "Press"
+msgstr ""
+
+#: templates/front/footer.html:36
+msgid "Blog"
+msgstr ""
+
+#: templates/front/footer.html:41
+msgid "Support"
+msgstr ""
+
+#: templates/front/footer.html:44
+msgid "Help Center"
+msgstr ""
+
+#: templates/front/footer.html:46
+msgid "Safety"
+msgstr ""
+
+#: templates/front/footer.html:48
+msgid "Contact Us"
+msgstr ""
+
+#: templates/front/footer.html:50
+msgid "FAQs"
+msgstr ""
+
+#: templates/front/footer.html:92
+msgid "Home"
+msgstr ""
+
+#: templates/front/footer.html:96
+msgid "Browse"
+msgstr ""
+
+#: templates/front/footer.html:102 templates/front/footer.html:107
+#: templates/front/index.html:116
+msgid "Bookings"
+msgstr ""
+
+#: templates/front/footer.html:112
+msgid "Login"
+msgstr ""
+
+#: templates/front/footer.html:122 templates/front/footer.html:130
+#: templates/front/footer.html:135
+msgid "Alerts"
+msgstr ""
+
+#: templates/front/footer.html:142 templates/front/footer.html:147
+#: templates/front/footer.html:152
+msgid "Profile"
+msgstr ""
+
+#: templates/front/index.html:45
+msgid "Trusted by 10,000+ users"
+msgstr ""
+
+#: templates/front/index.html:49
+msgid "Find Your Perfect"
+msgstr ""
+
+#: templates/front/index.html:49
+msgid "Companion"
+msgstr ""
+
+#: templates/front/index.html:51
+msgid ""
+"Connect with verified companions for dates, events, or quality time "
+"together. Safe,\n"
+"                        professional, and memorable experiences."
+msgstr ""
+
+#: templates/front/index.html:57
+msgid "Browse Now"
+msgstr ""
+
+#: templates/front/index.html:61
+msgid "Join Free"
+msgstr ""
+
+#: templates/front/index.html:84
+msgid ""
+"users\n"
+"                                            online"
+msgstr ""
+
+#: templates/front/index.html:90
+msgid "Live Now"
+msgstr ""
+
+#: templates/front/index.html:107
+msgid "Verified"
+msgstr ""
+
