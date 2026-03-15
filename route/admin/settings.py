@@ -4,7 +4,7 @@ from flask import session
 
 @app.route('/admin/settings', methods=['GET', 'POST'])
 @admin_required
-@permission_required('manage_settings')
+@permission_required('setting:view')
 def settings():
     if request.method == 'POST':
         platform_name = request.form.get('platform_name')

@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 @app.get('/admin/reports')
 @admin_required
-@permission_required('manage_reports')
+@permission_required('report:view')
 def reports():
     from models.reports import Report, ReportStatusEnum
     from models.users import User
@@ -37,7 +37,7 @@ def reports():
 
 @app.get('/admin/reports/<int:report_id>')
 @admin_required
-@permission_required('manage_reports')
+@permission_required('report:view')
 def report_detail(report_id):
     from models.reports import Report, TargetTypeEnum
     from models.customer_profiles import CustomerProfile
@@ -117,7 +117,7 @@ def report_detail(report_id):
 
 @app.post('/admin/resolve-report/<int:report_id>')
 @admin_required
-@permission_required('manage_reports')
+@permission_required('report:manage')
 def resolve_report(report_id):
     from models.reports import Report, ReportStatusEnum
     report = Report.query.get_or_404(report_id)
@@ -128,7 +128,7 @@ def resolve_report(report_id):
 
 @app.post('/admin/request-info/<int:report_id>')
 @admin_required
-@permission_required('manage_reports')
+@permission_required('report:manage')
 def request_info(report_id):
     from models.reports import Report, ReportStatusEnum, TargetTypeEnum
     report = Report.query.get_or_404(report_id)
@@ -160,7 +160,7 @@ def request_info(report_id):
 
 @app.post('/admin/ban-user/<int:user_id>')
 @admin_required
-@permission_required('manage_users')
+@permission_required('user:delete')
 def ban_user(user_id):
     user = User.query.get_or_404(user_id)
     user.status = UserStatus.BANNED
@@ -171,7 +171,7 @@ def ban_user(user_id):
 
 @app.get('/admin/export-report')
 @admin_required
-@permission_required('manage_reports')
+@permission_required('report:view')
 def export_report():
     range_type = request.args.get('range', '90')
     now = datetime.now()

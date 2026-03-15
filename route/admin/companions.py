@@ -3,7 +3,7 @@ from sqlalchemy import func
 
 @app.get('/admin/companions')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:view')
 def companions():  # Admin dashboard home
     from models import CompanionProfile, User, Booking, Payment
     
@@ -81,7 +81,7 @@ def companions():  # Admin dashboard home
 
 @app.get('/admin/companions/view/<int:id>')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:view')
 def view_companion(id):
     """Review page for PENDING companion applications (approval form)"""
     from models import CompanionProfile, User, CompanionPhoto, Availability, Booking, Review
@@ -120,7 +120,7 @@ def view_companion(id):
 
 @app.get('/admin/companions/view_detail/<int:id>')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:view')
 def view_companion_detail(id):
     """Detail view page for APPROVED/REJECTED companions (read-only)"""
     from models import CompanionProfile, User, CompanionPhoto, Availability, Booking, Review
@@ -159,7 +159,7 @@ def view_companion_detail(id):
 
 @app.post('/admin/companions/approve/<int:id>')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:verify')
 def approve_companion(id):
     from models import CompanionProfile, Notification
     from flask import flash, redirect, url_for
@@ -188,7 +188,7 @@ def approve_companion(id):
 
 @app.post('/admin/companions/reject/<int:id>')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:verify')
 def reject_companion(id):
     from models import CompanionProfile, Notification
     from flask import flash, redirect, url_for, request
@@ -220,7 +220,7 @@ def reject_companion(id):
 
 @app.post('/admin/companions/delete/<int:id>')
 @admin_required
-@permission_required('manage_companions')
+@permission_required('companion:delete')
 def delete_companion(id):
     from models import CompanionProfile
     from flask import flash, redirect, url_for

@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 @app.get('/admin/payments')
 @admin_required
-@permission_required('manage_payments')
+@permission_required('payment:view')
 def payments():
     # Get query parameters for search and filter
     search_query = request.args.get('search', '').strip()
@@ -114,7 +114,7 @@ def payments():
 
 @app.get('/admin/payments/view/<int:id>')
 @admin_required
-@permission_required('manage_payments')
+@permission_required('payment:view')
 def view_payment(id):
     from models.payments import Payment, PaymentStatusEnum
     from models.bookings import Booking
@@ -148,7 +148,7 @@ def view_payment(id):
 
 @app.post('/admin/payments/refund/<int:id>')
 @admin_required
-@permission_required('manage_payments')
+@permission_required('payment:refund')
 def refund_payment(id):
     from flask import flash, redirect, url_for
     from models import Notification

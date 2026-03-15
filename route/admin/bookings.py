@@ -5,7 +5,7 @@ from models.companion_profiles import CompanionProfile
 
 @app.get('/admin/bookings')
 @admin_required
-@permission_required('manage_bookings')
+@permission_required('booking:view')
 def bookings():
     # Get query parameters for search and filter
     search_query = request.args.get('search', '').strip()
@@ -101,7 +101,7 @@ def bookings():
 
 @app.get('/admin/bookings/view/<int:booking_id>')
 @admin_required
-@permission_required('manage_bookings')
+@permission_required('booking:view')
 def view_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     
@@ -125,7 +125,7 @@ def view_booking(booking_id):
 
 @app.post('/admin/bookings/cancel/<int:booking_id>')
 @admin_required
-@permission_required('manage_bookings')
+@permission_required('booking:manage')
 def cancel_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     booking.status = BookingStatusEnum.REJECTED
@@ -135,7 +135,7 @@ def cancel_booking(booking_id):
 
 @app.post('/admin/bookings/delete/<int:booking_id>')
 @admin_required
-@permission_required('manage_bookings')
+@permission_required('booking:manage')
 def delete_booking(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     db.session.delete(booking)

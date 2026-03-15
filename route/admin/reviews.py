@@ -6,7 +6,7 @@ from flask import session
 
 @app.get('/admin/reviews')
 @admin_required
-@permission_required('manage_reviews')
+@permission_required('review:view')
 def reviews():
     # Get query parameters
     search_query = request.args.get('search', '').strip()
@@ -74,7 +74,7 @@ def reviews():
 
 @app.post('/admin/reviews/approve/<int:review_id>')
 @admin_required
-@permission_required('manage_reviews')
+@permission_required('review:manage')
 def approve_review(review_id):
     review = Review.query.get_or_404(review_id)
     review.status = ReviewStatusEnum.APPROVED
@@ -101,7 +101,7 @@ def approve_review(review_id):
 
 @app.post('/admin/reviews/reject/<int:review_id>')
 @admin_required
-@permission_required('manage_reviews')
+@permission_required('review:manage')
 def reject_review(review_id):
     review = Review.query.get_or_404(review_id)
     review.status = ReviewStatusEnum.REJECTED
@@ -128,7 +128,7 @@ def reject_review(review_id):
 
 @app.post('/admin/reviews/delete/<int:review_id>')
 @admin_required
-@permission_required('manage_reviews')
+@permission_required('review:manage')
 def delete_review(review_id):
     review = Review.query.get_or_404(review_id)
     companion = review.booking.companion if review.booking else None

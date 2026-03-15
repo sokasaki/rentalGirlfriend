@@ -5,7 +5,7 @@ from datetime import datetime
 
 @app.get('/admin/broadcast')
 @admin_required
-@permission_required('manage_broadcast')
+@permission_required('broadcast:send')
 def broadcast_page():
     # Get pending count for sidebar
     from models import CompanionProfile as CP
@@ -19,7 +19,7 @@ def broadcast_page():
 
 @app.post('/admin/broadcast/send')
 @admin_required
-@permission_required('manage_broadcast')
+@permission_required('broadcast:send')
 def send_broadcast():
     title = request.form.get('title')
     message = request.form.get('message')

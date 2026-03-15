@@ -14,56 +14,56 @@
         <a href="{{ url_for('admin_home') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">
             <i class="fa-solid fa-gauge-high"></i> Dashboard
         </a>
-        {% if has_perm('manage_users') %}
+        {% if has_perm('user:view') %}
         <a href="{{ url_for('users') }}" class="nav-link {% if active_page == 'users' %}active{% endif %}">
             <i class="fa-solid fa-users"></i> Users
         </a>
         {% endif %}
-        {% if has_perm('manage_roles') %}
+        {% if has_perm('role:view') %}
         <a href="{{ url_for('roles') }}" class="nav-link {% if active_page == 'roles' %}active{% endif %}">
             <i class="fa-solid fa-user-shield"></i> Roles
         </a>
         {% endif %}
-        {% if has_perm('manage_companions') %}
+        {% if has_perm('companion:view') %}
         <a href="{{ url_for('companions') }}" class="nav-link {% if active_page == 'companions' %}active{% endif %}">
             <i class="fa-solid fa-user-group"></i>
             <span>Companions</span>
             <span class="badge bg-warning">{{ pending_count }}</span>
         </a>
         {% endif %}
-        {% if has_perm('manage_bookings') %}
+        {% if has_perm('booking:view') %}
         <a href="{{ url_for('bookings') }}" class="nav-link {% if active_page == 'bookings' %}active{% endif %}">
             <i class="fa-solid fa-calendar-check"></i> Bookings
         </a>
         {% endif %}
-        {% if has_perm('manage_payments') %}
+        {% if has_perm('payment:view') %}
         <a href="{{ url_for('payments') }}" class="nav-link {% if active_page == 'payments' %}active{% endif %}">
             <i class="fa-solid fa-credit-card"></i> Payments
         </a>
         {% endif %}
-        {% if has_perm('manage_reports') %}
+        {% if has_perm('report:view') %}
         <a href="{{ url_for('reports') }}" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
             <i class="fa-solid fa-flag"></i>
             <span>Reports</span>
             <span class="badge bg-danger">3</span>
         </a>
         {% endif %}
-        {% if has_perm('manage_reviews') %}
+        {% if has_perm('review:view') %}
         <a href="{{ url_for('reviews') }}" class="nav-link {% if active_page == 'reviews' %}active{% endif %}">
             <i class="fa-solid fa-star"></i> Reviews
         </a>
         {% endif %}
-        {% if has_perm('manage_broadcast') %}
+        {% if has_perm('broadcast:send') %}
         <a href="{{ url_for('broadcast_page') }}" class="nav-link {% if active_page == 'broadcast' %}active{% endif %}">
             <i class="fa-solid fa-bullhorn"></i> Broadcast
         </a>
         {% endif %}
-        {% if has_perm('manage_analytics') %}
+        {% if has_perm('analytics:view') %}
         <a href="{{ url_for('analytics') }}" class="nav-link {% if active_page == 'analytics' %}active{% endif %}">
             <i class="fa-solid fa-chart-line"></i> Analytics
         </a>
         {% endif %}
-        {% if has_perm('manage_settings') %}
+        {% if has_perm('setting:view') %}
         <a href="{{ url_for('settings') }}" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
             <i class="fa-solid fa-gear"></i> Settings
         </a>

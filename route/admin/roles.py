@@ -5,7 +5,7 @@ from flask import session
 
 @app.route('/admin/roles', methods=['GET'])
 @admin_required
-@permission_required('manage_roles')
+@permission_required('role:view')
 def roles():
     all_roles = Role.query.all()
     all_permissions = Permission.query.all()
@@ -21,7 +21,7 @@ def roles():
 
 @app.route('/admin/roles/add', methods=['POST'])
 @admin_required
-@permission_required('manage_roles')
+@permission_required('role:create')
 def add_role():
     role_name = request.form.get('role_name')
     if not role_name:
@@ -62,7 +62,7 @@ def add_role():
 
 @app.route('/admin/roles/edit/<int:role_id>', methods=['POST'])
 @admin_required
-@permission_required('manage_roles')
+@permission_required('role:edit')
 def edit_role(role_id):
     role = Role.query.get_or_404(role_id)
     new_name = request.form.get('role_name')
@@ -103,7 +103,7 @@ def edit_role(role_id):
 
 @app.route('/admin/roles/delete/<int:role_id>', methods=['POST'])
 @admin_required
-@permission_required('manage_roles')
+@permission_required('role:delete')
 def delete_role(role_id):
     role = Role.query.get_or_404(role_id)
     

@@ -61,7 +61,7 @@ verify_*.py
 reset_database.py
 seed_*.py
 test_*.py
-
+migrate_permissions.py
 # Metadata & Temp
 flask.log
 messages.pot

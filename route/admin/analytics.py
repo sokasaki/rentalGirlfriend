@@ -13,7 +13,7 @@ import json
 
 @app.get('/admin/analytics')
 @admin_required
-@permission_required('manage_analytics')
+@permission_required('analytics:view')
 def analytics():
     # Time range filter
     range_type = request.args.get('range', '90')  # Default 90 days
@@ -177,7 +177,7 @@ def analytics():
 
 @app.get('/admin/report/generate')
 @admin_required
-@permission_required('manage_analytics')
+@permission_required('analytics:view')
 def generate_report():
     report_type = request.args.get('report_type', 'daily')
     date_str = request.args.get('date')

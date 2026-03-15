@@ -111,22 +111,28 @@
                                             placeholder="e.g. Moderator, Staff" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label small fw-bold text-muted text-uppercase">Role
-                                            Permissions</label>
-                                        <div class="permission-grid p-3 bg-light rounded"
-                                            style="max-height: 200px; overflow-y: auto;">
-                                            {% for perm in permissions %}
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="permissions"
-                                                    value="{{ perm.permission_id }}"
-                                                    id="perm_add_{{ perm.permission_id }}">
-                                                <label class="form-check-label small"
-                                                    for="perm_add_{{ perm.permission_id }}">
-                                                    <span class="fw-bold">{{ perm.name.replace('_', ' ').capitalize()
-                                                        }}</span>
-                                                    <br><span class="text-muted" style="font-size: 0.8em;">{{
-                                                        perm.description }}</span>
-                                                </label>
+                                        <label class="form-label small fw-bold text-muted text-uppercase">Role Permissions</label>
+                                        <div class="permission-grid p-3 bg-light rounded" style="max-height: 400px; overflow-y: auto;">
+                                            {% for module, perms in permissions|groupby('module') %}
+                                            <div class="mb-3">
+                                                <h6 class="small fw-bold text-primary mb-2 border-bottom pb-1">{{ module }}</h6>
+                                                <div class="row g-2">
+                                                    {% for perm in perms %}
+                                                    <div class="col-6">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" name="permissions"
+                                                                value="{{ perm.permission_id }}"
+                                                                id="perm_add_{{ perm.permission_id }}">
+                                                            <label class="form-check-label small" for="perm_add_{{ perm.permission_id }}">
+                                                                {{ perm.action or perm.name.split(':')[-1]|capitalize }}
+                                                            </label>
+                                                            <i class="fa-solid fa-circle-info ms-1 text-muted opacity-50" 
+                                                               style="font-size: 0.7rem;" 
+                                                               title="{{ perm.description }}"></i>
+                                                        </div>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
                                             </div>
                                             {% endfor %}
                                         </div>
@@ -166,18 +172,29 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Update Permissions</label>
-                            <div class="permission-grid p-3 bg-light rounded"
-                                style="max-height: 300px; overflow-y: auto;">
-                                {% for perm in permissions %}
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input edit-perm-checkbox" type="checkbox"
-                                        name="permissions" value="{{ perm.permission_id }}"
-                                        id="perm_edit_{{ perm.permission_id }}">
-                                    <label class="form-check-label small" for="perm_edit_{{ perm.permission_id }}">
-                                        <span class="fw-bold">{{ perm.name.replace('_', ' ').capitalize() }}</span>
-                                        <br><span class="text-muted" style="font-size: 0.8em;">{{ perm.description
-                                            }}</span>
-                                    </label>
+                            <div class="permission-grid p-4 bg-light rounded" style="max-height: 450px; overflow-y: auto;">
+                                {% for module, perms in permissions|groupby('module') %}
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                                        <i class="fa-solid fa-folder-open me-2 opacity-50"></i>{{ module }}
+                                    </h6>
+                                    <div class="row g-3">
+                                        {% for perm in perms %}
+                                        <div class="col-6 col-md-4">
+                                            <div class="form-check p-2 rounded hover-bg-white transition-all shadow-hover-sm">
+                                                <input class="form-check-input edit-perm-checkbox mt-2" type="checkbox"
+                                                    name="permissions" value="{{ perm.permission_id }}"
+                                                    id="perm_edit_{{ perm.permission_id }}">
+                                                <label class="form-check-label small d-block cursor-pointer" for="perm_edit_{{ perm.permission_id }}">
+                                                    <span class="fw-bold d-block">{{ perm.action or perm.name.split(':')[-1]|capitalize }}</span>
+                                                    <span class="text-muted extra-small d-block text-truncate" title="{{ perm.description }}">
+                                                        {{ perm.description }}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>

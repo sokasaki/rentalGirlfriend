@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 @app.get('/admin/users')
 @admin_required
-@permission_required('manage_users')
+@permission_required('user:view')
 def users():
     from models import CompanionProfile
     
@@ -49,7 +49,7 @@ def users():
 
 @app.route('/admin/users/add', methods=['GET', 'POST'])
 @admin_required
-@permission_required('manage_users')
+@permission_required('user:create')
 def add_user():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -84,7 +84,7 @@ def add_user():
 
 @app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
 @admin_required
-@permission_required('manage_users')
+@permission_required('user:edit')
 def edit_user(user_id):
     user = User.query.get_or_404(user_id)
     
@@ -113,7 +113,7 @@ def edit_user(user_id):
 
 @app.route('/admin/users/delete/<int:user_id>', methods=['POST'])
 @admin_required
-@permission_required('manage_users')
+@permission_required('user:delete')
 def delete_user(user_id):
     user = User.query.get_or_404(user_id)
     
