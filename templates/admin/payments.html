@@ -83,7 +83,7 @@
                                                 <td class="px-4">
                                                     <div class="d-flex align-items-center">
                                                         {% if payment.customer_avatar %}
-                                                        <img src="{{ payment.customer_avatar }}"
+                                                        <img src="{{ ('/static/' + payment.customer_avatar) if not payment.customer_avatar.startswith(('/', 'http')) else payment.customer_avatar }}"
                                                             class="rounded-circle me-2 border" width="28" height="28">
                                                         {% else %}
                                                         <div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center"
@@ -100,7 +100,7 @@
                                                 <td class="px-4">
                                                     <div class="d-flex align-items-center">
                                                         {% if payment.companion_avatar %}
-                                                        <img src="{{ payment.companion_avatar }}"
+                                                        <img src="{{ ('/static/' + payment.companion_avatar) if not payment.companion_avatar.startswith(('/', 'http')) else payment.companion_avatar }}"
                                                             class="rounded-circle me-2 border" width="28" height="28">
                                                         {% else %}
                                                         <div class="bg-light rounded-circle me-2 d-flex align-items-center justify-content-center"

@@ -4,7 +4,7 @@
     </button>
     <h2>{{ header_title | default('Dashboard Overview') }}</h2>
     <div class="user-info">
-        <span class="d-none d-md-inline">Welcome, {{ 'Admin' if is_admin else current_user.username if current_user else 'Admin' }}!</span>
+        <span class="d-none d-md-inline">Welcome, {{ current_user.display_name if current_user else 'Admin' }}!</span>
         <div class="dropdown">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
                 data-bs-toggle="dropdown">

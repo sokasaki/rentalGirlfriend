@@ -50,16 +50,20 @@ def report_detail(report_id):
     reporter_name = 'Unknown'
     reporter_photo = None
     reporter_type = 'User'
+    reporter_profile_id = None
     if reporter_user:
         cp = CustomerProfile.query.filter_by(user_id=reporter_user.user_id).first()
         comp = CompanionProfile.query.filter_by(user_id=reporter_user.user_id).first()
         if cp:
             reporter_name = cp.full_name or reporter_user.email
-            reporter_photo = cp.profile_photo
+            reporter_photo = cp.main_url
             reporter_type = 'Customer'
+            reporter_profile_id = reporter_user.user_id # view_customer takes user_id
         elif comp:
             reporter_name = comp.display_name or reporter_user.email
+            reporter_photo = comp.primary_main_url
             reporter_type = 'Companion'
+            reporter_profile_id = comp.companion_id # view_companion takes companion_id
         else:
             reporter_name = reporter_user.email
 
@@ -68,6 +72,7 @@ def report_detail(report_id):
     target_name = f'ID #{report.target_id}'
     target_photo = None
     target_type_label = report.target_type.value
+    target_profile_id = None
 
     if report.target_type in (TargetTypeEnum.USER, TargetTypeEnum.COMPANION):
         target_user = User.query.get(report.target_id)
@@ -76,11 +81,14 @@ def report_detail(report_id):
             comp = CompanionProfile.query.filter_by(user_id=target_user.user_id).first()
             if cp:
                 target_name = cp.full_name or target_user.email
-                target_photo = cp.profile_photo
+                target_photo = cp.thumbnail_url
                 target_type_label = 'Customer'
+                target_profile_id = target_user.user_id # view_customer takes user_id
             elif comp:
                 target_name = comp.display_name or target_user.email
+                target_photo = comp.primary_thumbnail_url
                 target_type_label = 'Companion'
+                target_profile_id = comp.companion_id # view_companion takes companion_id
             else:
                 target_name = target_user.email
     elif report.target_type == TargetTypeEnum.BOOKING:
@@ -89,6 +97,10 @@ def report_detail(report_id):
         if booking:
             target_name = f'Booking #{report.target_id}'
             target_type_label = 'Booking'
+
+    # Stats
+    reporter_history_count = Report.query.filter_by(reporter_id=report.reporter_id).count()
+    target_history_count = Report.query.filter_by(target_id=report.target_id, target_type=report.target_type).count()
 
     # Split reason from user response
     full_reason = report.reason or ''
@@ -106,10 +118,14 @@ def report_detail(report_id):
         reporter_name=reporter_name,
         reporter_photo=reporter_photo,
         reporter_type=reporter_type,
+        reporter_profile_id=reporter_profile_id,
         target_user=target_user,
         target_name=target_name,
         target_photo=target_photo,
         target_type_label=target_type_label,
+        target_profile_id=target_profile_id,
+        reporter_history_count=reporter_history_count,
+        target_history_count=target_history_count,
         full_reason=full_reason,
         user_response=user_response,
     )
@@ -131,42 +147,94 @@ def resolve_report(report_id):
 @permission_required('report:manage')
 def request_info(report_id):
     from models.reports import Report, ReportStatusEnum, TargetTypeEnum
+    from models import Notification
+    from flask import request, flash, redirect, url_for
+    from extensions import db
+    from datetime import datetime
+
     report = Report.query.get_or_404(report_id)
+    request_target = request.form.get('request_target', 'subject') # 'reporter', 'subject', 'both'
 
     # Update report status
     report.status = ReportStatusEnum.AWAITING_INFO
     report.info_requested_at = datetime.utcnow()
 
-    # Notify the TARGET (the person being reported)
-    # target_id is now always a user_id for COMPANION and USER types
-    if report.target_type in (TargetTypeEnum.COMPANION, TargetTypeEnum.USER):
-        notify_user_id = report.target_id
-    else:
-        # Fallback for BOOKING type — notify reporter
-        notify_user_id = report.reporter_id
+    notify_ids = []
+    if request_target == 'reporter':
+        notify_ids.append(report.reporter_id)
+    elif request_target == 'subject':
+        if report.target_type in (TargetTypeEnum.COMPANION, TargetTypeEnum.USER):
+            notify_ids.append(report.target_id)
+        else:
+            # Fallback for BOOKING type or others where target_id isn't a user
+            notify_ids.append(report.reporter_id)
+    elif request_target == 'both':
+        notify_ids.append(report.reporter_id)
+        if report.target_type in (TargetTypeEnum.COMPANION, TargetTypeEnum.USER):
+            notify_ids.append(report.target_id)
 
-    notification = Notification(
-        user_id=notify_user_id,
-        title="Response Required on Report",
-        message=f"A report has been filed against you (Report #{report_id}). Admin has requested your response. Please provide details within 24 hours.",
-        created_at=datetime.utcnow()
-    )
+    # Dedup and create notifications
+    notify_ids = list(set(notify_ids))
+    for uid in notify_ids:
+        msg = f"A report requires your response (Report #{report_id}). Please provide details within 24 hours."
+        if uid == report.reporter_id and request_target != 'subject':
+            msg = f"Additional information is needed for your report (Report #{report_id}). Please provide more details to help our investigation."
+        
+        notification = Notification(
+            user_id=uid,
+            title="Action Required: Report Investigation",
+            message=msg,
+            created_at=datetime.utcnow()
+        )
+        db.session.add(notification)
 
-    db.session.add(notification)
     db.session.commit()
 
-    flash(f'Info requested for report #{report_id}. The reported user has been notified.', 'warning')
+    flash(f'Info request sent to {request_target.capitalize()}.', 'warning')
     return redirect(url_for('report_detail', report_id=report_id))
 
 @app.post('/admin/ban-user/<int:user_id>')
 @admin_required
 @permission_required('user:delete')
 def ban_user(user_id):
+    from models.users import User, UserStatus
     user = User.query.get_or_404(user_id)
     user.status = UserStatus.BANNED
+    user.suspended_until = None
     db.session.commit()
     
-    flash(f'User {user.email} has been banned.', 'danger')
+    flash(f'User {user.email} has been permanently banned.', 'danger')
+    return redirect(request.referrer or url_for('reports'))
+
+@app.post('/admin/suspend-user/<int:user_id>')
+@admin_required
+@permission_required('user:manage')
+def suspend_user(user_id):
+    from models.users import User, UserStatus
+    from datetime import datetime, timedelta
+    
+    user = User.query.get_or_404(user_id)
+    duration_hours = request.form.get('duration', type=int)
+    
+    if duration_hours == -1:
+        # Permanent ban
+        user.status = UserStatus.BANNED
+        user.suspended_until = None
+        flash(f'User {user.email} has been permanently banned.', 'danger')
+    else:
+        user.status = UserStatus.SUSPENDED
+        user.suspended_until = datetime.utcnow() + timedelta(hours=duration_hours)
+        
+        # Format duration for flash message
+        if duration_hours >= 24:
+            days = duration_hours // 24
+            label = f"{days} day{'s' if days > 1 else ''}"
+        else:
+            label = f"{duration_hours} hour{'s' if duration_hours > 1 else ''}"
+            
+        flash(f'User {user.email} has been suspended for {label}.', 'warning')
+    
+    db.session.commit()
     return redirect(request.referrer or url_for('reports'))
 
 @app.get('/admin/export-report')

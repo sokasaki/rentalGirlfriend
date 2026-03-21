@@ -110,11 +110,9 @@ def listing():
     # Format companion data for template
     companions = []
     for companion in companions_list:
-        # Get primary photo
-        photo_url = None
-        if companion.photos:
-            primary = [p for p in companion.photos if p.is_primary]
-            photo_url = primary[0].photo_url if primary else (companion.photos[0].photo_url if companion.photos else '/static/images/placeholder.jpg')
+        # Get primary photo via model property
+        photo_url = companion.primary_main_url or '/static/images/avatar-placeholder.jpg'
+
         
         companions.append({
             'companion_id': companion.companion_id,

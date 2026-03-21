@@ -39,176 +39,215 @@
                     <i class="fas fa-heart"></i> {{ platform_name }}
                 </a>
             </div>
-            <div class="col-4 text-end d-none d-sm-block">
-                <div class="dropdown">
+            <div class="col-4 text-end d-none d-sm-block" id="vue-notification-app">
+                <div class="dropdown" v-cloak>
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown"
-                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchNotifications">
                         <i class="fa-regular fa-bell"></i>
-                        <!-- DEBUG: notif_count={{ notification_count }}, pending_reports={{ pending_reports|length }} -->
-                        {% if notification_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            {{ notification_count }}
+                        <span v-if="state.notification_count > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {% raw %}{{ state.notification_count }}{% endraw %}
                         </span>
-                        {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" id="notificationMenu"
                         aria-labelledby="notificationDropdown"
                         style="min-width: 320px; max-height: 400px; overflow-y: auto;">
-                        {% if not pending_bookings and not approved_bookings and not notifications and not
-                        pending_reports %}
-                        <li class="empty-notifications">
+                        
+                        <li v-if="state.notification_count === 0" class="empty-notifications">
                             <span class="dropdown-item text-muted text-center py-3">
                                 <i class="fa-regular fa-bell-slash me-2"></i>No notifications
                             </span>
                         </li>
-                        {% else %}
 
                         <!-- Pending Info Requests (Urgent) -->
-                        {% if pending_reports %}
-                        <li class="dropdown-header">
-                            <strong class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Urgent Action
-                                Required</strong>
-                        </li>
-                        {% for report in pending_reports %}
-                        <li>
-                            <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
-                                data-bs-target="#respondReportModal{{ report.report_id }}"
-                                style="white-space: normal; background-color: #fff3cd;">
-                                <div class="d-flex align-items-start">
-                                    <i class="fas fa-exclamation-circle text-danger me-2 mt-1"></i>
-                                    <div>
-                                        <div class="small fw-bold mb-1 text-danger">Action Required: Report #{{
-                                            report.report_id }}</div>
-                                        <div class="small text-dark">Admin requested info. Click here to respond.</div>
+                        <template v-if="state.pending_reports && state.pending_reports.length > 0">
+                            <li class="dropdown-header">
+                                <strong class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i> Urgent Action Required</strong>
+                            </li>
+                            <li v-for="report in state.pending_reports" :key="'rep-'+report.report_id">
+                                <a class="dropdown-item py-2" href="#" data-bs-toggle="modal"
+                                    :data-bs-target="'#respondReportModal' + report.report_id"
+                                    style="white-space: normal; background-color: #fff3cd;">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-exclamation-circle text-danger me-2 mt-1"></i>
+                                        <div>
+                                            <div class="small fw-bold mb-1 text-danger">Action Required: Report #{% raw %}{{ report.report_id }}{% endraw %}</div>
+                                            <div class="small text-dark">Admin requested info. Click here to respond.</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </li>
-                        {% endfor %}
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        {% endif %}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        </template>
+
                         <!-- Pending Bookings (for Companion) -->
-                        {% if user_type == 'companion' and pending_bookings %}
-                        <li class="dropdown-header">
-                            <strong>Pending Booking Requests</strong>
-                        </li>
-                        {% for booking in pending_bookings %}
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('dashboard_companion') }}#requests">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <i class="fa-solid fa-clock me-2 text-warning"></i>
-                                        <strong>{{ booking.customer_name }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ booking.start_time.strftime('%b %d, %I:%M %p')
-                                            }}</small>
+                        <template v-if="state.user_type === 'companion' && state.pending_bookings && state.pending_bookings.length > 0">
+                            <li class="dropdown-header"><strong>Pending Booking Requests</strong></li>
+                            <li v-for="booking in state.pending_bookings" :key="'pbook-'+booking.booking_id">
+                                <a class="dropdown-item" :href="config.dashboardCompanionUrl + '#requests'">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <i class="fa-solid fa-clock me-2 text-warning"></i>
+                                            <strong>{% raw %}{{ booking.customer_name }}{% endraw %}</strong><br>
+                                            <small class="text-muted">{% raw %}{{ booking.start_time_display }}{% endraw %}</small>
+                                        </div>
+                                        <span class="badge bg-danger">${% raw %}{{ Number(booking.amount).toFixed(0) }}{% endraw %}</span>
                                     </div>
-                                    <span class="badge bg-danger">${{ "%.0f"|format(booking.amount) }}</span>
-                                </div>
-                            </a>
-                        </li>
-                        {% endfor %}
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        {% endif %}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        </template>
 
                         <!-- Approved Bookings (for Customer) -->
-                        {% if user_type == 'customer' and approved_bookings %}
-                        <li class="dropdown-header">
-                            <strong>Approved - Payment Required</strong>
-                        </li>
-                        {% for booking in approved_bookings %}
-                        <li>
-                            <a class="dropdown-item" href="{{ url_for('payment', booking_id=booking.booking_id) }}">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <i class="fa-regular fa-credit-card me-2 text-success"></i>
-                                        <strong>{{ booking.companion_name }}</strong>
-                                        <br>
-                                        <small class="text-muted">{{ booking.start_time.strftime('%b %d, %I:%M %p')
-                                            }}</small>
+                        <template v-if="state.user_type === 'customer' && state.approved_bookings && state.approved_bookings.length > 0">
+                            <li class="dropdown-header"><strong>Approved - Payment Required</strong></li>
+                            <li v-for="booking in state.approved_bookings" :key="'abook-'+booking.booking_id">
+                                <a class="dropdown-item" :href="config.paymentUrlBase + booking.booking_id">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <i class="fa-regular fa-credit-card me-2 text-success"></i>
+                                            <strong>{% raw %}{{ booking.companion_name }}{% endraw %}</strong><br>
+                                            <small class="text-muted">{% raw %}{{ booking.start_time_display }}{% endraw %}</small>
+                                        </div>
+                                        <span class="badge bg-success">${% raw %}{{ Number(booking.amount).toFixed(0) }}{% endraw %}</span>
                                     </div>
-                                    <span class="badge bg-success">${{ "%.0f"|format(booking.amount) }}</span>
-                                </div>
-                            </a>
-                        </li>
-                        {% endfor %}
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        {% endif %}
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                        </template>
 
                         <!-- General Notifications -->
-                        {% if notifications %}
-                        <li class="dropdown-header general-notification-item">
-                            <strong>Recent Notifications</strong>
-                        </li>
-                        {% for notification in notifications[:5] %}
-                        <li class="general-notification-item">
-                            <div class="dropdown-item py-2">
-                                <div class="d-flex align-items-start">
-                                    <div class="me-2 mt-1">
-                                        {% if 'Approved' in notification.title or 'Successful' in notification.title %}
-                                        <i class="fa-solid fa-circle-check text-success"></i>
-                                        {% elif 'Declined' in notification.title or 'Rejected' in notification.title or
-                                        'Failed' in notification.title %}
-                                        <i class="fa-solid fa-circle-xmark text-danger"></i>
-                                        {% else %}
-                                        <i class="fa-solid fa-circle-info text-primary"></i>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold small">{{ notification.title }}</div>
-                                        <div class="text-muted small text-wrap">{{ notification.message }}</div>
-                                        <small class="text-muted" style="font-size: 0.7rem;">
-                                            {{ notification.created_at.strftime('%b %d, %I:%M %p') }}
-                                        </small>
+                        <template v-if="state.notifications && state.notifications.length > 0">
+                            <li class="dropdown-header general-notification-item"><strong>Recent Notifications</strong></li>
+                            <li v-for="notif in state.notifications" :key="'notif-'+notif.notification_id" class="general-notification-item">
+                                <div class="dropdown-item py-2">
+                                    <div class="d-flex align-items-start">
+                                        <div class="me-2 mt-1">
+                                            <i v-if="notif.icon_type === 'success'" class="fa-solid fa-circle-check text-success"></i>
+                                            <i v-else-if="notif.icon_type === 'danger'" class="fa-solid fa-circle-xmark text-danger"></i>
+                                            <i v-else class="fa-solid fa-circle-info text-primary"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold small">{% raw %}{{ notif.title }}{% endraw %}</div>
+                                            <div class="text-muted small text-wrap">{% raw %}{{ notif.message }}{% endraw %}</div>
+                                            <small class="text-muted" style="font-size: 0.7rem;">{% raw %}{{ notif.created_at_display }}{% endraw %}</small>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                        {% endfor %}
-                        <li class="general-notification-item">
-                            <hr class="dropdown-divider">
-                        </li>
-                        {% endif %}
-
-                        <!-- Mark all as read -->
-                        <li class="general-notification-item">
-                            <button class="dropdown-item text-center text-muted small py-2" id="markNotificationsRead">
-                                <i class="fa-solid fa-check-double me-1"></i>Mark all as read
-                            </button>
-                        </li>
-                        <li class="general-notification-item">
-                            <hr class="dropdown-divider">
-                        </li>
+                            </li>
+                            <li class="general-notification-item"><hr class="dropdown-divider"></li>
+                            
+                            <!-- Mark all as read -->
+                            <li class="general-notification-item">
+                                <button class="dropdown-item text-center text-muted small py-2" @click.prevent="markRead">
+                                    <i class="fa-solid fa-check-double me-1"></i>Mark all as read
+                                </button>
+                            </li>
+                            <li class="general-notification-item"><hr class="dropdown-divider"></li>
+                        </template>
 
                         <!-- View All Links -->
-                        {% if user_type == 'companion' %}
-                        <li>
-                            <a class="dropdown-item text-center text-primary"
-                                href="{{ url_for('dashboard_companion') }}#requests">
-                                <strong>View All Requests</strong>
-                            </a>
+                        <li v-if="state.user_type === 'companion'">
+                            <a class="dropdown-item text-center text-primary" :href="config.dashboardCompanionUrl + '#requests'"><strong>View All Requests</strong></a>
                         </li>
-                        {% elif user_type == 'customer' %}
-                        <li>
-                            <a class="dropdown-item text-center text-primary"
-                                href="{{ url_for('dashboard_customer') }}#bookings">
-                                <strong>View All Bookings</strong>
-                            </a>
+                        <li v-else-if="state.user_type === 'customer'">
+                            <a class="dropdown-item text-center text-primary" :href="config.dashboardCustomerUrl + '#bookings'"><strong>View All Bookings</strong></a>
                         </li>
-                        {% endif %}
-                        {% endif %}
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- Insert Vue Logic Here -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+    const vueConfig = {
+        userType: '{{ user_type }}',
+        dashboardCompanionUrl: "{{ url_for('dashboard_companion') if user_type == 'companion' else '' }}",
+        dashboardCustomerUrl: "{{ url_for('dashboard_customer') if user_type == 'customer' else '' }}",
+        paymentUrlBase: "{{ url_for('payment', booking_id=0)[:-1] if session.get('user_id') else '' }}",
+        initialNotificationCount: parseInt('{{ notification_count|default(0) }}') || 0
+    };
+
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const config = vueConfig;
+            const state = ref({
+                user_type: config.userType,
+                notification_count: config.initialNotificationCount,
+                pending_bookings: [],
+                approved_bookings: [],
+                notifications: [],
+                pending_reports: []
+            });
+            
+            // Try to set initial state from Jinja for an immediate render
+            try {
+                // If you want accurate initial rendering without a flash, you can inject JSON data from Jinja directly.
+                // However, fetching immediately is fine too.
+            } catch(e) {}
+
+            let pollingInterval = null;
+
+            const fetchNotifications = async () => {
+                if (!config.userType) return; // user not logged in
+                try {
+                    const res = await fetch('/api/notifications/state');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success) {
+                            // Check for new notifications to show a toast
+                            if (data.notification_count > state.value.notification_count) {
+                                // Find difference and show toast if using SweetAlert2
+                                if (window.Swal) {
+                                  window.Swal.fire({
+                                      toast: true,
+                                      position: 'top-end',
+                                      icon: 'info',
+                                      title: 'You have new notifications!',
+                                      showConfirmButton: false,
+                                      timer: 3000
+                                  });
+                                }
+                            }
+                            state.value = data;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching notifications:', err);
+                }
+            };
+
+            const markRead = async () => {
+                try {
+                    const res = await fetch('/notifications/mark-read', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (res.ok) {
+                        state.value.notifications = [];
+                        // Recalculate count
+                        state.value.notification_count = state.value.pending_bookings.length + state.value.approved_bookings.length + state.value.pending_reports.length;
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            onMounted(() => {
+                if (config.userType) {
+                    fetchNotifications();
+                    pollingInterval = setInterval(fetchNotifications, 15000); // 15 seconds
+                }
+            });
+
+            return { state, config, fetchNotifications, markRead };
+        }
+    }).mount('#vue-notification-app');
+</script>
 
 <!-- Respond to Report Modals -->
 {% if pending_reports %}

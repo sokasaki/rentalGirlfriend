@@ -106,10 +106,10 @@
                                             (photos[0].photo_url if photos else none) %}
 
                                             {% if display_photo %}
-                                            <img src="{{ display_photo }}" class="w-100 h-100 object-fit-cover"
+                                            <img src="{{ '/static/' + display_photo if not display_photo.startswith(('/', 'http')) else display_photo }}" class="w-100 h-100 object-fit-cover"
                                                 alt="{{ companion.display_name }}"
                                                 style="cursor: zoom-in; min-height: 500px;"
-                                                onclick="openLightbox('{{ display_photo }}')">
+                                                onclick="openLightbox('{{ '/static/' + display_photo if not display_photo.startswith(('/', 'http')) else display_photo }}')">
                                             {% else %}
                                             <div class="d-flex align-items-center justify-content-center bg-light h-100"
                                                 style="min-height: 500px;">
@@ -220,8 +220,8 @@
                                 <div class="row g-3">
                                     {% for photo in photos %}
                                     <div class="col-md-3 col-sm-4">
-                                        <div class="photo-card" onclick="openLightbox('{{ photo.photo_url }}')">
-                                            <img src="{{ photo.photo_url }}" class="w-100 h-100 object-fit-cover">
+                                        <div class="photo-card" onclick="openLightbox('{{ '/static/' + photo.photo_url if not photo.photo_url.startswith(('/', 'http')) else photo.photo_url }}')">
+                                            <img src="{{ '/static/' + photo.photo_url if not photo.photo_url.startswith(('/', 'http')) else photo.photo_url }}" class="w-100 h-100 object-fit-cover">
                                             <div class="photo-overlay">
                                                 <i class="fas fa-search-plus text-white fa-2x"></i>
                                             </div>

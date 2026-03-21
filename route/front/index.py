@@ -19,19 +19,9 @@ def home():
     # Format featured companions
     featured_companions = []
     for companion in featured_companions_query:
-        # Get primary photo
-        primary_photo = db.session.query(CompanionPhoto).filter_by(
-            companion_id=companion.companion_id,
-            is_primary=True
-        ).first()
-        
-        if not primary_photo:
-            photos = db.session.query(CompanionPhoto).filter_by(
-                companion_id=companion.companion_id
-            ).first()
-            photo_url = photos.photo_url if photos else '/static/images/avatar-placeholder.jpg'
-        else:
-            photo_url = primary_photo.photo_url
+        # Get primary photo via model property
+        photo_url = companion.primary_main_url or '/static/images/avatar-placeholder.jpg'
+
         
         # Parse personality traits
         try:

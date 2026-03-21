@@ -433,16 +433,9 @@ def payment(booking_id):
     if not companion:
         return "Companion not found", 404
     
-    # Get primary photo
-    from models.companion_photos import CompanionPhoto
-    primary_photo = CompanionPhoto.query.filter_by(
-        companion_id=companion.companion_id,
-        is_primary=True
-    ).first()
-    
-    # Attach to booking for template
+    # Attach companion to booking for template
     booking.companion = companion
-    booking.companion.primary_photo = primary_photo
+
     
     # Pass Stripe public key to template
     return render_template(

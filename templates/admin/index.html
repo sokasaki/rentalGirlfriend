@@ -80,7 +80,9 @@
                                             <div class="d-flex align-items-center">
                                                 {% if companion.avatar %}
                                                 <div class="flex-shrink-0 me-3">
-                                                    <img src="{{ companion.avatar }}" class="rounded-circle" style="width: 42px; height: 42px; object-fit: cover;" alt="">
+                                                    <a href="{{ url_for('view_companion', id=companion.companion_id) }}">
+                                                        <img src="{{ '/static/' + companion.avatar if not companion.avatar.startswith(('/', 'http')) else companion.avatar }}" class="rounded-circle" style="width: 42px; height: 42px; object-fit: cover;" alt="">
+                                                    </a>
                                                 </div>
                                                 {% else %}
                                                 <div class="flex-shrink-0 me-3">
@@ -88,7 +90,11 @@
                                                 </div>
                                                 {% endif %}
                                                 <div>
-                                                    <div class="small fw-bold text-dark">{{ companion.display_name }}</div>
+                                                    <div class="small fw-bold">
+                                                        <a href="{{ url_for('view_companion', id=companion.companion_id) }}" class="text-dark text-decoration-none hover-primary">
+                                                            {{ companion.display_name }}
+                                                        </a>
+                                                    </div>
                                                     <div class="text-muted mt-1" style="font-size: 0.75rem;">{{ companion.age }} yrs</div>
                                                 </div>
                                             </div>
@@ -454,7 +460,7 @@
                     <div class="row">
                         <div class="col-md-4 text-center">
                             {% if companion.avatar %}
-                            <img src="{{ companion.avatar }}" class="img-fluid rounded mb-3" alt="" style="width: 150px; height: 150px; object-fit: cover;">
+                            <img src="{{ '/static/' + companion.avatar if not companion.avatar.startswith(('/', 'http')) else companion.avatar }}" class="img-fluid rounded mb-3" alt="" style="width: 150px; height: 150px; object-fit: cover;">
                             {% else %}
                             <i class="fa-solid fa-circle-user fa-8x text-secondary mb-3"></i>
                             {% endif %}

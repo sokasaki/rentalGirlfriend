@@ -1,4 +1,5 @@
 from app import app, render_template, db
+from upload_service import save_image
 from flask import session, redirect, url_for, request, flash
 import os
 from models.companion_profiles import CompanionProfile, VerificationStatusEnum
@@ -58,19 +59,8 @@ def dashboard_customer():
     past_bookings = []
     
     for booking, companion in all_bookings:
-        # Get companion photo
-        primary_photo = db.session.query(CompanionPhoto).filter_by(
-            companion_id=companion.companion_id,
-            is_primary=True
-        ).first()
-        
-        if not primary_photo:
-            photos = db.session.query(CompanionPhoto).filter_by(
-                companion_id=companion.companion_id
-            ).first()
-            photo_url = photos.photo_url if photos else '/static/images/avatar-placeholder.jpg'
-        else:
-            photo_url = primary_photo.photo_url
+        # Use thumbnail for the list view
+        photo_url = companion.primary_thumbnail_url if companion.photos else '/static/images/avatar-placeholder.jpg'
         
         duration_hours = (booking.end_time - booking.start_time).total_seconds() / 3600
         
@@ -110,19 +100,8 @@ def dashboard_customer():
     
     favorites = []
     for favorite, companion in favorites_query:
-        # Get companion photo
-        primary_photo = db.session.query(CompanionPhoto).filter_by(
-            companion_id=companion.companion_id,
-            is_primary=True
-        ).first()
-        
-        if not primary_photo:
-            photos = db.session.query(CompanionPhoto).filter_by(
-                companion_id=companion.companion_id
-            ).first()
-            photo_url = photos.photo_url if photos else '/static/images/avatar-placeholder.jpg'
-        else:
-            photo_url = primary_photo.photo_url
+        # Use thumbnail for favorites list
+        photo_url = companion.primary_thumbnail_url if companion.photos else '/static/images/avatar-placeholder.jpg'
         
         # Parse personality traits
         try:
@@ -212,7 +191,7 @@ def dashboard_customer():
             'date': datetime.now().strftime('%b %d, %Y'),
             'raw_date': datetime.now(), # Fallback since we don't have created_at on Favorite model usually
             'companion_name': companion.display_name,
-            'companion_photo': next((p.photo_url for p in companion.photos if p.is_primary), '/static/images/avatar-placeholder.jpg'),
+            'companion_photo': next((f"/static/{p.photo_url}" if not p.photo_url.startswith(('/', 'http')) else p.photo_url for p in companion.photos if p.is_primary), '/static/images/avatar-placeholder.jpg'),
             'companion_rating': float(companion.avg_rating) if companion.avg_rating else 0,
             'companion_bookings': len(companion.bookings),
             'personality_traits': json.loads(companion.personality_traits) if isinstance(companion.personality_traits, str) else (companion.personality_traits or []),
@@ -256,8 +235,8 @@ def dashboard_customer():
         'gender': customer.gender.value if customer.gender else 'PREFER_NOT_TO_SAY',
         'location': customer.location or 'Not specified',
         'bio': customer.bio or '',
-        'profile_photo': customer.profile_photo or '/static/images/avatar-placeholder.jpg',
-        'cover_photo': customer.cover_photo,
+        'profile_photo': customer.main_url or '/static/images/avatar-placeholder.jpg',
+        'cover_photo': (f"/static/{customer.cover_photo}" if customer.cover_photo and not customer.cover_photo.startswith(('/', 'http', '/static')) else customer.cover_photo),
         'member_since': user.created_at.strftime('%B %Y') if user and user.created_at else 'January 2023'
     }
     
@@ -416,19 +395,8 @@ def dashboard_companion():
     if not companion:
         return "Companion profile not found", 404
     
-    # Get profile photo
-    primary_photo = db.session.query(CompanionPhoto).filter_by(
-        companion_id=companion.companion_id,
-        is_primary=True
-    ).first()
-    
-    if not primary_photo:
-        photos = db.session.query(CompanionPhoto).filter_by(
-            companion_id=companion.companion_id
-        ).first()
-        photo_url = photos.photo_url if photos else '/static/images/avatar-placeholder.jpg'
-    else:
-        photo_url = primary_photo.photo_url
+    # Use resized 800px main image for the dashboard banner
+    photo_url = companion.primary_main_url or '/static/images/avatar-placeholder.jpg'
     
     # Check for pending info requests for reports (as reporter or target)
     from models.reports import Report, ReportStatusEnum, TargetTypeEnum
@@ -455,10 +423,11 @@ def dashboard_companion():
     formatted_requests = []
     for booking, customer, user in pending_requests:
         duration_hours = (booking.end_time - booking.start_time).total_seconds() / 3600
+        customer_photo = customer.thumbnail_url or 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70)
         formatted_requests.append({
             'booking_id': booking.booking_id,
             'customer_name': customer.full_name or 'Anonymous',
-            'customer_photo': 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70),
+            'customer_photo': customer_photo,
             'start_time': booking.start_time,
             'end_time': booking.end_time,
             'duration': duration_hours,
@@ -480,10 +449,11 @@ def dashboard_companion():
     formatted_bookings = []
     for booking, customer, user in confirmed_bookings:
         duration_hours = (booking.end_time - booking.start_time).total_seconds() / 3600
+        customer_photo = customer.thumbnail_url or 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70)
         formatted_bookings.append({
             'booking_id': booking.booking_id,
             'customer_name': customer.full_name or 'Anonymous',
-            'customer_photo': 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70),
+            'customer_photo': customer_photo,
             'customer_user_id': user.user_id,
             'start_time': booking.start_time,
             'end_time': booking.end_time,
@@ -710,8 +680,24 @@ def dashboard_companion():
         'member_since': companion.user.created_at.year if companion.user and companion.user.created_at else 2022
     }
     
+    # Get all photos for gallery management
+    photos = db.session.query(CompanionPhoto).filter_by(
+        companion_id=companion.companion_id
+    ).order_by(CompanionPhoto.is_primary.desc()).all()
+    
+    formatted_photos = []
+    for p in photos:
+        p_url = p.photo_url
+        p_photo_url = f"/static/{p_url}" if not p_url.startswith(('/', 'http')) else p_url
+        formatted_photos.append({
+            'photo_id': p.photo_id,
+            'photo_url': p_photo_url,
+            'is_primary': p.is_primary
+        })
+
     return render_template('front/pages/dashboard-companion.html',
         companion=companion_data,
+        photos=formatted_photos,
         pending_requests=formatted_requests,
         pending_count=len(formatted_requests),
         confirmed_bookings=formatted_bookings,
@@ -908,12 +894,18 @@ def update_profile_companion():
 
         # Handle JSON fields (languages, personality_traits)
         languages = request.form.getlist('languages')
-        if languages:
-            companion.languages = languages
+        custom_language = request.form.get('custom_language')
+        if custom_language and custom_language.strip():
+            languages.append(custom_language.strip())
+            
+        companion.languages = languages
             
         traits = request.form.getlist('personality_traits')
-        if traits:
-            companion.personality_traits = traits
+        custom_trait = request.form.get('custom_personality_trait')
+        if custom_trait and custom_trait.strip():
+            traits.append(custom_trait.strip())
+            
+        companion.personality_traits = traits
             
         db.session.commit()
         flash('Profile updated successfully!', 'success')
@@ -922,3 +914,139 @@ def update_profile_companion():
         flash(f'Error updating profile: {str(e)}', 'danger')
         
     return redirect(url_for('dashboard_companion', _anchor='settings'))
+
+@app.post('/upload-gallery-photo')
+def upload_gallery_photo():
+    from flask import jsonify
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Login required'}), 401
+        
+    companion = db.session.query(CompanionProfile).filter_by(user_id=user_id).first()
+    if not companion:
+        return jsonify({'success': False, 'message': 'Companion profile not found'}), 404
+        
+    if 'gallery_photos' not in request.files:
+        return jsonify({'success': False, 'message': 'No files uploaded'}), 400
+        
+    files = request.files.getlist('gallery_photos')
+    if not files or files[0].filename == '':
+        return jsonify({'success': False, 'message': 'No files selected'}), 400
+        
+    # Check current count
+    current_count = CompanionPhoto.query.filter_by(companion_id=companion.companion_id).count()
+    if current_count + len(files) > 10:
+        return jsonify({'success': False, 'message': f'Cannot exceed 10 photos. You can only add {max(0, 10 - current_count)} more.'}), 400
+        
+    upload_folder = os.path.join('static', 'uploads', 'companion_photos')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+        
+    allowed_ext = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
+    uploaded_photos = []
+    
+    for file in files:
+        if file and file.filename:
+            # Use save_image from upload_service
+            result = save_image(file, upload_folder, allowed_ext)
+            
+            if isinstance(result, str): # Error message
+                # Skip this file but continue others
+                continue
+                
+            # Create new CompanionPhoto record
+            photo_url = f"uploads/companion_photos/{result['original']}"
+            
+            new_photo = CompanionPhoto(
+                companion_id=companion.companion_id,
+                photo_url=photo_url,
+                is_primary=False
+            )
+            db.session.add(new_photo)
+            db.session.commit()
+            
+            uploaded_photos.append({
+                'photo_id': new_photo.photo_id,
+                'photo_url': f"/static/{photo_url}",
+                'is_primary': False
+            })
+            
+    if not uploaded_photos:
+        return jsonify({'success': False, 'message': 'Upload failed for all selected files. Ensure they are valid images (png, jpg, jpeg, webp, gif).'}), 400
+    
+    return jsonify({
+        'success': True, 
+        'message': f'{len(uploaded_photos)} photo(s) uploaded successfully',
+        'photos': uploaded_photos
+    })
+
+@app.post('/set-primary-photo/<int:photo_id>')
+def set_primary_photo(photo_id):
+    from flask import jsonify
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Login required'}), 401
+        
+    companion = db.session.query(CompanionProfile).filter_by(user_id=user_id).first()
+    if not companion:
+        return jsonify({'success': False, 'message': 'Companion profile not found'}), 404
+        
+    # Verify photo belongs to companion
+    photo = CompanionPhoto.query.filter_by(photo_id=photo_id, companion_id=companion.companion_id).first()
+    if not photo:
+        return jsonify({'success': False, 'message': 'Photo not found'}), 404
+        
+    # Reset all others
+    CompanionPhoto.query.filter_by(companion_id=companion.companion_id).update({'is_primary': False})
+    
+    # Set this one as primary
+    photo.is_primary = True
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Profile picture updated successfully'})
+
+@app.post('/delete-gallery-photo/<int:photo_id>')
+def delete_gallery_photo(photo_id):
+    from flask import jsonify
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Login required'}), 401
+        
+    companion = db.session.query(CompanionProfile).filter_by(user_id=user_id).first()
+    if not companion:
+        return jsonify({'success': False, 'message': 'Companion profile not found'}), 404
+        
+    photo = CompanionPhoto.query.filter_by(photo_id=photo_id, companion_id=companion.companion_id).first()
+    if not photo:
+        return jsonify({'success': False, 'message': 'Photo not found'}), 404
+        
+    if photo.is_primary:
+        return jsonify({'success': False, 'message': 'Cannot delete your primary profile photo. Please set another as primary first.'}), 400
+        
+    # Delete from disk
+    try:
+        # Resolve absolute path
+        p_url = photo.photo_url
+        if p_url.startswith('/static/'):
+            p_url = p_url[len('/static/'):]
+        
+        file_path = os.path.join('static', p_url)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
+        # Also remove resized and thumbnail if they exist
+        dir_name = os.path.dirname(file_path)
+        base_name = os.path.basename(file_path)
+        name, ext = os.path.splitext(base_name)
+        
+        for prefix in ['resized_', 'thumb_']:
+            extra_path = os.path.join(dir_name, f"{prefix}{name}{ext}")
+            if os.path.exists(extra_path):
+                os.remove(extra_path)
+    except Exception as e:
+        print(f"DEBUG: Error deleting physical file: {e}")
+        
+    db.session.delete(photo)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'message': 'Photo removed from gallery'})

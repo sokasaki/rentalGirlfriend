@@ -30,7 +30,8 @@ ENV/
 
 # Database
 instance/
-mydb.db
+*.db
+*.sqlite
 *.sqlite3
 
 # IDEs
@@ -39,13 +40,14 @@ mydb.db
 *.swp
 *.swo
 
+models/
+migrations/
+images/
 # OS files
 .DS_Store
 Thumbs.db
 
 # Maintenance & Utility Scripts
-migrations/
-models/
 add_column.py
 add_username_column.py
 babel.cfg
@@ -62,9 +64,17 @@ reset_database.py
 seed_*.py
 test_*.py
 migrate_permissions.py
+
+# Uploads & Test Data
+static/uploads/
+test_uploads/
+test_uploads_2/
+test_image.jpg
+test_large.jpg
 # Metadata & Temp
-flask.log
+*.log
 messages.pot
+check_out.txt
 data-dictionary.html
 *.md
 !README.md

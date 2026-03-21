@@ -24,8 +24,8 @@ def profile(companion_id=None):
         
         if not primary_photo:
             primary_photo = CompanionPhoto.query.filter_by(companion_id=companion_id).first()
-        
-        photo_url = primary_photo.photo_url if primary_photo else '/static/images/avatar-placeholder.jpg'
+            
+        photo_url = primary_photo.main_url if primary_photo else '/static/images/avatar-placeholder.jpg'
         
         # Get all photos
         photos = CompanionPhoto.query.filter_by(companion_id=companion_id).all()
@@ -126,6 +126,7 @@ def profile(companion_id=None):
         
         companion_data = {
             'companion_id': companion.companion_id,
+            'user_id': companion.user_id,
             'display_name': companion.display_name,
             'age': companion.age,
             'gender': companion.gender.value if companion.gender else 'Not specified',
@@ -146,7 +147,12 @@ def profile(companion_id=None):
                 'email': companion.user.email if companion.user else 'N/A',
                 'phone': companion.user.phone if companion.user else 'N/A'
             },
-            'photos': [{'photo_url': p.photo_url, 'is_primary': p.is_primary} for p in photos],
+            'photos': [{
+                'photo_url': p.photo_url,
+                'main_url': p.main_url,
+                'thumbnail_url': p.thumbnail_url,
+                'is_primary': p.is_primary
+            } for p in photos],
             'reviews': formatted_reviews
         }
         

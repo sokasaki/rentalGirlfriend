@@ -123,8 +123,10 @@ def inject_user_type():
         user_id = session.get('user_id')
         current_user = User.query.get(user_id)
         
-        if current_user and current_user.role and current_user.role.role_name.lower() == 'admin':
-            is_admin = True
+        if current_user and current_user.role:
+            role_name = current_user.role.role_name.lower()
+            if role_name not in ['customer', 'companion']:
+                is_admin = True
             
         companion = CompanionProfile.query.filter_by(user_id=user_id).first()
         customer = CustomerProfile.query.filter_by(user_id=user_id).first()
@@ -258,9 +260,22 @@ def check_user_status():
             
         # 1. Check if user is banned or suspended
         if user.status in [UserStatus.BANNED, UserStatus.SUSPENDED]:
+            # Check if temporary suspension has expired
+            if user.status == UserStatus.SUSPENDED and user.suspended_until:
+                if datetime.utcnow() > user.suspended_until:
+                    user.status = UserStatus.ACTIVE
+                    user.suspended_until = None
+                    db.session.commit()
+                    return # Continue to next checks (auto-suspension, etc)
+            
             status_name = user.status.value.lower()
             session.clear()
-            flash(f'Your account has been {status_name}. Please contact support.', 'danger')
+            
+            error_msg = f'Your account has been {status_name}. Please contact support.'
+            if user.status == UserStatus.SUSPENDED and user.suspended_until:
+                error_msg = f'Your account is suspended until {user.suspended_until.strftime("%Y-%m-%d %H:%M")} UTC.'
+                
+            flash(error_msg, 'danger')
             return _login_redirect()
             
         # 2. Check for auto-suspension (1 hour deadline for info request)

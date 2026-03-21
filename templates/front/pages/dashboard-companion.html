@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'common_head_tags.html' %}
+
     <title>{{ companion.display_name }} - Companion Dashboard | {{ platform_name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1824,21 +1826,44 @@
                                                     hr</span>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Languages
-                                                Spoken</label>
-                                            <select class="form-select border-light-subtle bg-light" name="languages"
-                                                multiple size="3" style="border-radius: 10px;">
-                                                {% set lang_list = ['English', 'Spanish', 'French', 'German',
-                                                'Italian',
-                                                'Portuguese', 'Chinese (Mandarin)', 'Japanese', 'Korean'] %}
+                                        <div class="col-12 mt-3">
+                                            <label class="form-label fw-semibold small text-muted">Languages Spoken</label>
+                                            <div class="row g-2">
+                                                {% set lang_list = ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese (Mandarin)', 'Japanese', 'Korean'] %}
                                                 {% for lang in lang_list %}
-                                                <option value="{{ lang }}" {% if lang in companion.languages
-                                                    %}selected{% endif %}>
-                                                    {{ lang }}</option>
+                                                <div class="col-md-3 col-6">
+                                                    <div class="form-check custom-trait-check">
+                                                        <input class="form-check-input" type="checkbox" name="languages" value="{{ lang }}" id="lang_{{ loop.index }}" {% if lang in companion.languages %}checked{% endif %}>
+                                                        <label class="form-check-label small fw-medium" for="lang_{{ loop.index }}">{{ lang }}</label>
+                                                    </div>
+                                                </div>
                                                 {% endfor %}
-                                            </select>
-                                            <div class="form-text small">Hold Ctrl/Cmd to select multiple.</div>
+                                                
+                                                <!-- Other Language -->
+                                                <div class="col-md-3 col-6">
+                                                    <div class="form-check custom-trait-check">
+                                                        <input class="form-check-input" type="checkbox" id="toggleOtherLanguage">
+                                                        <label class="form-check-label small fw-medium" for="toggleOtherLanguage">Other...</label>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="col-12 mt-2" id="otherLanguageContainer" style="display: none;">
+                                                    <div class="input-group input-group-sm" style="max-width: 300px;">
+                                                        <input type="text" id="otherLanguageInput" name="custom_language" class="form-control" placeholder="Type language...">
+                                                        <button class="btn btn-outline-primary" type="button" id="addOtherLanguage">Add</button>
+                                                    </div>
+                                                    <div id="customLanguagesList" class="d-flex flex-wrap gap-2 mt-3">
+                                                        {% for clang in companion.languages %}
+                                                            {% if clang not in lang_list %}
+                                                            <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill" data-value="{{ clang }}">
+                                                                {{ clang }} <i class="fas fa-times cursor-pointer remove-item" style="cursor: pointer;"></i>
+                                                                <input type="hidden" name="languages" value="{{ clang }}">
+                                                            </span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1861,23 +1886,108 @@
                                         'Humorous', 'Reserved', 'Sophisticated', 'Energetic', 'Calm',
                                         'Creative', 'Reliable',
                                         'Caring', 'Good Listener'] %}
-                                        {% for trait in traits %}
-                                        <div class="col-md-3 col-6">
-                                            <div class="form-check custom-trait-check">
-                                                <input class="form-check-input" type="checkbox"
-                                                    name="personality_traits" value="{{ trait }}"
-                                                    id="trait_{{ loop.index }}" {% if trait in
-                                                    companion.personality_traits %}checked{% endif %}>
-                                                <label class="form-check-label small fw-medium"
-                                                    for="trait_{{ loop.index }}">
-                                                    {{ trait }}
-                                                </label>
-                                            </div>
-                                        </div>
+                                {% for trait in traits %}
+                                <div class="col-md-3 col-6">
+                                    <div class="form-check custom-trait-check">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="personality_traits" value="{{ trait }}"
+                                            id="trait_{{ loop.index }}" {% if trait in
+                                            companion.personality_traits %}checked{% endif %}>
+                                        <label class="form-check-label small fw-medium"
+                                            for="trait_{{ loop.index }}">
+                                            {{ trait }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <!-- Other Trait -->
+                                <div class="col-md-3 col-6">
+                                    <div class="form-check custom-trait-check">
+                                        <input class="form-check-input" type="checkbox" id="toggleOtherTrait">
+                                        <label class="form-check-label small fw-medium" for="toggleOtherTrait">Other...</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-2" id="otherTraitContainer" style="display: none;">
+                                    <div class="input-group input-group-sm" style="max-width: 300px;">
+                                        <input type="text" id="otherTraitInput" name="custom_personality_trait" class="form-control" placeholder="Type trait...">
+                                        <button class="btn btn-outline-primary" type="button" id="addOtherTrait">Add</button>
+                                    </div>
+                                    <div id="customTraitsList" class="d-flex flex-wrap gap-2 mt-3">
+                                        {% for ct in companion.personality_traits %}
+                                            {% if ct not in traits %}
+                                            <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill" data-value="{{ ct }}">
+                                                {{ ct }} <i class="fas fa-times cursor-pointer remove-item" style="cursor: pointer;"></i>
+                                                <input type="hidden" name="personality_traits" value="{{ ct }}">
+                                            </span>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Photo Gallery Management -->
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
+                        <div class="card-header bg-white border-0 p-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-danger-subtle text-danger rounded-3 p-2 me-3">
+                                        <i class="fas fa-images fa-lg"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-0">Photo Gallery</h5>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                    onclick="document.getElementById('gallery-photo-input').click()">
+                                    <i class="fas fa-plus me-1"></i> Add Photo
+                                </button>
+                                <input type="file" id="gallery-photo-input" class="d-none" accept="image/*" multiple>
+                            </div>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            <div class="row g-3" id="gallery-container">
+                                {% for photo in photos %}
+                                <div class="col-md-3 col-6 photo-item" data-photo-id="{{ photo.photo_id }}">
+                                    <div class="position-relative group">
+                                        <div class="ratio ratio-1x1 rounded-3 overflow-hidden shadow-sm border border-light-subtle">
+                                            <img src="{{ photo.photo_url }}" alt="Gallery" class="object-fit-cover">
+                                        </div>
+                                        
+                                        <!-- Badges & Actions -->
+                                        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-1 opacity-100 group-hover:opacity-100 transition-all">
+                                            {% if photo.is_primary %}
+                                            <span class="badge bg-primary rounded-pill shadow-sm mb-1">Primary</span>
+                                            {% else %}
+                                            <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm set-primary-btn" 
+                                                    title="Set as profile picture" data-photo-id="{{ photo.photo_id }}">
+                                                <i class="far fa-star text-warning"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger rounded-circle shadow-sm delete-photo-btn" 
+                                                    title="Delete photo" data-photo-id="{{ photo.photo_id }}">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                {% if not photos %}
+                                <div class="col-12 text-center py-5" id="empty-gallery-msg">
+                                    <div class="text-muted mb-2">
+                                        <i class="fas fa-images fa-3x opacity-25"></i>
+                                    </div>
+                                    <p class="text-muted small">Your gallery is empty. Add some beautiful photos!</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-text small mt-3">
+                                <i class="fas fa-info-circle me-1"></i> Max 10 photos. JPG, PNG or WEBP. 
+                                Recommended size: 800x800px.
+                            </div>
+                        </div>
+                    </div>
 
                             <!-- Fixed Action Bar for Settings -->
                             <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px; background: white;">
@@ -2214,6 +2324,209 @@
 
                 profileInput.addEventListener('change', () => handlePreview(profileInput, profilePreview));
                 coverInput.addEventListener('change', () => handlePreview(coverInput, coverPreview));
+
+                // ── Gallery Management Logic ──
+                const galleryInput = document.getElementById('gallery-photo-input');
+                const galleryContainer = document.getElementById('gallery-container');
+
+                galleryInput.addEventListener('change', async function() {
+                    if (!this.files || this.files.length === 0) return;
+
+                    const formData = new FormData();
+                    for (let i = 0; i < this.files.length; i++) {
+                        formData.append('gallery_photos', this.files[i]);
+                    }
+
+                    // Show loading
+                    Swal.fire({
+                        title: 'Uploading...',
+                        text: `Uploading ${this.files.length} photo(s)...`,
+                        didOpen: () => { Swal.showLoading(); },
+                        allowOutsideClick: false
+                    });
+
+                    try {
+                        const response = await fetch('/upload-gallery-photo', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            Swal.close();
+                            // Add to UI
+                            const emptyMsg = document.getElementById('empty-gallery-msg');
+                            if (emptyMsg) emptyMsg.remove();
+
+                            data.photos.forEach(photo => {
+                                const photoHtml = `
+                                    <div class="col-md-3 col-6 photo-item" data-photo-id="${photo.photo_id}">
+                                        <div class="position-relative group">
+                                            <div class="ratio ratio-1x1 rounded-3 overflow-hidden shadow-sm border border-light-subtle">
+                                                <img src="${photo.photo_url}" alt="Gallery" class="object-fit-cover">
+                                            </div>
+                                            <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-1 opacity-100 transition-all">
+                                                <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm set-primary-btn" 
+                                                        title="Set as profile picture" data-photo-id="${photo.photo_id}">
+                                                    <i class="far fa-star text-warning"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-danger rounded-circle shadow-sm delete-photo-btn" 
+                                                        title="Delete photo" data-photo-id="${photo.photo_id}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                                galleryContainer.insertAdjacentHTML('beforeend', photoHtml);
+                            });
+                            
+                            // Attach listeners to new elements
+                            attachGalleryListeners();
+                            
+                            toast(data.message, 'success');
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Failed to upload photo', 'error');
+                    }
+                });
+
+                function attachGalleryListeners() {
+                    // Set Primary
+                    document.querySelectorAll('.set-primary-btn').forEach(btn => {
+                        btn.onclick = async function() {
+                            const photoId = this.dataset.photoId;
+                            
+                            try {
+                                const response = await fetch(`/set-primary-photo/${photoId}`, { method: 'POST' });
+                                const data = await response.json();
+                                
+                                if (data.success) {
+                                    // Simpler to just reload or update all badges
+                                    window.location.reload(); 
+                                } else {
+                                    toast(data.message, 'error');
+                                }
+                            } catch (error) {
+                                toast('Action failed', 'error');
+                            }
+                        };
+                    });
+
+                    // Delete Photo
+                    document.querySelectorAll('.delete-photo-btn').forEach(btn => {
+                        btn.onclick = async function() {
+                            const photoId = this.dataset.photoId;
+                            
+                            const result = await Swal.fire({
+                                title: 'Remove photo?',
+                                text: "This will permanently delete it from your gallery.",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#dc3545',
+                                confirmButtonText: 'Yes, delete it'
+                            });
+
+                            if (result.isConfirmed) {
+                                try {
+                                    const response = await fetch(`/delete-gallery-photo/${photoId}`, { method: 'POST' });
+                                    const data = await response.json();
+                                    
+                                    if (data.success) {
+                                        document.querySelector(`.photo-item[data-photo-id="${photoId}"]`).remove();
+                                        toast('Photo removed', 'success');
+                                    } else {
+                                        toast(data.message, 'error');
+                                    }
+                                } catch (error) {
+                                    toast('Action failed', 'error');
+                                }
+                            }
+                        };
+                    });
+                }
+
+                // Dynamic "Other" Fields
+                function setupOtherField(toggleId, containerId, inputId, addBtnId, listId, inputName) {
+                    const toggle = document.getElementById(toggleId);
+                    const container = document.getElementById(containerId);
+                    const input = document.getElementById(inputId);
+                    const addBtn = document.getElementById(addBtnId);
+                    const list = document.getElementById(listId);
+
+                    if (!toggle || !container || !input || !addBtn || !list) return;
+
+                    toggle.addEventListener('change', function() {
+                        container.style.display = this.checked ? 'block' : 'none';
+                        if (this.checked) input.focus();
+                    });
+
+                    // Pre-attach remove listeners to existing custom traits
+                    list.querySelectorAll('.remove-item').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            this.closest('.badge').remove();
+                        });
+                    });
+
+                    const addItem = () => {
+                        const val = input.value.trim();
+                        if (val) {
+                            // Check if already added
+                            const existing = Array.from(list.querySelectorAll('.badge')).some(b => b.dataset.value === val);
+                            if (existing) {
+                                input.value = '';
+                                return;
+                            }
+
+                            const badge = document.createElement('span');
+                            badge.className = 'badge bg-primary-subtle text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill';
+                            badge.dataset.value = val;
+                            badge.innerHTML = `${val} <i class="fas fa-times cursor-pointer remove-item" style="cursor: pointer;"></i>`;
+                            
+                            // Add hidden input for form submission
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = inputName;
+                            hiddenInput.value = val;
+                            badge.appendChild(hiddenInput);
+
+                            badge.querySelector('.remove-item').addEventListener('click', function() {
+                                badge.remove();
+                            });
+
+                            list.appendChild(badge);
+                            input.value = '';
+                        }
+                    };
+
+                    addBtn.addEventListener('click', addItem);
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addItem();
+                        }
+                    });
+                }
+
+                setupOtherField('toggleOtherTrait', 'otherTraitContainer', 'otherTraitInput', 'addOtherTrait', 'customTraitsList', 'personality_traits');
+                setupOtherField('toggleOtherLanguage', 'otherLanguageContainer', 'otherLanguageInput', 'addOtherLanguage', 'customLanguagesList', 'languages');
+
+
+                function toast(msg, icon) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({ icon: icon, title: msg });
+                }
+
+                attachGalleryListeners();
             });
 
             // Handle View Booking Details

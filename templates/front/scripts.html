@@ -8,48 +8,8 @@
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 <!-- Notification Handler (Centralized from header.html) -->
+
 <script>
-    document.getElementById('markNotificationsRead')?.addEventListener('click', async function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            const response = await fetch('/notifications/mark-read', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (response.ok) {
-                const badge = document.querySelector('#notificationDropdown .badge');
-                const itemsToHide = document.querySelectorAll('.general-notification-item');
-
-                if (itemsToHide.length > 0) {
-                    itemsToHide.forEach(item => item.remove());
-                }
-
-                const menu = document.getElementById('notificationMenu');
-                const remainingItems = menu.querySelectorAll('li:not(.dropdown-divider)');
-
-                if (remainingItems.length === 0) {
-                    menu.innerHTML = `
-                        <li class="empty-notifications">
-                            <span class="dropdown-item text-muted text-center py-3">
-                                <i class="fa-regular fa-bell-slash me-2"></i>No notifications
-                            </span>
-                        </li>
-                    `;
-                    if (badge) badge.remove();
-                } else {
-                    if (badge && menu.querySelectorAll('li.dropdown-header').length === 0) {
-                        badge.remove();
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error marking notifications as read:', error);
-        }
-    });
-
     // Centralized Flash Message Handling
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

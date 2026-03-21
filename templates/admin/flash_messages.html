@@ -1,0 +1,33 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const flashes = {{ messages | tojson | safe }};
+        flashes.forEach(([category, message]) => {
+            const icon = category === 'success' ? 'success' : 
+                         (category === 'error' || category === 'danger') ? 'error' : 
+                         category === 'warning' ? 'warning' : 'info';
+            
+            const title = category === 'success' ? 'Success!' : 
+                          (category === 'error' || category === 'danger') ? 'Error!' : 
+                          category === 'warning' ? 'Warning!' : 'Notice';
+            
+            const color = category === 'success' ? '#28a745' : 
+                          (category === 'error' || category === 'danger') ? '#dc3545' : 
+                          category === 'warning' ? '#ffc107' : '#17a2b8';
+
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonColor: color,
+                timer: 5000,
+                timerProgressBar: true,
+                toast: false,
+                position: 'center'
+            });
+        });
+    });
+</script>
+{% endif %}
+{% endwith %}

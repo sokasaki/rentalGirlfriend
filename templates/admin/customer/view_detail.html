@@ -50,39 +50,20 @@
 </style>
 
 <body>
+    <div class="mesh-gradient"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: #f8fafc; background-image: radial-gradient(at 40% 20%, hsla(28,100%,74%,0.15) 0, transparent 50%), radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0, transparent 50%), radial-gradient(at 0% 100%, hsla(242,100%,70%,0.15) 0, transparent 50%), radial-gradient(at 80% 100%, hsla(343,100%,76%,0.15) 0, transparent 50%);">
+    </div>
+
     <!-- Dashboard Content -->
-    <div class="container-fluid">
+    <div class="container-fluid animate-fade-in-up">
         <div class="row">
             <!-- Sidebar -->
             {% include 'admin/sidebar.html' %}
 
             <!-- Main Content -->
             <div class="col-lg-10 col-md-9 p-4 mb-5">
-                <div class="dashboard-header-row">
-                    <button class="mobile-toggle" id="menu-toggle" aria-label="Toggle menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h2>Customer Details</h2>
-                    <div class="user-info">
-                        <span class="d-none d-md-inline">Welcome, Admin!</span>
-                        <div class="dropdown">
-                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                                data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user-alt me-2"></i>Profile</a>
-                                </li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                {% set header_title = 'Customer Details' %}
+                {% include 'admin/header.html' with context %}
                 <!-- Back Button -->
                 <a href="{{ url_for('users') }}" class="btn btn-sm btn-outline-secondary mb-3">
                     <i class="fas fa-arrow-left me-2"></i>Back to Users
@@ -111,16 +92,20 @@
                 <div class="row g-4">
                     <div class="col-xl-8">
                         <!-- About Customer -->
-                        <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+                        <div class="card glass-premium border-0 shadow-premium mb-4 overflow-hidden delay-100">
                             <div class="card-body p-0">
                                 <div class="row g-0">
                                     <div class="col-md-4 bg-light border-end d-flex flex-column">
                                         <div class="position-relative flex-grow-1">
-                                            {% if customer.profile_photo %}
-                                            <img src="{{ customer.profile_photo }}" class="w-100 h-100 object-fit-cover"
+                                            {% set main_img = customer.main_url or (('/static/' +
+                                            customer.profile_photo) if customer.profile_photo and not
+                                            customer.profile_photo.startswith(('http', '//')) else
+                                            customer.profile_photo if customer.profile_photo else none) %}
+                                            {% if main_img %}
+                                            <img src="{{ main_img }}" class="w-100 h-100 object-fit-cover"
                                                 alt="{{ customer.full_name }}"
                                                 style="cursor: zoom-in; min-height: 400px;"
-                                                onclick="openLightbox('{{ customer.profile_photo }}')">
+                                                onclick="openLightbox('{{ main_img }}')">
                                             {% else %}
                                             <div class="d-flex align-items-center justify-content-center bg-light h-100"
                                                 style="min-height: 400px;">
@@ -216,7 +201,7 @@
                         </div>
 
                         <!-- Booking History -->
-                        <div class="card border-0 shadow-sm mb-4">
+                        <div class="card glass-premium border-0 shadow-premium mb-4 delay-200">
                             <div class="card-header bg-white border-0 py-3">
                                 <h5 class="mb-0 fw-bold">Booking History <span class="text-muted fw-normal ms-2">({{
                                         booking_count }})</span></h5>
@@ -244,7 +229,7 @@
                                                         %}
                                                         <div class="me-3">
                                                             {% if primary_photo %}
-                                                            <img src="{{ primary_photo.photo_url }}"
+                                                            <img src="{{ primary_photo.thumbnail_url }}"
                                                                 class="rounded-circle"
                                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #eee;"
                                                                 alt="{{ booking.companion.display_name }}">
@@ -297,7 +282,7 @@
                         </div>
 
                         <!-- Reviews Section (Optional for customers) -->
-                        <div class="card border-0 shadow-sm mb-4">
+                        <div class="card glass-premium border-0 shadow-premium mb-4 delay-300">
                             <div
                                 class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0 fw-bold">Customer Reviews</h5>
@@ -350,7 +335,7 @@
 
                     <div class="col-xl-4">
                         <!-- Profile Strength -->
-                        <div class="card border-0 shadow-sm mb-4">
+                        <div class="card glass-premium border-0 shadow-premium mb-4 delay-100">
                             <div class="card-body">
                                 <h6 class="text-uppercase text-muted small fw-bold mb-3">Profile Strength</h6>
                                 {% set score = 0 %}
@@ -385,7 +370,7 @@
                         </div>
 
                         <!-- Registration Details -->
-                        <div class="card border-0 shadow-sm mb-4">
+                        <div class="card glass-premium border-0 shadow-premium mb-4 delay-200">
                             <div class="card-body">
                                 <h6 class="text-uppercase text-muted small fw-bold mb-3">Registration Details</h6>
                                 <div class="row g-3">
@@ -425,16 +410,6 @@
                     </p>
                 </div>
                 <div class="col-md-6">
-                    <div class="d-flex gap-3 justify-content-md-end">
-                        <a href="{{ url_for('edit_user', user_id=user.user_id) }}"
-                            class="btn btn-success px-5 py-2 fw-bold shadow-sm">
-                            <i class="fas fa-edit me-1"></i>Edit User
-                        </a>
-                        <button class="btn btn-danger px-5 py-2 fw-bold shadow-sm"
-                            onclick="deleteUser({{ user.user_id }}, '{{ user.email }}')">
-                            <i class="fas fa-trash me-1"></i>Delete User
-                        </button>
-                    </div>
 
                 </div>
             </div>

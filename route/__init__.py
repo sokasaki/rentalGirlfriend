@@ -20,4 +20,5 @@ from route.front.profile import *
 from route.front.dashboard import *
 from route.front.booking import *
 from route.front.report import *
+from route.front.api_notifications import *
 
