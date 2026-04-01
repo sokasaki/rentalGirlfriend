@@ -60,11 +60,9 @@ def _weekday_to_enum(dt):
 
 def _is_within_availability(companion_id, start_dt, end_dt):
     if start_dt.date() != end_dt.date():
-        print(f"DEBUG [AVAILABILITY] Outside range: Start date {start_dt.date()} != End date {end_dt.date()}")
         return False
 
     day_enum = _weekday_to_enum(start_dt)
-    print(f"DEBUG [AVAILABILITY] Checking companion {companion_id} for {day_enum.value}")
     
     # Use value comparison for Enum if needed
     slots = Availability.query.filter_by(
@@ -74,25 +72,19 @@ def _is_within_availability(companion_id, start_dt, end_dt):
     # Filter by day in python to be safer with Enum types if query has issues
     matching_slots = [s for s in slots if s.day_of_week == day_enum or s.day_of_week.value == day_enum.value]
 
-    print(f"DEBUG [AVAILABILITY] Found {len(matching_slots)} slots for {day_enum.value}")
     
     if not matching_slots:
-        print(f"DEBUG [AVAILABILITY] Result: FAILED (No slots for {day_enum.value})")
         return False
 
     start_time = start_dt.time()
     end_time = end_dt.time()
     
-    print(f"DEBUG [AVAILABILITY] Requested Time: {start_time} to {end_time}")
 
     for slot in matching_slots:
-        print(f"DEBUG [AVAILABILITY] Checking Slot: {slot.start_time} to {slot.end_time}")
         # Check if BOTH start AND end times are within the slot
         if slot.start_time <= start_time and slot.end_time >= end_time:
-            print(f"DEBUG [AVAILABILITY] Result: PASSED (Match found in slot {slot.availability_id})")
             return True
     
-    print(f"DEBUG [AVAILABILITY] Result: FAILED (No slot covers the requested internal {start_time}-{end_time})")
     return False
 
 
@@ -101,7 +93,6 @@ def _is_within_availability(companion_id, start_dt, end_dt):
 def create_booking():
     # Check if user is logged in
     if 'user_id' not in session:
-        print("DEBUG: User not logged in")
         return jsonify({
             'success': False,
             'message': 'Please login to make a booking',
@@ -112,17 +103,14 @@ def create_booking():
         # Get customer profile from session
         customer = CustomerProfile.query.filter_by(user_id=session['user_id']).first()
         if not customer:
-            print(f"DEBUG: Customer profile not found for user {session['user_id']}")
             return jsonify({
                 'success': False,
                 'message': 'Customer profile not found. Please complete your registration.'
             }), 404
         
-        print(f"DEBUG: Processing booking for customer {customer.customer_id}")
         
         # Get form data
         data = request.get_json() if request.is_json else request.form
-        print(f"DEBUG: Request data: {data}")
         
         try:
             companion_id = int(data.get('companion_id'))
@@ -132,14 +120,12 @@ def create_booking():
             location = data.get('location')
             notes = data.get('notes', '')
         except (ValueError, TypeError) as e:
-            print(f"DEBUG: Error parsing form fields: {e}")
             return jsonify({
                 'success': False,
                 'message': f'Invalid form data: {str(e)}'
             }), 400
         
         if duration <= 0:
-            print(f"DEBUG: Invalid duration: {duration}")
             return jsonify({
                 'success': False,
                 'message': 'Duration must be greater than 0'
@@ -148,28 +134,22 @@ def create_booking():
         # Validate companion exists
         companion = CompanionProfile.query.get(companion_id)
         if not companion:
-            print(f"DEBUG: Companion {companion_id} not found")
             return jsonify({
                 'success': False,
                 'message': 'Companion not found'
             }), 404
 
         if companion.verification_status != VerificationStatusEnum.APPROVED:
-            print(f"DEBUG: Companion {companion_id} not approved. Status: {companion.verification_status}")
             return jsonify({
                 'success': False,
                 'message': 'This companion is not currently available for booking'
             }), 400
         
         # Parse datetime
-        print(f"DEBUG: Parsing date {date_str} and time {time_str}")
         booking_datetime = _parse_booking_datetime(date_str, time_str)
         start_time = booking_datetime
         end_time = booking_datetime + timedelta(hours=duration)
 
-        print(f"DEBUG: Start time: {start_time} (date: {start_time.date()})")
-        print(f"DEBUG: End time: {end_time} (date: {end_time.date()})")
-        print(f"DEBUG: Same day? {start_time.date() == end_time.date()}")
 
         if start_time.date() != end_time.date():
             return jsonify({
@@ -179,7 +159,6 @@ def create_booking():
         
         # Check if booking is in the future
         if start_time <= datetime.now():
-            print(f"DEBUG: Booking in past. Start: {start_time}, Now: {datetime.now()}")
             return jsonify({
                 'success': False,
                 'message': 'Booking time must be in the future'
@@ -187,11 +166,8 @@ def create_booking():
 
         # Validate booking fits companion availability
         availability_check = _is_within_availability(companion_id, start_time, end_time)
-        print(f"DEBUG: Availability check result: {availability_check}")
-        print(f"DEBUG: Companion {companion_id}, Start: {start_time.time()}, End: {end_time.time()}")
         
         if not availability_check:
-            print(f"DEBUG: Availability check FAILED for companion {companion_id}")
             return jsonify({
                 'success': False,
                 'message': 'Selected date/time is outside companion availability'
@@ -233,7 +209,6 @@ def create_booking():
         db.session.add(new_booking)
         db.session.commit()
         
-        print(f"DEBUG: Booking created successfully - ID: {new_booking.booking_id}")
         
         # Format booking details for response
         booking_date = start_time.strftime('%A, %B %d, %Y')
@@ -255,13 +230,11 @@ def create_booking():
         }), 201
         
     except ValueError as e:
-        print(f"DEBUG: ValueError - {str(e)}")
         return jsonify({
             'success': False,
             'message': str(e) or 'Invalid date or time format'
         }), 400
     except Exception as e:
-        print(f"DEBUG: Exception - {str(e)}")
         import traceback
         traceback.print_exc()
         db.session.rollback()

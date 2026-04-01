@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% include 'admin/style.html' %}
+
+<style>
+    .log-details-pre {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+    }
+    .action-badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+<body>
+    <div class="mesh-gradient"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: #f8fafc; background-image: radial-gradient(at 40% 20%, hsla(28,100%,74%,0.15) 0, transparent 50%), radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0, transparent 50%), radial-gradient(at 0% 100%, hsla(242,100%,70%,0.15) 0, transparent 50%), radial-gradient(at 80% 100%, hsla(343,100%,76%,0.15) 0, transparent 50%);">
+    </div>
+
+    <div class="container-fluid animate-fade-in-up">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'admin/sidebar.html' %}
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 p-4">
+                {% set header_title = 'System Audit Logs' %}
+                {% include 'admin/header.html' with context %}
+
+                <!-- Filters -->
+                <div class="card glass-premium border-0 shadow-premium mb-4 mt-4 animate-scale-in">
+                    <div class="card-body p-4">
+                        <form method="GET" action="{{ url_for('audit_logs') }}" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Action Type</label>
+                                <select name="action" class="form-select border-0 bg-light shadow-sm">
+                                    <option value="">All Actions</option>
+                                    {% for action in actions %}
+                                    <option value="{{ action }}" {% if selected_action == action %}selected{% endif %}>{{ action }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Performed By</label>
+                                <select name="user_id" class="form-select border-0 bg-light shadow-sm">
+                                    <option value="">All Admins</option>
+                                    {% for admin in admins %}
+                                    <option value="{{ admin.user_id }}" {% if selected_user_id == admin.user_id %}selected{% endif %}>{{ admin.username }} ({{ admin.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">
+                                    <i class="fa-solid fa-magnifying-glass me-2"></i> Filter
+                                </button>
+                                <a href="{{ url_for('audit_logs') }}" class="btn btn-light ms-2 shadow-sm">
+                                    <i class="fa-solid fa-rotate me-1"></i>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Logs Table -->
+                <div class="card glass-premium border-0 shadow-premium delay-100">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light-subtle">
+                                    <tr class="small text-muted text-uppercase letter-spacing-1">
+                                        <th class="ps-4 py-3">Timestamp</th>
+                                        <th class="py-3">Admin</th>
+                                        <th class="py-3">Action</th>
+                                        <th class="py-3">Target</th>
+                                        <th class="py-3">IP Address</th>
+                                        <th class="py-3 text-end pe-4">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if logs %}
+                                        {% for log in logs %}
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="small fw-bold text-dark">{{ log.created_at.strftime('%Y-%m-%d') }}</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">{{ log.created_at.strftime('%H:%M:%S') }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                        {{ log.user.username[:2].upper() if log.user else '??' }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="small fw-bold">{{ log.user.username if log.user else 'System' }}</div>
+                                                        <div class="text-muted" style="font-size: 0.7rem;">{{ log.user.email if log.user else 'automated@system' }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge action-badge bg-info-subtle text-info rounded-pill">
+                                                    {{ log.action }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if log.target_type %}
+                                                <div class="small fw-bold">{{ log.target_type }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">ID: #{{ log.target_id if log.target_id else 'N/A' }}</div>
+                                                {% else %}
+                                                <span class="text-muted small">N/A</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <code class="small text-muted">{{ log.ip_address if log.ip_address else 'Internal' }}</code>
+                                            </td>
+                                            <td class="text-end pe-4">
+                                                <button class="btn btn-sm btn-outline-primary border-0 rounded-circle" 
+                                                        onclick='showDetails({{ log.log_id }}, "{{ log.action }}", {{ log.details|tojson|safe if log.details else "{}" }})'>
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <div class="text-muted">
+                                                    <i class="fa-solid fa-inbox fa-3x mb-3 opacity-25"></i>
+                                                    <p>No audit logs found for the selected filters.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if pagination.pages > 1 %}
+                    <div class="card-footer bg-transparent border-0 p-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                                    <a class="page-link shadow-sm border-0 mx-1 rounded" href="{{ url_for('audit_logs', page=pagination.prev_num, action=selected_action, user_id=selected_user_id) }}">Previous</a>
+                                </li>
+                                
+                                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                    {% if page_num %}
+                                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                            <a class="page-link shadow-sm border-0 mx-1 rounded" href="{{ url_for('audit_logs', page=page_num, action=selected_action, user_id=selected_user_id) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled"><span class="page-link border-0">...</span></li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                    <a class="page-link shadow-sm border-0 mx-1 rounded" href="{{ url_for('audit_logs', page=pagination.next_num, action=selected_action, user_id=selected_user_id) }}">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-premium border-0 shadow-premium">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalActionTitle">Action Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <label class="small fw-bold text-muted mb-2">RAW METADATA</label>
+                    <pre id="logDetailsContent" class="log-details-pre"></pre>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary fw-bold" onclick="copyDetails()">
+                        <i class="fa-solid fa-copy me-2"></i> Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showDetails(id, action, details) {
+            document.getElementById('modalActionTitle').innerText = 'Action: ' + action;
+            
+            // Format JSON if possible
+            let content = details;
+            try {
+                if (typeof details === 'string' && (details.startsWith('{') || details.startsWith('['))) {
+                    content = JSON.stringify(JSON.parse(details), null, 4);
+                } else if (typeof details === 'object') {
+                    content = JSON.stringify(details, null, 4);
+                }
+            } catch (e) {
+                content = details;
+            }
+            
+            document.getElementById('logDetailsContent').innerText = content || 'No additional details provided.';
+            
+            var myModal = new Bootstrap.Modal(document.getElementById('detailsModal'));
+            myModal.show();
+        }
+
+        function copyDetails() {
+            const content = document.getElementById('logDetailsContent').innerText;
+            navigator.clipboard.writeText(content);
+            
+            const copyBtn = event.currentTarget;
+            const originalHtml = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fa-solid fa-check me-2"></i> Copied!';
+            copyBtn.classList.replace('btn-primary', 'btn-success');
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHtml;
+                copyBtn.classList.replace('btn-success', 'btn-primary');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

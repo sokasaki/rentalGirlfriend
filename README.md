@@ -48,7 +48,7 @@ A web-based platform for managing companion rental services, including booking, 
 5.  **Initialize the database**:
     ```bash
     flask db upgrade
-    python seed_data.py
+    python scripts/seed_data.py
     ```
 
 6.  **Run the application**:
@@ -58,12 +58,32 @@ A web-based platform for managing companion rental services, including booking, 
 
 ## Project Structure
 
-- `app.py`: Application entry point.
-- `models/`: Database models.
+- `app.py`: Application entry point and configuration.
+- `models/`: Database models (SQLAlchemy).
 - `route/`: Flask blueprints and route definitions.
-- `templates/`: HTML templates (Jinja2).
+    - `admin/`: Administrative dashboard routes (Analytics, Bookings, Companions, Customers, Notifications, Payments, Reports, Reviews, Roles, Settings, Users).
+    - `front/`: Customer and public-facing routes.
+- `templates/`: HTML templates (Jinja2) for both Admin and Front-end.
 - `static/`: CSS, JS, and image assets.
-- `translations/`: Localization files.
+- `translations/`: Localization files for Internationalization (English/Khmer).
+- `scripts/`: Diagnostic and maintenance scripts.
+
+## Advanced Features
+
+### Role-Based Access Control (RBAC)
+The platform uses a comprehensive RBAC system with permissions for every major action (e.g., `companion:verify`, `user:edit`, `booking:manage`). Roles and permissions can be managed from the Admin Dashboard.
+
+### KHQR Payment Integration
+Integrated with KHQR for seamless local payment processing. Configuration for merchant IDs and API keys is managed via environment variables in the `.env` file.
+
+## Production Deployment
+
+1.  **Set `FLASK_DEBUG=False`** in your `.env` file.
+2.  **Use a production WSGI server** like Gunicorn:
+    ```bash
+    gunicorn -w 4 -b 0.0.0.0:8000 app:app
+    ```
+3.  **Ensure volume persistence** for the SQLite database (`mydb.db`) and user uploads (`static/uploads`).
 
 ## License
 

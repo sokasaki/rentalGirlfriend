@@ -179,6 +179,17 @@
                                                                     onclick="viewCompanionDetail({{ stat.companion.companion_id }})">
                                                                     <i class="fa-solid fa-eye me-2 text-info"></i>View
                                                                     Profile</a></li>
+                                                            <li><a class="dropdown-item" href="#"
+                                                                    onclick="editCompanion({{ stat.companion.companion_id }})">
+                                                                    <i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Edit
+                                                                    Profile</a></li>
+                                                            <li>
+                                                                <hr class="dropdown-divider">
+                                                            </li>
+                                                            <li><a class="dropdown-item text-danger" href="#"
+                                                                    onclick="deleteCompanion({{ stat.companion.companion_id }}, '{{ stat.companion.display_name }}')">
+                                                                    <i class="fa-solid fa-trash me-2"></i>Delete
+                                                                    Companion</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -306,12 +317,11 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // TODO: Submit approval to backend
-                    Swal.fire(
-                        'Approved!',
-                        `${name} has been approved as a companion.`,
-                        'success'
-                    );
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/companions/approve/${id}`;
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             });
         }
@@ -331,18 +341,25 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // TODO: Submit rejection to backend
-                    Swal.fire(
-                        'Rejected',
-                        `${name}'s application has been rejected.`,
-                        'info'
-                    );
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/admin/companions/reject/${id}`;
+                    
+                    if (result.value) {
+                       const reasonInput = document.createElement('input');
+                       reasonInput.type = 'hidden';
+                       reasonInput.name = 'reason';
+                       reasonInput.value = result.value;
+                       form.appendChild(reasonInput);
+                    }
+                    
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             });
         }
 
         function editCompanion(id) {
-            // TODO: Navigate to edit page
             window.location.href = `/admin/companions/edit/${id}`;
         }
 

@@ -11,6 +11,7 @@ from route.admin.payments import *
 from route.admin.customers import *
 from route.admin.notifications import *
 from route.admin.roles import *
+from route.admin.audit_logs import *
 
 # Frontend routes
 from route.front.index import *

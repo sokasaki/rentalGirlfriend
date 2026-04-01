@@ -144,7 +144,7 @@ p,
 }
 
 /* Offset main content for fixed sidebar */
-.dashboard-sidebar + .col-lg-10 {
+.dashboard-sidebar ~ .col-lg-10 {
   margin-left: 16.67%;
 }
 

@@ -237,3 +237,49 @@ def delete_companion(id):
     
     flash(f'{name} has been deleted successfully.', 'success')
     return redirect(url_for('companions'))
+
+@app.route('/admin/companions/edit/<int:id>', methods=['GET', 'POST'])
+@admin_required
+@permission_required('companion:edit')
+def edit_companion(id):
+    from models import CompanionProfile, User
+    from flask import flash, redirect, url_for, request
+    from extensions import db
+    
+    companion = CompanionProfile.query.filter_by(companion_id=id).first()
+    if not companion:
+        flash('Companion not found', 'error')
+        return redirect(url_for('companions'))
+    
+    if request.method == 'POST':
+        # Update text fields
+        companion.display_name = request.form.get('display_name')
+        companion.age = int(request.form.get('age', companion.age))
+        companion.location = request.form.get('location')
+        companion.bio = request.form.get('bio')
+        companion.rate_per_hour = float(request.form.get('rate_per_hour', companion.rate_per_hour))
+        
+        # Update status if provided
+        new_status = request.form.get('verification_status')
+        if new_status:
+            companion.verification_status = new_status
+            
+        try:
+            db.session.commit()
+            flash(f'Profile for {companion.display_name} updated successfully!', 'success')
+            return redirect(url_for('view_companion_detail', id=id))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating profile: {str(e)}', 'error')
+            
+    # Get pending count for sidebar
+    from models import CompanionProfile as CP
+    pending_count = CP.query.filter_by(verification_status='PENDING').count()
+    
+    return render_template(
+        'admin/companion/edit.html',
+        active_page='companions',
+        companion=companion,
+        user=companion.user,
+        pending_count=pending_count
+    )

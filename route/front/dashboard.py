@@ -833,9 +833,6 @@ def update_profile_companion():
     if not user_id:
         return redirect(url_for('login'))
     
-    print(f"DEBUG: update_profile_companion called for user_id {user_id}")
-    print(f"DEBUG: Files received: {request.files}")
-    print(f"DEBUG: Form data keys: {request.form.keys()}")
 
     companion = db.session.query(CompanionProfile).filter_by(user_id=user_id).first()
     if not companion:
@@ -1044,8 +1041,7 @@ def delete_gallery_photo(photo_id):
             if os.path.exists(extra_path):
                 os.remove(extra_path)
     except Exception as e:
-        print(f"DEBUG: Error deleting physical file: {e}")
-        
+        pass
     db.session.delete(photo)
     db.session.commit()
     

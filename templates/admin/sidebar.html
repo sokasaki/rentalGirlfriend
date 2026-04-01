@@ -63,6 +63,11 @@
             <i class="fa-solid fa-chart-line"></i> Analytics
         </a>
         {% endif %}
+        {% if has_perm('audit_log:view') %}
+        <a href="{{ url_for('audit_logs') }}" class="nav-link {% if active_page == 'audit_logs' %}active{% endif %}">
+            <i class="fa-solid fa-shield-halved"></i> Audit Logs
+        </a>
+        {% endif %}
         {% if has_perm('setting:view') %}
         <a href="{{ url_for('settings') }}" class="nav-link {% if active_page == 'settings' %}active{% endif %}">
             <i class="fa-solid fa-gear"></i> Settings
