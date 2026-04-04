@@ -399,16 +399,9 @@
                                     <div class="card-body">
                                         {% if customer %}
                                         <div class="d-flex align-items-center mb-3">
-                                            {% if customer.profile_photo %}
-                                            <img src="{{ ('/static/' + customer.profile_photo) if not customer.profile_photo.startswith(('/', 'http')) else customer.profile_photo }}"
-                                                class="rounded-circle me-3" width="50" height="50"
-                                                style="object-fit: cover;">
-                                            {% else %}
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                style="width: 50px; height: 50px;">
-                                                <i class="fas fa-user text-muted"></i>
-                                            </div>
-                                            {% endif %}
+                                            {% set customer_photo = customer.main_url or '/static/images/avatar-placeholder.jpg' %}
+                                            <img src="{{ customer_photo }}" class="rounded-circle me-3"
+                                                width="50" height="50" style="object-fit: cover;">
                                             <div>
                                                 <div class="fw-bold">{{ customer.full_name }}</div>
                                                 <small class="text-muted">{{ customer.user.email }}</small>
@@ -432,18 +425,9 @@
                                     <div class="card-body">
                                         {% if companion %}
                                         <div class="d-flex align-items-center mb-3">
-                                            {% set primary_photo = companion.photos|selectattr('is_primary',
-                                            'true')|first %}
-                                            {% if primary_photo %}
-                                            <img src="{{ ('/static/' + primary_photo.photo_url) if not primary_photo.photo_url.startswith(('/', 'http')) else primary_photo.photo_url }}"
-                                                class="rounded-circle me-3" width="50" height="50"
-                                                style="object-fit: cover;">
-                                            {% else %}
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                style="width: 50px; height: 50px;">
-                                                <i class="fas fa-user text-muted"></i>
-                                            </div>
-                                            {% endif %}
+                                            {% set companion_photo = companion.primary_main_url or '/static/images/avatar-placeholder.jpg' %}
+                                            <img src="{{ companion_photo }}" class="rounded-circle me-3"
+                                                width="50" height="50" style="object-fit: cover;">
                                             <div>
                                                 <div class="fw-bold">{{ companion.display_name }}</div>
                                                 <small class="text-muted">{{ companion.user.email }}</small>

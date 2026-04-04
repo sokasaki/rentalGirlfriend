@@ -1,0 +1,87 @@
+                <div class="col-lg-3 mb-4">
+                    <button class="btn btn-primary d-lg-none w-100 mb-3" id="toggleFilters">
+                        <i class="fas fa-filter me-2"></i>Filters
+                    </button>
+                    <form id="filtersForm" method="get" class="filters-card">
+                        <h5 class="fw-bold mb-4" style="font-size: 1.1rem;">Filters</h5>
+
+                        <!-- Search -->
+                        <div class="filter-section">
+                            <label class="filter-label">Search</label>
+                            <input type="text" class="form-control search-input" name="search" id="searchCompanions"
+                                placeholder="Search by name..." value="{{ search or '' }}">
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="filter-section">
+                            <label class="filter-label">Price Range</label>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="small text-muted">Per hour</span>
+                                <span id="priceValue" class="small fw-bold" style="color: var(--primary-color);">{{ "$"
+                                    }}{{ max_price|int }}</span>
+                            </div>
+                            <input type="range" class="form-range" id="priceRange" name="max_price"
+                                min="{{ min_available_price|int }}" max="{{ max_available_price|int }}"
+                                value="{{ max_price|int }}" step="5">
+                            <input type="hidden" name="min_price" value="{{ min_available_price|int }}">
+                            <div class="d-flex justify-content-between small text-muted mt-1">
+                                <span>${{ min_available_price|int }}</span>
+                                <span>${{ max_available_price|int }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Personality -->
+                        <div class="filter-section">
+                            <div class="filter-collapse-header" onclick="toggleFilterSection('personalityCollapse')">
+                                <label class="filter-label mb-0">Personality</label>
+                                <i class="fas fa-chevron-down filter-chevron" id="personalityChevron"></i>
+                            </div>
+                            <div class="filter-collapse-content" id="personalityCollapse">
+                                <div class="d-flex flex-wrap gap-1 mt-2" id="personalityFilters">
+                                    {% for trait in available_traits %}
+                                    <span class="filter-chip" data-filter="{{ trait|lower }}">{{ trait }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <input type="hidden" name="personality" id="personalityInput"
+                                value="{{ personality|join(',') if personality else '' }}">
+                        </div>
+
+                        <!-- Age Range -->
+                        <div class="filter-section">
+                            <label class="filter-label">Age Range</label>
+                            <select class="form-select" name="age_range">
+                                <option value="" {% if age_range=='' %}selected{% endif %}>All Ages</option>
+                                <option value="18-24" {% if age_range=='18-24' %}selected{% endif %}>18-24</option>
+                                <option value="25-30" {% if age_range=='25-30' %}selected{% endif %}>25-30</option>
+                                <option value="31-35" {% if age_range=='31-35' %}selected{% endif %}>31-35</option>
+                                <option value="36+" {% if age_range=='36+' %}selected{% endif %}>36+</option>
+                            </select>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="filter-section">
+                            <label class="filter-label">Availability</label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="availableToday"
+                                    name="available_today">
+                                <label class="form-check-label small" for="availableToday">Available Today</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="availableWeekend"
+                                    name="available_weekend">
+                                <label class="form-check-label small" for="availableWeekend">Available
+                                    Weekends</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('listing') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-redo-alt me-2"></i>Reset Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>

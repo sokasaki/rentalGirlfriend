@@ -1,0 +1,87 @@
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-premium rounded-4 order-summary-card">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                            {% set duration_hours = ((booking.end_time - booking.start_time).total_seconds() /
+                            3600)|int
+                            %}
+                            {% set subtotal = booking.total_price|float %}
+                            {% set service_fee = (subtotal * 0.1) %}
+                            {% set total = (subtotal + service_fee) %}
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>{{ duration_hours }} hours @ ${{ booking.companion.rate_per_hour
+                                        }}/hour</span>
+                                    <span class="fw-semibold">${{ "%.2f"|format(subtotal) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service Fee (10%)</span>
+                                    <span class="fw-semibold">${{ "%.2f"|format(service_fee) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 text-success" id="discountRow"
+                                    style="display: none;">
+                                    <span>Discount</span>
+                                    <span class="fw-semibold" id="discountAmount">-$0.00</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Promo Code -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Promo Code</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control promo-code-input"
+                                        placeholder="Enter promo code" id="promoCode">
+                                    <button class="btn btn-outline-primary promo-code-btn" onclick="applyPromo()">
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between mb-4">
+                                <h5 class="fw-bold mb-0">Total</h5>
+                                <h5 class="fw-bold mb-0 text-primary" id="totalAmount">${{ "%.2f"|format(total) }}
+                                </h5>
+                            </div>
+
+                            <input type="hidden" id="bookingId" value="{{ booking.booking_id }}">
+                            <input type="hidden" id="baseTotal" value="{{ " %.2f"|format(total) }}">
+
+                            <button class="btn btn-primary btn-lg w-100 rounded-pill mb-3 btn-pay-pulse"
+                                onclick="processPayment()">
+                                <i class="fas fa-lock me-2"></i>Pay Now
+                            </button>
+
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    By completing this payment, you agree to our
+                                    <a href="#" class="text-primary">Terms & Conditions</a>
+                                </small>
+                            </div>
+
+                            <!-- Payment Methods Accepted -->
+                            <div class="mt-4 pt-4 border-top">
+                                <small class="text-muted d-block mb-2">We accept:</small>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-visa"></i> Visa
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-mastercard"></i> Mastercard
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fab fa-cc-amex"></i> Amex
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-qrcode"></i> KHQR
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>

@@ -5,6 +5,8 @@ from models.favorites import Favorite
 from models.customer_profiles import CustomerProfile
 from flask import request, session
 from sqlalchemy import func
+from models.reviews import Review, ReviewStatusEnum
+from models.bookings import Booking
 import json
 
 @app.get('/listing')
@@ -114,6 +116,12 @@ def listing():
         photo_url = companion.primary_main_url or '/static/images/avatar-placeholder.jpg'
 
         
+        # Get review count for trust signals
+        reviews_count = Review.query.join(Booking).filter(
+            Booking.companion_id == companion.companion_id,
+            Review.status == ReviewStatusEnum.APPROVED
+        ).count()
+        
         companions.append({
             'companion_id': companion.companion_id,
             'display_name': companion.display_name,
@@ -122,7 +130,9 @@ def listing():
             'rate_per_hour': float(companion.rate_per_hour),
             'avg_rating': round(float(companion.avg_rating or 4.5), 1),
             'photo_url': photo_url,
-            'personality_traits': companion.personality_traits or []
+            'personality_traits': companion.personality_traits or [],
+            'location': companion.location or 'Unknown',
+            'reviews_count': reviews_count
         })
     
     # Get the set of companion IDs the current user has favorited

@@ -65,19 +65,12 @@
                                             <tr>
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
-                                                        {% set primary_photo = companion.photos|selectattr('is_primary',
-                                                        'true')|first %}
-                                                        {% if primary_photo %}
-                                                        <a
-                                                            href="{{ url_for('view_companion', id=companion.companion_id) }}">
-                                                            <img src="{{ '/static/' + primary_photo.photo_url if not primary_photo.photo_url.startswith(('/', 'http')) else primary_photo.photo_url }}"
+                                                        {% set companion_photo = companion.primary_main_url or '/static/images/avatar-placeholder.jpg' %}
+                                                        <a href="{{ url_for('view_companion', id=companion.companion_id) }}">
+                                                            <img src="{{ companion_photo }}"
                                                                 class="rounded-circle me-3"
                                                                 style="width: 38px; height: 38px; object-fit: cover;">
                                                         </a>
-                                                        {% else %}
-                                                        <i class="fa-solid fa-circle-user text-secondary me-3"
-                                                            style="font-size: 2rem;"></i>
-                                                        {% endif %}
                                                         <div>
                                                             <div class="small fw-bold">
                                                                 <a href="{{ url_for('view_companion', id=companion.companion_id) }}"
@@ -132,16 +125,10 @@
                                             <tr>
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
-                                                        {% set primary_photo =
-                                                        stat.companion.photos|selectattr('is_primary', 'true')|first %}
-                                                        {% if primary_photo %}
-                                                        <img src="{{ '/static/' + primary_photo.photo_url if not primary_photo.photo_url.startswith(('/', 'http')) else primary_photo.photo_url }}"
+                                                        {% set companion_photo = stat.companion.primary_main_url or '/static/images/avatar-placeholder.jpg' %}
+                                                        <img src="{{ companion_photo }}"
                                                             class="rounded-circle me-3"
                                                             style="width: 42px; height: 42px; object-fit: cover;">
-                                                        {% else %}
-                                                        <i class="fa-solid fa-circle-user text-secondary me-3"
-                                                            style="font-size: 2.2rem;"></i>
-                                                        {% endif %}
                                                         <div>
                                                             <div class="fw-bold small">{{ stat.companion.display_name }}
                                                             </div>

@@ -1,0 +1,87 @@
+                    <div class="col-lg-4">
+                        <!-- Intro Card -->
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">Intro</h6>
+                                <div class="mb-3">
+                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                                    <span>Lives in <strong>{{ customer.location }}</strong></span>
+                                </div>
+                                <div class="mb-3">
+                                    <i class="fas fa-envelope text-muted me-2"></i>
+                                    <span>{{ customer.email }}</span>
+                                </div>
+                                <div class="mb-3">
+                                    <i class="fas fa-phone text-muted me-2"></i>
+                                    <span>{{ customer.phone }}</span>
+                                </div>
+                                {% if customer.date_of_birth %}
+                                <div class="mb-3">
+                                    <i class="fas fa-birthday-cake text-muted me-2"></i>
+                                    <span>Born <strong>{{ customer.date_of_birth }}</strong></span>
+                                </div>
+                                {% endif %}
+                                <div class="mb-3">
+                                    <i class="fas fa-venus-mars text-muted me-2"></i>
+                                    <span><strong>{{ customer.gender.replace('_', ' ').title() }}</strong></span>
+                                </div>
+                                <div class="mb-3">
+                                    <i class="fas fa-calendar text-muted me-2"></i>
+                                    <span>Joined {{ customer.member_since }}</span>
+                                </div>
+                                <button class="btn btn-light w-100 mt-2">Edit Details</button>
+                            </div>
+                        </div>
+
+                        <!-- Stats Card -->
+                        <div class="card border-0 shadow-sm mb-3">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">Statistics</h6>
+                                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                                    <div class="text-center">
+                                        <h4 class="fw-bold text-primary mb-0">{{ total_bookings }}</h4>
+                                        <small class="text-muted">Total Bookings</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <h4 class="fw-bold text-primary mb-0">{{ upcoming_count }}</h4>
+                                        <small class="text-muted">Upcoming</small>
+                                    </div>
+                                    <div class="text-center">
+                                        <h4 class="fw-bold text-primary mb-0">{{ favorites_count }}</h4>
+                                        <small class="text-muted">Favorites</small>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <h5 class="fw-bold text-success mb-0">${{ "{:,.0f}".format(total_spent or 0) }}</h5>
+                                    <small class="text-muted">Total Spent</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Favorite Companions Quick View -->
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-bold mb-0">Favorite Companions</h6>
+                                    <a href="#favorites" class="text-primary text-decoration-none small">See All</a>
+                                </div>
+                                <div class="row g-2">
+                                    {% for favorite in favorites[:6] %}
+                                    <div class="col-4">
+                                        <img src="{{ favorite.companion_photo }}" class="rounded w-100"
+                                            style="aspect-ratio: 1; object-fit: cover;"
+                                            alt="{{ favorite.companion_name }}">
+                                    </div>
+                                    {% endfor %}
+                                    {% if favorites_count > 6 %}
+                                    <div class="col-4">
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                            style="aspect-ratio: 1;">
+                                            <span class="fw-bold text-muted">+{{ favorites_count - 6 }}</span>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>

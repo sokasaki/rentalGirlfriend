@@ -83,6 +83,10 @@ app.config["KHQR_STORE_LABEL"] = os.getenv("KHQR_STORE_LABEL", "RentACompanion")
 app.config["KHQR_TERMINAL_LABEL"] = os.getenv("KHQR_TERMINAL_LABEL", "Cashier-01")
 app.config["KHQR_CURRENCY"] = os.getenv("KHQR_CURRENCY", "KHR")
 app.config["KHQR_EXCHANGE_RATE"] = int(os.getenv("KHQR_EXCHANGE_RATE", "4100"))
+app.config["KHQR_DEMO_MODE"] = _env_bool("KHQR_DEMO_MODE", False)
+app.config["KHQR_DEMO_AMOUNT"] = int(os.getenv("KHQR_DEMO_AMOUNT", "100"))
+app.config["KHQR_TIME_SHIFT_SECONDS"] = int(os.getenv("KHQR_TIME_SHIFT_SECONDS", "0"))  # set 0 for realtime, negative for sandbox offset
+app.config["KHQR_STATIC_MODE"] = _env_bool("KHQR_STATIC_MODE", False)  # Use static store QR (no expiry, no amount in QR)
 app.config["FLASK_DEBUG"] = _env_bool("FLASK_DEBUG", True)
 
 db.init_app(app)

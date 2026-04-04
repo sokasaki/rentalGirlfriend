@@ -97,24 +97,11 @@
                                 <div class="row g-0">
                                     <div class="col-md-4 bg-light border-end d-flex flex-column">
                                         <div class="position-relative flex-grow-1">
-                                            {% set main_img = customer.main_url or (('/static/' +
-                                            customer.profile_photo) if customer.profile_photo and not
-                                            customer.profile_photo.startswith(('http', '//')) else
-                                            customer.profile_photo if customer.profile_photo else none) %}
-                                            {% if main_img %}
+                                            {% set main_img = customer.main_url or '/static/images/avatar-placeholder.jpg' %}
                                             <img src="{{ main_img }}" class="w-100 h-100 object-fit-cover"
                                                 alt="{{ customer.full_name }}"
                                                 style="cursor: zoom-in; min-height: 400px;"
                                                 onclick="openLightbox('{{ main_img }}')">
-                                            {% else %}
-                                            <div class="d-flex align-items-center justify-content-center bg-light h-100"
-                                                style="min-height: 400px;">
-                                                <div class="text-center">
-                                                    <i class="fas fa-user-alt fa-3x text-muted mb-2"></i>
-                                                    <p class="small text-muted mb-0">No Profile Photo</p>
-                                                </div>
-                                            </div>
-                                            {% endif %}
                                         </div>
 
                                         <div class="p-3 mt-auto border-top bg-white">
@@ -224,21 +211,12 @@
                                             <tr>
                                                 <td class="ps-3">
                                                     <div class="d-flex align-items-center">
-                                                        {% set primary_photo =
-                                                        booking.companion.photos|selectattr('is_primary', 'true')|first
-                                                        %}
+                                                        {% set companion_photo = booking.companion.primary_thumbnail_url or '/static/images/avatar-placeholder.jpg' %}
                                                         <div class="me-3">
-                                                            {% if primary_photo %}
-                                                            <img src="{{ primary_photo.thumbnail_url }}"
+                                                            <img src="{{ companion_photo }}"
                                                                 class="rounded-circle"
                                                                 style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #eee;"
                                                                 alt="{{ booking.companion.display_name }}">
-                                                            {% else %}
-                                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                                                style="width: 40px; height: 40px; border: 2px solid #eee;">
-                                                                <i class="fas fa-user text-muted fa-sm"></i>
-                                                            </div>
-                                                            {% endif %}
                                                         </div>
                                                         <div class="fw-bold">{{ booking.companion.display_name }}</div>
                                                     </div>

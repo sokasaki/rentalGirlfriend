@@ -1,0 +1,121 @@
+                <div class="col-lg-7">
+                    <!-- Weekly Availability -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Weekly Availability</h5>
+
+                            <!-- Calendar Days -->
+                            <div class="availability-calendar mb-3">
+                                {% for day in companion.availability_week %}
+                                <div class="day-slot {% if day.is_available %}available{% else %}unavailable{% endif %}"
+                                    data-day="{{ day.day_name }}" id="avail-{{ day.short_name }}">
+                                    <div class="day-name">{{ day.short_name }}</div>
+                                    <div class="status-dot"></div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Time Slots Details -->
+                            <div class="availability-details">
+                                <h6 class="fw-semibold mb-3">Available Time Slots</h6>
+                                {% for day in companion.availability_week %}
+                                <div class="time-slot-item {% if not loop.last %}mb-3{% endif %}"
+                                    id="time-item-{{ day.short_name }}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong class="day-title">{{ day.day_name }}</strong>
+                                            {% if day.is_available %}
+                                            {% for slot in day.slots %}
+                                            <div class="text-muted small {% if loop.first %}mt-1{% endif %}">
+                                                <i class="far fa-clock me-1"></i> {{ slot.start }} - {{ slot.end }}
+                                            </div>
+                                            {% endfor %}
+                                            {% else %}
+                                            <div class="text-muted small mt-1">
+                                                <i class="fas fa-ban me-1"></i> Not Available
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <span
+                                            class="badge {% if day.is_available %}bg-success{% else %}bg-secondary{% endif %}">{%
+                                            if day.is_available %}Open{% else %}Unavailable{% endif %}</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="text-center">
+                                <small class="text-muted d-block mb-2">
+                                    <span class="text-success fw-semibold">● Available</span> &nbsp;|&nbsp;
+                                    <span class="text-secondary fw-semibold">● Unavailable</span>
+                                </small>
+                                <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <i class="far fa-calendar-alt me-1"></i> View Full Calendar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-4">Book Your Time</h5>
+
+                            <form id="bookingForm">
+                                <input type="hidden" name="companion_id" value="{{ companion.companion_id }}">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Date</label>
+                                        <input type="date" class="form-control" name="date" required id="bookingDate">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Time</label>
+                                        <select class="form-select" name="time" id="bookingTime" required disabled>
+                                            <option value="">Loading availability...</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Duration</label>
+                                        <select class="form-select" name="duration" id="bookingDuration" required
+                                            disabled>
+                                            <option value="">Select time first</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Total Price</label>
+                                        <div id="hourlyRate" data-rate="{{ companion.rate_per_hour }}"></div>
+                                        <input type="text" class="form-control fw-bold text-primary" id="totalPrice"
+                                            value="${{ " {:,.0f}".format(companion.rate_per_hour) }}/hr" readonly>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Location/Venue</label>
+                                        <input type="text" class="form-control" name="location"
+                                            placeholder="e.g., Grand Hotel, Manhattan" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label">Special Requests (Optional)</label>
+                                        <textarea class="form-control" name="notes" rows="3"
+                                            placeholder="Any special requests or details..."></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                                            <label class="form-check-label" for="termsCheck">
+                                                I agree to the <a href="#" class="text-primary">Terms of Service</a>
+                                                and
+                                                <a href="#" class="text-primary">Cancellation Policy</a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill">
+                                            <i class="fas fa-calendar-check me-2"></i>Proceed to Book
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>

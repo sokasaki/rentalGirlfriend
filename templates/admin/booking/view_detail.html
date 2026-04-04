@@ -114,15 +114,9 @@
                                         <h6 class="text-uppercase text-muted small fw-bold mb-3">Client Information</h6>
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="me-3">
-                                                {% if booking.customer.profile_photo %}
-                                                <img src="{{ booking.customer.profile_photo }}" class="rounded-circle"
+                                                {% set customer_photo = booking.customer.main_url or '/static/images/avatar-placeholder.jpg' %}
+                                                <img src="{{ customer_photo }}" class="rounded-circle"
                                                     style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #f8f9fa;">
-                                                {% else %}
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                                    style="width: 60px; height: 60px; border: 3px solid #f8f9fa;">
-                                                    <i class="fas fa-user text-muted fa-lg"></i>
-                                                </div>
-                                                {% endif %}
                                             </div>
                                             <div>
                                                 <h5 class="mb-1 fw-bold">{{ booking.customer.full_name }}</h5>
@@ -155,17 +149,9 @@
                                         </h6>
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="me-3">
-                                                {% set primary_photo = booking.companion.photos|selectattr('is_primary',
-                                                'true')|first %}
-                                                {% if primary_photo %}
-                                                <img src="{{ primary_photo.photo_url }}" class="rounded-circle"
+                                                {% set companion_photo = booking.companion.primary_main_url or '/static/images/avatar-placeholder.jpg' %}
+                                                <img src="{{ companion_photo }}" class="rounded-circle"
                                                     style="width: 60px; height: 60px; object-fit: cover; border: 3px solid #f8f9fa;">
-                                                {% else %}
-                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
-                                                    style="width: 60px; height: 60px; border: 3px solid #f8f9fa;">
-                                                    <i class="fas fa-user-tie text-muted fa-lg"></i>
-                                                </div>
-                                                {% endif %}
                                             </div>
                                             <div>
                                                 <h5 class="mb-1 fw-bold">{{ booking.companion.display_name }}</h5>

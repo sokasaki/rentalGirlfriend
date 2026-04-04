@@ -41,15 +41,24 @@ def profile(companion_id=None):
             Review.status == ReviewStatusEnum.APPROVED
         ).order_by(Review.created_at.desc()).limit(10).all()
         
+        total_approved_reviews = db.session.query(Review).join(
+            Booking, Review.booking_id == Booking.booking_id
+        ).filter(
+            Booking.companion_id == companion_id,
+            Review.status == ReviewStatusEnum.APPROVED
+        ).count()
+        
         # Format reviews with customer names
         formatted_reviews = []
         for review in reviews:
-            customer_name = "Anonymous"
+            customer_photo = "/static/images/avatar-placeholder.jpg"
             if review.booking and review.booking.customer:
                 customer_name = review.booking.customer.full_name or "Anonymous"
+                customer_photo = review.booking.customer.thumbnail_url or "/static/images/avatar-placeholder.jpg"
             
             formatted_reviews.append({
                 'customer_name': customer_name,
+                'customer_photo': customer_photo,
                 'rating': review.rating,
                 'comment': review.comment,
                 'reply': review.reply,
@@ -140,7 +149,7 @@ def profile(companion_id=None):
             'personality_traits': personality_traits,
             'availability_week': availability_week,
             'avg_rating': round(float(companion.avg_rating or 0), 1),
-            'total_reviews': len(reviews),
+            'total_reviews': total_approved_reviews,
             'verification_status': companion.verification_status.value if companion.verification_status else 'PENDING',
             'photo_url': photo_url,
             'user': {

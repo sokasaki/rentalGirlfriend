@@ -1,0 +1,112 @@
+                            <div class="tab-pane fade show active" id="timeline" role="tabpanel">
+                                {% if timeline_activities %}
+                                {% for activity in timeline_activities %}
+                                {% if activity.type == 'booking' %}
+                                <!-- Booking Activity Post -->
+                                <div class="card border-0 shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-calendar-check text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Booking - {{ activity.status }}</h6>
+                                                <small class="text-muted">{{ activity.date }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="bg-light rounded p-3">
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ activity.companion_photo }}" class="rounded-circle me-3"
+                                                    width="60" alt="">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-bold mb-1">{{ activity.companion_name }}</h6>
+                                                    <p class="mb-1 small text-muted">
+                                                        <i class="fas fa-clock me-1"></i>{{ activity.start_time }} • {{
+                                                        activity.duration }}
+                                                    </p>
+                                                    <p class="mb-0 small text-muted">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ activity.location
+                                                        }}
+                                                    </p>
+                                                </div>
+                                                <button class="btn btn-primary btn-sm">View Details</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% elif activity.type == 'favorite' %}
+                                <!-- New Favorite Post -->
+                                <div class="card border-0 shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-heart text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Added to favorites</h6>
+                                                <small class="text-muted">{{ activity.date }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="bg-light rounded p-3">
+                                            <div class="d-flex align-items-center">
+                                                <img src="{{ activity.companion_photo }}" class="rounded me-3"
+                                                    width="80" height="80" style="object-fit: cover;" alt="">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-bold mb-1">{{ activity.companion_name }}</h6>
+                                                    <div class="mb-2">
+                                                        <i class="fas fa-star text-warning"></i>
+                                                        <span class="fw-bold">{{
+                                                            "%.1f"|format(activity.companion_rating or 0) }}</span>
+                                                        <span class="text-muted small">({{ activity.companion_bookings
+                                                            }} bookings)</span>
+                                                    </div>
+                                                    {% if activity.personality_traits %}
+                                                    {% for trait in activity.personality_traits[:2] %}
+                                                    <span class="badge bg-primary me-1">{{ trait }}</span>
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="fw-bold text-primary mb-2">${{
+                                                        "{:,.0f}".format(activity.hourly_rate or 0) }}/hour</div>
+                                                    <a href="{{ url_for('profile', companion_id=activity.companion_id) }}"
+                                                        class="btn btn-outline-primary btn-sm">Book Now</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% elif activity.type == 'payment' %}
+                                <!-- Payment Success Post -->
+                                <div class="card border-0 shadow-sm mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 40px; height: 40px;">
+                                                <i class="fas fa-check text-white"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">Payment Successful</h6>
+                                                <small class="text-muted">{{ activity.date }}</small>
+                                            </div>
+                                        </div>
+                                        <p class="mb-0">Your payment of <strong>${{ "{:,.2f}".format(activity.amount or
+                                                0)
+                                                }}</strong> for booking with {{ activity.companion_name }} has been
+                                            processed successfully.</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% else %}
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body text-center py-5">
+                                        <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">No recent activities</h5>
+                                        <p class="text-muted">Your activities will appear here</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>

@@ -1,6 +1,9 @@
 from app import app, render_template, request, db, flash, redirect, url_for, admin_required, permission_required
+from flask import make_response, session
 from models import Payment, PaymentStatusEnum, Booking, CustomerProfile, CompanionProfile, SystemSetting, AuditLog
 from datetime import datetime
+import csv
+import io
 from sqlalchemy import func
 
 @app.get('/admin/payments')
@@ -196,3 +199,92 @@ def refund_payment(id):
     
     flash(f'Payment #{payment.payment_id} has been refunded successfully!', 'success')
     return redirect(url_for('payments'))
+
+@app.get('/admin/payments/export')
+@admin_required
+@permission_required('payment:view')
+def export_payments():
+    # Get query parameters for filtering
+    search_query = request.args.get('search', '').strip()
+    status_filter = request.args.get('status', '')
+    
+    # Platform fee from settings
+    fee_percentage = float(SystemSetting.get_value('platform_fee', 15))
+    
+    # Build query (reusing same logic as payments() view)
+    query = Payment.query
+    
+    status_enum_map = {
+        'COMPLETED': [PaymentStatusEnum.PAID],
+        'PENDING': [PaymentStatusEnum.PENDING],
+        'FAILED': [PaymentStatusEnum.REFUNDED],
+    }
+    
+    if status_filter and status_filter in status_enum_map:
+        query = query.filter(Payment.status.in_(status_enum_map[status_filter]))
+    
+    if search_query:
+        query = query.join(
+            Booking, Payment.booking_id == Booking.booking_id
+        ).join(
+            CustomerProfile, Booking.customer_id == CustomerProfile.customer_id
+        ).join(
+            CompanionProfile, Booking.companion_id == CompanionProfile.companion_id
+        ).filter(
+            (CustomerProfile.full_name.ilike(f'%{search_query}%')) |
+            (CompanionProfile.display_name.ilike(f'%{search_query}%'))
+        )
+    
+    all_payments = query.all()
+    
+    # Create CSV response
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Header row
+    writer.writerow([
+        'Transaction ID', 'Booking ID', 'Customer Name', 'Companion Name', 
+        'Gross Amount ($)', 'Platform Fee ($)', 'Status', 'Date'
+    ])
+    
+    # Data rows
+    for payment in all_payments:
+        booking = payment.booking
+        customer = booking.customer if booking else None
+        companion = booking.companion if booking else None
+        
+        payment_platform_fee = float(payment.amount or 0) * (fee_percentage / 100)
+        
+        status_map = {
+            PaymentStatusEnum.PENDING: 'PENDING',
+            PaymentStatusEnum.PAID: 'COMPLETED',
+            PaymentStatusEnum.REFUNDED: 'FAILED'
+        }
+        
+        writer.writerow([
+            f'#TX-{payment.payment_id}',
+            f'#BK-{booking.booking_id}' if booking else 'N/A',
+            customer.full_name if customer else 'Unknown',
+            companion.display_name if companion else 'Unknown',
+            f"{float(payment.amount or 0):.2f}",
+            f"{payment_platform_fee:.2f}",
+            status_map.get(payment.status, 'PENDING'),
+            (payment.paid_at or datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    # Audit log
+    AuditLog.log(
+        user_id=session.get('user_id'),
+        action='EXPORT_PAYMENTS',
+        target_type='PAYMENT',
+        target_id=0,
+        details=f"Exported {len(all_payments)} payments to CSV (Filter: {status_filter}, Search: {search_query})",
+        ip_address=request.remote_addr
+    )
+    
+    output.seek(0)
+    response = make_response(output.getvalue())
+    filename = f"payments_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    response.headers["Content-type"] = "text/csv"
+    return response

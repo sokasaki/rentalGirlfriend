@@ -696,6 +696,7 @@ def submit_review(booking_id):
         booking_id=booking_id,
         rating=int(rating),
         comment=comment,
+        status=ReviewStatusEnum.APPROVED,
         created_at=datetime.utcnow()
     )
     db.session.add(review)

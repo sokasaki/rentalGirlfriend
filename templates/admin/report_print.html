@@ -13,7 +13,7 @@
         rel="stylesheet">
     <style>
         :root {
-            --report-red: #b33939;
+            --report-purple: #584073;
             --report-bg: #f5f6fa;
             --report-border: #dcdde1;
         }
@@ -23,6 +23,72 @@
             background-color: #fff;
             color: #2f3640;
             padding: 40px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background-color: white;
+            border: 1px solid var(--report-border);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-label {
+            display: block;
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--report-purple);
+        }
+
+        .summary-subtext {
+            font-size: 0.7rem;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .net-profit-card {
+            background-color: var(--report-purple);
+            border: none;
+        }
+
+        .net-profit-card .summary-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .net-profit-card .summary-value {
+            color: white;
+        }
+
+        .net-profit-card .summary-subtext {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .revenue-total {
+            margin-top: 30px;
+            background-color: var(--report-purple);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .report-container {
@@ -114,7 +180,7 @@
         }
 
         .work-table th {
-            background-color: var(--report-red);
+            background-color: var(--report-purple);
             color: white;
             text-transform: uppercase;
             font-size: 0.85rem;
@@ -126,9 +192,9 @@
 
         .work-table td {
             background-color: #f1f2f6;
-            padding: 15px;
+            padding: 10px;
             border: 2px solid white;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
         }
 
         .work-table tr.empty-row td {
@@ -169,30 +235,22 @@
     <div class="report-container">
         <div class="report-header">
             <div>
-                <div class="brand-name">RENT-A-COMPANION INC.</div>
+                <div class="brand-name">{{ platform_name.upper() if platform_name else 'RENT-A-COMPANION' }} INC.</div>
                 <h1 class="report-title">{{ type.upper() }} REPORT</h1>
             </div>
-            <div class="globe-icon">
-                <i class="fas fa-globe"></i>
+            <div class="globe-icon" style="color: var(--report-purple);">
+                <i class="fas fa-file-invoice-dollar"></i>
             </div>
         </div>
 
         <div class="meta-grid">
             <div class="meta-item">
                 <span class="meta-label">ADMINISTRATOR:</span>
-                <span class="meta-value">ADMIN</span>
+                <span class="meta-value">{{ current_user.display_name if current_user else 'ADMIN' }}</span>
             </div>
             <div class="meta-item">
-                <span class="meta-label">DATE / PERIOD:</span>
+                <span class="meta-label">REPORT PERIOD:</span>
                 <span class="meta-value">{{ period_label }}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">TOTAL REVENUE:</span>
-                <span class="meta-value text-success">${{ "{:,.2f}".format(total_revenue) }}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">TOTAL HOURS / AVG:</span>
-                <span class="meta-value">{{ total_hours }}h (${{ avg_rate }}/h)</span>
             </div>
         </div>
 
@@ -200,46 +258,55 @@
             <h2>WORK DETAILS</h2>
         </div>
 
+        <div class="summary-grid">
+            <div class="summary-card">
+                <span class="summary-label">INCOME</span>
+                <span class="summary-value">${{ "{:,.2f}".format(income) }}</span>
+                <p class="summary-subtext">Total Gross Collection</p>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">EXPENSES</span>
+                <span class="summary-value">${{ "{:,.2f}".format(expenses) }}</span>
+                <p class="summary-subtext">Payouts, Marketing ($0.00), Travel ($0.00)</p>
+            </div>
+            <div class="summary-card net-profit-card">
+                <span class="summary-label">NET PROFIT</span>
+                <span class="summary-value">${{ "{:,.2f}".format(net_profit) }}</span>
+                <p class="summary-subtext">Actual Take-Home Profit</p>
+            </div>
+        </div>
+
         <table class="work-table">
             <thead>
                 <tr>
-                    <th style="width: 40%;">JOB DESCRIPTION</th>
-                    <th style="width: 20%;">TIME RANGE</th>
-                    <th style="width: 15%;">DURATION</th>
-                    <th style="width: 25%;">FINANCIALS</th>
+                    <th style="width: 8%;">ID</th>
+                    <th style="width: 25%;">COMPANION</th>
+                    <th style="width: 25%;">CUSTOMER</th>
+                    <th style="width: 10%;">HRS</th>
+                    <th style="width: 15%;">RATE ($)</th>
+                    <th style="width: 17%;">PLATFORM FEE ($)</th>
                 </tr>
             </thead>
             <tbody>
                 {% for booking in bookings %}
                 <tr>
-                    <td>
-                        <strong>{{ booking.companion.display_name }}</strong> for <strong>{{ booking.customer.full_name
-                            }}</strong>
-                        <br>
-                        <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{ booking.meeting_location
-                            or 'N/A' }}</small>
-                    </td>
-                    <td>
-                        {{ booking.start_time.strftime('%H:%M') }} - {{ booking.end_time.strftime('%H:%M') }}
-                    </td>
-                    <td>
-                        {{ ((booking.end_time - booking.start_time).total_seconds() / 3600)|round(1) }}h
-                    </td>
-                    <td class="text-end">
-                        <span class="fw-bold">${{ "{:,.2f}".format(booking.total_price|float) }}</span>
-                    </td>
+                    <td class="fw-bold">#{{ booking.booking_id }}</td>
+                    <td>{{ booking.companion.display_name if booking.companion else 'N/A' }}</td>
+                    <td>{{ booking.customer.full_name if booking.customer else 'N/A' }}</td>
+                    <td>{{ booking.duration_hrs }}h</td>
+                    <td>${{ "{:,.2f}".format(booking.base_rate) }}</td>
+                    <td>${{ "{:,.2f}".format(booking.platform_fee_amt) }}</td>
                 </tr>
                 {% endfor %}
 
                 {# Fill remaining rows for aesthetic matching #}
-                {% if bookings|length < 8 %} {% for i in range(8 - bookings|length) %} <tr class="empty-row">
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    </tr>
-                    {% endfor %}
-                    {% endif %}
+                {% if bookings|length < 8 %} 
+                {% for i in range(8 - bookings|length) %} 
+                <tr class="empty-row">
+                    <td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+                {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     </div>

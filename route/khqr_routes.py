@@ -21,7 +21,8 @@ def _get_khqr_service():
     if not token:
         return None
 
-    return KHQRPaymentService(token)
+    time_shift = int(app.config.get('KHQR_TIME_SHIFT_SECONDS', 0))
+    return KHQRPaymentService(token, time_shift_seconds=time_shift)
 
 
 def _calculate_total_with_fee(booking):
@@ -59,12 +60,19 @@ def khqr_checkout():
         if booking.status != BookingStatusEnum.APPROVED:
             return jsonify({'error': 'Booking must be approved before payment'}), 400
         
-        # DEMO: Set fixed amount of 100 KHR for testing
-        amount = 100
-        currency = 'KHR'
+        # Optionally run demo mode (fixed test amount)
+        if app.config.get('KHQR_DEMO_MODE', False):
+            amount = app.config.get('KHQR_DEMO_AMOUNT', 100)
+            currency = app.config.get('KHQR_CURRENCY', 'KHR')
+            demo_mode = True
+        else:
+            amount = _calculate_total_with_fee(booking)
+            currency = app.config.get('KHQR_CURRENCY', 'KHR')
+            demo_mode = False
         
         # Generate KHQR checkout
-        bill_number = f"BK{booking.booking_id}"
+        bill_number = f"BK{booking.booking_id}{int(datetime.now().timestamp())}"
+        static_mode = app.config.get('KHQR_STATIC_MODE', False)
         checkout_data = khqr_service.generate_checkout(
             amount=amount,
             currency=currency,
@@ -74,7 +82,8 @@ def khqr_checkout():
             bank_account=app.config.get('KHQR_BANK_ACCOUNT'),
             store_label=app.config.get('KHQR_STORE_LABEL', 'MShop'),
             terminal_label=app.config.get('KHQR_TERMINAL_LABEL', 'Cashier-01'),
-            bill_number=bill_number
+            bill_number=bill_number,
+            static=static_mode
         )
         
         # Store in session for verification
@@ -83,8 +92,7 @@ def khqr_checkout():
         session['khqr_amount'] = str(amount)
         session['khqr_currency'] = currency
         
-        print(f"KHQR Checkout - DEMO MODE: Booking {booking_id}, Fixed Amount 100 KHR")
-        
+        print(f"KHQR Checkout - {'STATIC' if static_mode else 'DEMO' if demo_mode else 'LIVE'} MODE: Booking {booking_id}, Amount {amount} {currency}")
         print(f"KHQR Checkout: Booking {booking_id}, Bill {bill_number}, Amount {amount} {currency}")
         
         return jsonify({
@@ -131,7 +139,25 @@ def khqr_check_payment():
         customer = CustomerProfile.query.filter_by(user_id=session['user_id']).first()
         if not customer or booking.customer_id != customer.customer_id:
             return jsonify({'error': 'Unauthorized'}), 403
-        
+
+        # Validate md5 matches current session checkout
+        stored_md5 = session.get('khqr_md5')
+        if not stored_md5 or md5 != stored_md5:
+            return jsonify({'error': 'MD5 mismatch or session expired'}), 400
+
+        # If payment already recorded, short-circuit
+        existing_payment = Payment.query.filter_by(
+            booking_id=booking.booking_id,
+            status=PaymentStatusEnum.PAID
+        ).order_by(Payment.payment_id.desc()).first()
+
+        if existing_payment:
+            return jsonify({
+                'success': True,
+                'message': 'Payment already completed',
+                'redirect': url_for('receipt', payment_id=existing_payment.payment_id)
+            })
+
         # Check payment status
         response = khqr_service.check_payment(md5)
         paid = khqr_service.is_payment_successful(response)
@@ -139,7 +165,7 @@ def khqr_check_payment():
         if not paid:
             # Return raw response for frontend
             return jsonify(response)
-        
+
         # Payment confirmed - update booking and create payment record
         existing_payment = Payment.query.filter_by(
             booking_id=booking.booking_id,
@@ -154,11 +180,15 @@ def khqr_check_payment():
         
         # Create new payment record
         booking.status = BookingStatusEnum.PAID
-        total = _calculate_total_with_fee(booking)
-        
+        selected_amount = session.get('khqr_amount')
+        if selected_amount is not None:
+            amount = Decimal(str(selected_amount))
+        else:
+            amount = Decimal(str(_calculate_total_with_fee(booking)))
+
         payment = Payment(
             booking_id=booking.booking_id,
-            amount=Decimal(str(total)),
+            amount=amount,
             method='KHQR',  # Store as KHQR payment method
             status=PaymentStatusEnum.PAID,
             paid_at=datetime.now()
@@ -205,12 +235,18 @@ def khqr_payment_page(booking_id):
         
         if booking.status != BookingStatusEnum.APPROVED:
             return f"Booking must be approved before payment", 400
-        
-        # DEMO: Set fixed amount of 100 KHR for testing
-        amount = 100
-        currency = 'KHR'
-        
-        bill_number = f"BK{booking.booking_id}"
+
+        if app.config.get('KHQR_DEMO_MODE', False):
+            amount = app.config.get('KHQR_DEMO_AMOUNT', 100)
+            currency = app.config.get('KHQR_CURRENCY', 'KHR')
+            demo_mode = True
+        else:
+            amount = _calculate_total_with_fee(booking)
+            currency = app.config.get('KHQR_CURRENCY', 'KHR')
+            demo_mode = False
+
+        bill_number = f"BK{booking.booking_id}{int(datetime.now().timestamp())}"
+        static_mode = app.config.get('KHQR_STATIC_MODE', False)
         checkout_data = khqr_service.generate_checkout(
             amount=amount,
             currency=currency,
@@ -220,7 +256,8 @@ def khqr_payment_page(booking_id):
             bank_account=app.config.get('KHQR_BANK_ACCOUNT'),
             store_label=app.config.get('KHQR_STORE_LABEL', 'MShop'),
             terminal_label=app.config.get('KHQR_TERMINAL_LABEL', 'Cashier-01'),
-            bill_number=bill_number
+            bill_number=bill_number,
+            static=static_mode
         )
         
         # Store in session
@@ -229,8 +266,8 @@ def khqr_payment_page(booking_id):
         session['khqr_amount'] = str(amount)
         session['khqr_currency'] = currency
         
-        print(f"KHQR Payment Page - DEMO MODE: Booking {booking_id}, Fixed Amount 100 KHR")
-        
+        print(f"KHQR Payment Page - {'STATIC' if static_mode else 'DEMO' if demo_mode else 'LIVE'} MODE: Booking {booking_id}, Amount {amount} {currency}")
+
         return render_template(
             'khqr/payment.html',
             md5=checkout_data['md5'],

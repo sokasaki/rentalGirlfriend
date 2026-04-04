@@ -1,0 +1,89 @@
+                            <div class="tab-pane fade" id="settings" role="tabpanel">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0">Account Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="POST" action="{{ url_for('update_profile_customer') }}">
+                                            <div class="row g-3 mb-4">
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">Full Name</label>
+                                                    <input type="text" class="form-control" name="full_name"
+                                                        value="{{ customer.full_name }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">Email</label>
+                                                    <input type="email" class="form-control" name="email"
+                                                        value="{{ customer.email }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">Phone</label>
+                                                    <input type="tel" class="form-control" name="phone"
+                                                        value="{{ customer.phone or '' }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">Date of Birth</label>
+                                                    <input type="date" class="form-control" name="date_of_birth"
+                                                        value="{{ customer.date_of_birth or '' }}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-bold">Gender</label>
+                                                    <select class="form-select" name="gender">
+                                                        <option value="MALE" {% if customer.gender=='MALE' %}selected{%
+                                                            endif %}>Male
+                                                        </option>
+                                                        <option value="FEMALE" {% if customer.gender=='FEMALE'
+                                                            %}selected{% endif %}>
+                                                            Female</option>
+                                                        <option value="OTHER" {% if customer.gender=='OTHER'
+                                                            %}selected{% endif %}>
+                                                            Other</option>
+                                                        <option value="PREFER_NOT_TO_SAY" {% if
+                                                            customer.gender=='PREFER_NOT_TO_SAY' %}selected{% endif %}>
+                                                            Prefer
+                                                            not to say</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">Location</label>
+                                                    <input type="text" class="form-control" name="location"
+                                                        value="{{ customer.location or '' }}">
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label fw-bold">Bio</label>
+                                                    <textarea class="form-control" name="bio"
+                                                        rows="3">{{ customer.bio or '' }}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <button type="submit" class="btn btn-primary px-4">Save
+                                                    Changes</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="card border-0 shadow-sm mt-3">
+                                    <div class="card-header bg-white border-0 p-4">
+                                        <h5 class="fw-bold mb-0">Notifications</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Email notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">SMS notifications</label>
+                                        </div>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Booking reminders</label>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox">
+                                            <label class="form-check-label">Promotional emails</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>

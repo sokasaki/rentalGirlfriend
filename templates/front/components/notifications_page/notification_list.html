@@ -1,0 +1,157 @@
+        <!-- ── URGENT / ACTION REQUIRED ── -->
+        {% if pending_reports %}
+        <div class="notif-section-label">🚨 Action Required</div>
+        <div class="notif-group" data-category="alerts">
+            {% for report in pending_reports %}
+            <div class="notif-item unread" data-category="alerts">
+                <div class="notif-icon report">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">Admin Requested More Info</div>
+                    <div class="notif-msg">Your report #{{ report.report_id }} needs a response. Please provide the
+                        requested information.</div>
+                    <div class="notif-time">
+                        <i class="fas fa-clock me-1"></i>
+                        {{ report.info_requested_at.strftime('%b %d at %I:%M %p') if report.info_requested_at else
+                        'Recently' }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('dashboard_customer') }}" class="notif-action-btn primary">
+                            <i class="fas fa-reply"></i> Respond Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── PENDING BOOKINGS (companion sees new requests) ── -->
+        {% if pending_bookings %}
+        <div class="notif-section-label">📅 Booking Requests</div>
+        <div class="notif-group" data-category="bookings">
+            {% for booking in pending_bookings %}
+            <div class="notif-item unread" data-category="bookings">
+                <div class="notif-icon booking">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">New Booking Request</div>
+                    <div class="notif-msg">
+                        <strong>{{ booking.customer_name }}</strong> wants to book you on
+                        {{ booking.start_time.strftime('%b %d at %I:%M %p') }}
+                    </div>
+                    <div class="notif-time">
+                        <i class="fas fa-dollar-sign me-1"></i>${{ "%.0f"|format(booking.amount) }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('dashboard_companion') }}#requests" class="notif-action-btn primary">
+                            <i class="fas fa-check"></i> Review
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── APPROVED BOOKINGS (customer needs to pay) ── -->
+        {% if approved_bookings %}
+        <div class="notif-section-label">💳 Payment Required</div>
+        <div class="notif-group" data-category="payments">
+            {% for booking in approved_bookings %}
+            <div class="notif-item unread" data-category="payments">
+                <div class="notif-icon payment">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+                <span class="unread-dot"></span>
+                <div class="notif-body">
+                    <div class="notif-title">Booking Approved — Pay Now</div>
+                    <div class="notif-msg">
+                        Your booking with <strong>{{ booking.companion_name }}</strong> on
+                        {{ booking.start_time.strftime('%b %d at %I:%M %p') }} has been approved.
+                    </div>
+                    <div class="notif-time">
+                        <i class="fas fa-tag me-1"></i>Total: ${{ "%.0f"|format(booking.amount) }}
+                    </div>
+                    <div class="notif-actions">
+                        <a href="{{ url_for('payment', booking_id=booking.booking_id) }}"
+                            class="notif-action-btn primary">
+                            <i class="fas fa-credit-card"></i> Pay Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- ── GENERAL NOTIFICATIONS ── -->
+        {% if notifications %}
+        {% set today_notifs = [] %}
+        {% set week_notifs = [] %}
+        {% set older_notifs = [] %}
+        {% for n in notifications %}
+        {% set age = (now - n.created_at).days %}
+        {% if age == 0 %}{% set _ = today_notifs.append(n) %}
+        {% elif age <= 7 %}{% set _=week_notifs.append(n) %} {% else %}{% set _=older_notifs.append(n) %} {% endif %} {%
+            endfor %} {% if today_notifs %} <div class="notif-section-label">Today
+    </div>
+    <div class="notif-group">
+        {% for n in today_notifs %}
+        <div class="notif-item {% if not n.is_read %}unread{% endif %}" data-category="alerts">
+            <div class="notif-icon {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}payment{% elif 'book' in n.title|lower %}booking{% elif 'approved' in n.title|lower %}payment{% else %}info{% endif %}">
+                <i class="fas {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}fa-check-circle{% elif 'book' in n.title|lower %}fa-calendar-check{% elif 'approved' in n.title|lower %}fa-thumbs-up{% else %}fa-bell{% endif %}"></i>
+            </div>
+            {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%I:%M %p') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if week_notifs %}
+    <div class="notif-section-label">This Week</div>
+    <div class="notif-group">
+        {% for n in week_notifs %}
+        <div class="notif-item {% if not n.is_read %}unread{% endif %}" data-category="alerts">
+            <div class="notif-icon {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}payment{% elif 'book' in n.title|lower %}booking{% else %}info{% endif %}">
+                <i class="fas {% if 'payment' in n.title|lower or 'paid' in n.title|lower %}fa-check-circle{% elif 'book' in n.title|lower %}fa-calendar-check{% else %}fa-bell{% endif %}"></i>
+            </div>
+            {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%b %d at %I:%M %p') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if older_notifs %}
+    <div class="notif-section-label">Earlier</div>
+    <div class="notif-group">
+        {% for n in older_notifs %}
+        <div class="notif-item" data-category="alerts">
+            <div class="notif-icon info">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="notif-body">
+                <div class="notif-title">{{ n.title }}</div>
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at.strftime('%b %d, %Y') }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %} {# end if notifications #}

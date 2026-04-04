@@ -74,7 +74,7 @@ def home():
     for review, booking, customer, user in testimonials_query:
         testimonials.append({
             'customer_name': customer.full_name or 'Anonymous',
-            'customer_photo': 'https://i.pravatar.cc/100?img=' + str(booking.customer_id % 70),
+            'customer_photo': customer.thumbnail_url or '/static/images/avatar-placeholder.jpg',
             'rating': review.rating,
             'comment': review.comment,
             'title': 'Verified Client'  # Could be enhanced with actual user role
@@ -84,7 +84,7 @@ def home():
     while len(testimonials) < 3:
         testimonials.append({
             'customer_name': 'Happy Client',
-            'customer_photo': 'https://i.pravatar.cc/100?img=' + str(len(testimonials) + 1),
+            'customer_photo': '/static/images/avatar-placeholder.jpg',
             'rating': 5,
             'comment': 'Great experience! Highly recommend this service.',
             'title': 'Verified Client'

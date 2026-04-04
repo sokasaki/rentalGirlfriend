@@ -9,6 +9,7 @@ from models.users import User
 from models.customer_profiles import CustomerProfile
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
+from sqlalchemy.orm import joinedload
 import json
 
 @app.get('/admin/analytics')
@@ -32,11 +33,24 @@ def analytics():
         start_date = now - timedelta(days=90)
         group_by_format = '%Y-%m-%d'
 
-    # Key Metrics
-    total_revenue = db.session.query(func.sum(Payment.amount)).filter(
+    # Financial Metrics (Income, Expenses, Profits)
+    # Income = Gross amount paid by customers
+    # Expenses = Base amount due to companions
+    # Profits = Administrative service fee (Income - Expenses)
+    
+    financial_stats = db.session.query(
+        func.sum(Payment.amount).label('income'),
+        func.sum(Booking.total_price).label('expense')
+    ).join(
+        Booking, Payment.booking_id == Booking.booking_id
+    ).filter(
         Payment.status == PaymentStatusEnum.PAID,
         Payment.paid_at >= start_date
-    ).scalar() or 0
+    ).first()
+    
+    total_income = float(financial_stats.income or 0)
+    total_expenses = float(financial_stats.expense or 0)
+    total_profits = total_income - total_expenses
     
     total_bookings = Booking.query.filter(
         Booking.start_time >= start_date
@@ -54,17 +68,22 @@ def analytics():
     
     conversion_rate = round((completed_bookings / total_bookings * 100), 1) if total_bookings > 0 else 0
     
-    # Revenue Trend Data (Daily/Monthly)
-    revenue_trend_raw = db.session.query(
+    # Financial Trend Data (Combined Income/Expense/Profit)
+    trend_raw = db.session.query(
         func.strftime(group_by_format, Payment.paid_at).label('period'),
-        func.sum(Payment.amount).label('total')
+        func.sum(Payment.amount).label('income'),
+        func.sum(Booking.total_price).label('expense')
+    ).join(
+        Booking, Payment.booking_id == Booking.booking_id
     ).filter(
         Payment.status == PaymentStatusEnum.PAID,
         Payment.paid_at >= start_date
     ).group_by('period').order_by('period').all()
     
-    revenue_labels = [r.period for r in revenue_trend_raw]
-    revenue_values = [float(r.total) for r in revenue_trend_raw]
+    revenue_labels = [r.period for r in trend_raw]
+    income_values = [float(r.income) for r in trend_raw]
+    expense_values = [float(r.expense) for r in trend_raw]
+    profit_values = [float(r.income - r.expense) for r in trend_raw]
     
     # User Growth Trend
     user_growth_raw = db.session.query(
@@ -77,7 +96,7 @@ def analytics():
     user_labels = [u.period for u in user_growth_raw]
     user_values = [u.total for u in user_growth_raw]
     
-    # Revenue Peaks
+    # Revenue Peaks (Using Gross Income)
     peak_day_raw = db.session.query(
         func.strftime('%b %d', Payment.paid_at).label('day'),
         func.sum(Payment.amount).label('total')
@@ -94,8 +113,7 @@ def analytics():
         Payment.paid_at >= start_date
     ).group_by('day').order_by('total').first()
     
-    total_revenue = float(total_revenue)
-    avg_per_day = total_revenue / int(range_type) if range_type.isdigit() else (total_revenue / 30)
+    avg_per_day = total_income / int(range_type) if range_type.isdigit() else (total_income / 30)
 
     # Success Rate (Completed vs (Completed + Rejected/Cancelled))
     cancelled_bookings = Booking.query.filter(
@@ -156,9 +174,13 @@ def analytics():
     return render_template(
         'admin/analytics.html',
         now=now,
+        timedelta=timedelta,
         active_page='analytics',
         pending_count=pending_count,
-        total_revenue=float(total_revenue),
+        total_revenue=total_income,
+        total_income=total_income,
+        total_expenses=total_expenses,
+        total_profits=total_profits,
         total_bookings=total_bookings,
         new_users=new_users,
         conversion_rate=float(conversion_rate),
@@ -167,7 +189,9 @@ def analytics():
         top_locations=formatted_locations,
         selected_range=range_type,
         revenue_labels=revenue_labels,
-        revenue_values=revenue_values,
+        income_values=income_values,
+        expense_values=expense_values,
+        profit_values=profit_values,
         user_labels=user_labels,
         user_values=user_values,
         peak_day=peak_day_formatted,
@@ -222,6 +246,17 @@ def generate_report():
         start_date = start_date.replace(hour=0, minute=0, second=0)
         end_date = start_date + timedelta(days=6, hours=23, minutes=59, seconds=59)
         period_label = f"Week of {start_date.strftime('%b %d')} - {end_date.strftime('%b %d, %Y')}"
+    elif report_type == 'custom':
+        start_str = request.args.get('start_date')
+        end_str = request.args.get('end_date')
+        try:
+            start_date = datetime.strptime(start_str, '%Y-%m-%d').replace(hour=0, minute=0, second=0)
+            end_date = datetime.strptime(end_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59)
+        except (ValueError, TypeError):
+            start_date = now - timedelta(days=7)
+            start_date = start_date.replace(hour=0, minute=0, second=0)
+            end_date = now.replace(hour=23, minute=59, second=59)
+        period_label = f"{start_date.strftime('%b %d, %Y')} - {end_date.strftime('%b %d, %Y')}"
     else: # daily
         try:
             start_date = datetime.strptime(date_str, '%Y-%m-%d')
@@ -231,18 +266,38 @@ def generate_report():
         end_date = start_date.replace(hour=23, minute=59, second=59)
         period_label = start_date.strftime('%B %d, %Y')
 
-    # Query bookings for the period
-    bookings = Booking.query.filter(
+    # Query bookings for the period with eager loading
+    bookings = Booking.query.options(
+        joinedload(Booking.payments),
+        joinedload(Booking.companion),
+        joinedload(Booking.customer)
+    ).filter(
         Booking.start_time >= start_date,
         Booking.start_time <= end_date,
         Booking.status == BookingStatusEnum.COMPLETED
     ).order_by(Booking.start_time).all()
 
-    # Detailed totals
-    total_revenue = sum(float(b.total_price) for b in bookings)
+    # Calculate auxiliary data for each booking
+    for b in bookings:
+        duration = (b.end_time - b.start_time).total_seconds() / 3600
+        b.duration_hrs = round(max(duration, 0.1), 2)
+        b.base_rate = round(float(b.total_price) / b.duration_hrs, 2)
+        
+        # Payment info - identify the successful PAID transaction
+        # Support both enum comparison and string-based fallbacks for stability
+        payment = next((p for p in b.payments if p.status == PaymentStatusEnum.PAID or str(p.status).endswith('PAID')), None)
+        total_paid = float(payment.amount) if payment else float(b.total_price)
+        b.platform_fee_amt = round(total_paid - float(b.total_price), 2)
+        b.total_paid_amt = total_paid
+
+    # Detailed summary statistics
+    total_income_gross = sum(float(b.total_paid_amt) for b in bookings)
+    total_expenses_payouts = sum(float(b.total_price) for b in bookings)
+    net_profit = total_income_gross - total_expenses_payouts
+    
     total_seconds = sum((b.end_time - b.start_time).total_seconds() for b in bookings)
     total_hours = total_seconds / 3600
-    avg_rate = total_revenue / total_hours if total_hours > 0 else 0
+    avg_rate_gross = total_income_gross / total_hours if total_hours > 0 else 0
 
     if export_format == 'excel':
         output = io.StringIO()
@@ -252,26 +307,32 @@ def generate_report():
         writer.writerow(['Report Type', report_type.capitalize()])
         writer.writerow(['Period', period_label])
         writer.writerow([])
-        writer.writerow(['Booking ID', 'Companion', 'Customer', 'Start Time', 'End Time', 'Duration (Hrs)', 'Total Price ($)'])
+        writer.writerow([
+            'Booking_ID', 'Companion_Name', 'Customer_Name', 
+            'Duration_Hrs', 'Base_Rate ($)', 
+            'Platform_Fee_Amt ($)', 'Total Paid ($)'
+        ])
         
         for b in bookings:
-            duration = (b.end_time - b.start_time).total_seconds() / 3600
-            companion = CompanionProfile.query.get(b.companion_id)
-            customer = CustomerProfile.query.get(b.customer_id)
             writer.writerow([
                 b.booking_id,
-                companion.display_name if companion else 'N/A',
-                customer.full_name if customer else 'N/A',
-                b.start_time.strftime('%Y-%m-%d %H:%M'),
-                b.end_time.strftime('%Y-%m-%d %H:%M'),
-                round(duration, 2),
-                float(b.total_price)
+                b.companion.display_name if b.companion else 'N/A',
+                b.customer.full_name if b.customer else 'N/A',
+                b.duration_hrs,
+                b.base_rate,
+                b.platform_fee_amt,
+                b.total_paid_amt
             ])
             
         writer.writerow([])
-        writer.writerow(['TOTAL REVENUE', '', '', '', '', '', float(total_revenue)])
+        writer.writerow(['FINANCIAL SUMMARY', '', '', '', '', '', ''])
+        writer.writerow(['TOTAL INCOME (GROSS)', '', '', '', '', '', float(total_income_gross)])
+        writer.writerow(['TOTAL EXPENSES (PAYOUTS)', '', '', '', '', '', float(total_expenses_payouts)])
+        writer.writerow(['NET PROFIT', '', '', '', '', '', float(net_profit)])
+        writer.writerow([])
+        writer.writerow(['OPERATIONAL STATS', '', '', '', '', '', ''])
         writer.writerow(['TOTAL HOURS', '', '', '', '', '', round(total_hours, 1)])
-        writer.writerow(['AVG RATE', '', '', '', '', '', round(avg_rate, 2)])
+        writer.writerow(['GROSS AVG RATE ($/HR)', '', '', '', '', '', round(avg_rate_gross, 2)])
         
         output.seek(0)
         response = make_response(output.getvalue())
@@ -285,8 +346,10 @@ def generate_report():
         type=report_type,
         period_label=period_label,
         bookings=bookings,
-        total_revenue=total_revenue,
+        income=total_income_gross,
+        expenses=total_expenses_payouts,
+        net_profit=net_profit,
         total_hours=round(total_hours, 1),
-        avg_rate=round(avg_rate, 2),
+        avg_rate=round(avg_rate_gross, 2),
         title=f"{report_type.capitalize()} Report - {period_label}"
     )

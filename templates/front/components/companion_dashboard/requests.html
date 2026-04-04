@@ -1,0 +1,89 @@
+                    <!-- Requests Tab -->
+                    <div class="tab-pane fade" id="requests" role="tabpanel">
+                        <div class="d-flex align-items-center mb-4">
+                            <h4 class="fw-bold mb-0">Pending Booking Requests</h4>
+                            {% if pending_count > 0 %}
+                            <span class="badge bg-danger ms-2">{{ pending_count }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-4">
+                            {% if pending_requests %}
+                            {% for request in pending_requests %}
+                            <div class="col-md-6 col-xl-4">
+                                <div class="booking-card h-100 d-flex flex-column">
+                                    <div class="booking-card-header">
+                                        <img src="{{ request.customer_photo }}" alt="{{ request.customer_name }}">
+                                        <div class="booking-card-companion-info">
+                                            <h6 class="mb-1">{{ request.customer_name }}</h6>
+                                            <div class="rating">
+                                                <span class="badge-pending badge"
+                                                    style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border-radius: 0.5rem;">Pending
+                                                    Approval</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="booking-card-body flex-grow-1">
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Schedule</small>
+                                                <span class="value">{{ request.start_time.strftime('%b %d, %Y') }} at {{
+                                                    request.start_time.strftime('%H:%M') }} ({{
+                                                    "%.0f"|format(request.duration) }}h)</span>
+                                            </div>
+                                        </div>
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Location</small>
+                                                <span class="value text-truncate d-inline-block"
+                                                    style="max-width: 150px;">{{
+                                                    request.location }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-wallet"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Total Payout</small>
+                                                <span class="value text-success">${{ "{:,.2f}".format(request.amount)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="booking-card-footer mt-auto">
+
+                                        <div class="d-flex gap-2">
+                                            <button
+                                                class="btn btn-outline-secondary btn-sm rounded-pill view-booking-btn"
+                                                data-booking-id="{{ request.booking_id }}">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </button>
+                                            <button
+                                                class="btn btn-primary btn-sm flex-grow-1 rounded-pill approve-booking-btn shadow-sm"
+                                                data-booking-id="{{ request.booking_id }}">
+                                                <i class="fas fa-check me-1"></i>Accept
+                                            </button>
+                                            <button
+                                                class="btn btn-outline-danger btn-sm rounded-pill reject-booking-btn"
+                                                data-booking-id="{{ request.booking_id }}">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+                                    <i class="fas fa-inbox fa-3x text-muted opacity-25 mb-3"></i>
+                                    <p class="text-muted mb-0">No pending requests at the moment.</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>

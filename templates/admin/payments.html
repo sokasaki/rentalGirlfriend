@@ -282,9 +282,10 @@
 
                         <h6 class="fw-bold small text-muted uppercase-label mb-3">Quick Actions</h6>
                         <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary btn-sm text-start py-2 px-3 fw-bold rounded-3">
+                            <a href="{{ url_for('export_payments', search=search_query, status=status_filter) }}" 
+                               class="btn btn-outline-primary btn-sm text-start py-2 px-3 fw-bold rounded-3">
                                 <i class="fa-solid fa-file-csv me-2"></i> Export Ledger (.csv)
-                            </button>
+                            </a>
                             <button class="btn btn-outline-primary btn-sm text-start py-2 px-3 fw-bold rounded-3">
                                 <i class="fa-solid fa-gear me-2"></i> Payout Configuration
                             </button>

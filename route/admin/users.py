@@ -7,7 +7,7 @@ from werkzeug.security import generate_password_hash
 @admin_required
 @permission_required('user:view')
 def users():
-    from models import CompanionProfile
+    from models import CompanionProfile, VerificationStatusEnum
     
     # Get query parameters for search and filter
     search_query = request.args.get('search', '').strip()
@@ -32,7 +32,7 @@ def users():
             pass
     
     all_users = query.all()
-    pending_count = CompanionProfile.query.filter_by(verification_status='PENDING').count()
+    pending_count = CompanionProfile.query.filter_by(verification_status=VerificationStatusEnum.PENDING).count()
     
     # Get all roles for filter dropdown
     roles = Role.query.all()
@@ -78,8 +78,8 @@ def add_user():
             flash(f'Error adding user: {str(e)}', 'error')
     
     roles = Role.query.all()
-    from models import CompanionProfile
-    pending_count = CompanionProfile.query.filter_by(verification_status='PENDING').count()
+    from models import CompanionProfile, VerificationStatusEnum
+    pending_count = CompanionProfile.query.filter_by(verification_status=VerificationStatusEnum.PENDING).count()
     return render_template('admin/user/addUser.html', active_page='users', roles=roles, pending_count=pending_count)
 
 @app.route('/admin/users/edit/<int:user_id>', methods=['GET', 'POST'])
@@ -107,8 +107,8 @@ def edit_user(user_id):
             flash(f'Error updating user: {str(e)}', 'error')
     
     roles = Role.query.all()
-    from models import CompanionProfile
-    pending_count = CompanionProfile.query.filter_by(verification_status='PENDING').count()
+    from models import CompanionProfile, VerificationStatusEnum
+    pending_count = CompanionProfile.query.filter_by(verification_status=VerificationStatusEnum.PENDING).count()
     return render_template('admin/user/editUser.html', active_page='users', user=user, roles=roles, pending_count=pending_count)
 
 @app.route('/admin/users/delete/<int:user_id>', methods=['POST'])

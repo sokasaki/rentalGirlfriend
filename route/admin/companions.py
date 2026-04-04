@@ -1,12 +1,13 @@
 from app import app, render_template, request, admin_required, permission_required
 from sqlalchemy import func
+from models.companion_profiles import CompanionProfile, VerificationStatusEnum
+from models.bookings import Booking, BookingStatusEnum
+from models.users import User
 
 @app.get('/admin/companions')
 @admin_required
 @permission_required('companion:view')
 def companions():  # Admin dashboard home
-    from models import CompanionProfile, User, Booking, Payment
-    
     # Get query parameters for search and filter
     search_query = request.args.get('search', '').strip()
     status_filter = request.args.get('status', '')
@@ -14,12 +15,12 @@ def companions():  # Admin dashboard home
     
     # Get pending companions
     pending_companions = CompanionProfile.query.filter_by(
-        verification_status='PENDING'
+        verification_status=VerificationStatusEnum.PENDING
     ).join(User).all()
     
     # Build query for approved companions
     query = CompanionProfile.query.filter_by(
-        verification_status='APPROVED'
+        verification_status=VerificationStatusEnum.APPROVED
     ).join(User)
     
     # Apply search filter (name or email)
@@ -50,7 +51,7 @@ def companions():  # Admin dashboard home
         # Calculate total revenue from paid/completed bookings
         total_revenue = sum([
             float(b.total_price) for b in bookings 
-            if b.status in ['PAID', 'COMPLETED']
+            if b.status in [BookingStatusEnum.PAID, BookingStatusEnum.COMPLETED]
         ])
         
         companion_stats.append({
@@ -171,7 +172,7 @@ def approve_companion(id):
         return redirect(url_for('companions'))
     
     # Update verification status
-    companion.verification_status = 'APPROVED'
+    companion.verification_status = VerificationStatusEnum.APPROVED
     
     # Create notification for companion
     notification = Notification(
@@ -203,7 +204,7 @@ def reject_companion(id):
     reason = request.form.get('reason', 'Your application did not meet our requirements.')
     
     # Update verification status
-    companion.verification_status = 'REJECTED'
+    companion.verification_status = VerificationStatusEnum.REJECTED
     
     # Create notification for companion
     notification = Notification(
@@ -273,8 +274,7 @@ def edit_companion(id):
             flash(f'Error updating profile: {str(e)}', 'error')
             
     # Get pending count for sidebar
-    from models import CompanionProfile as CP
-    pending_count = CP.query.filter_by(verification_status='PENDING').count()
+    pending_count = CompanionProfile.query.filter_by(verification_status=VerificationStatusEnum.PENDING).count()
     
     return render_template(
         'admin/companion/edit.html',

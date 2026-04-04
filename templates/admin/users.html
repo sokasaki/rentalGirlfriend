@@ -66,20 +66,14 @@
                                                 <td class="ps-4">
                                                     <div class="d-flex align-items-center">
                                                         {% set profile_photo = none %}
-                                                        {% if user.customer_profile and
-                                                        user.customer_profile.profile_photo %}
-                                                        {% set profile_photo = user.customer_profile.profile_photo %}
-                                                        {% elif user.companion_profile and user.companion_profile.photos
-                                                        %}
-                                                        {% set primary =
-                                                        user.companion_profile.photos|selectattr('is_primary',
-                                                        'true')|first %}
-                                                        {% if primary %}{% set profile_photo = primary.photo_url %}{%
-                                                        endif %}
+                                                        {% if user.customer_profile %}
+                                                            {% set profile_photo = user.customer_profile.main_url %}
+                                                        {% elif user.companion_profile %}
+                                                            {% set profile_photo = user.companion_profile.primary_main_url %}
                                                         {% endif %}
 
                                                         {% if profile_photo %}
-                                                        <img src="{{ '/static/' + profile_photo if not profile_photo.startswith(('/', 'http')) else profile_photo }}"
+                                                        <img src="{{ profile_photo }}"
                                                             class="rounded-circle me-2"
                                                             style="width: 32px; height: 32px; object-fit: cover;">
                                                         {% else %}

@@ -1,0 +1,86 @@
+                    <!-- Bookings Tab -->
+                    <div class="tab-pane fade" id="bookings" role="tabpanel">
+                        <div class="d-flex align-items-center mb-4">
+                            <h4 class="fw-bold mb-0">Confirmed Bookings</h4>
+                        </div>
+
+                        <div class="row g-4">
+                            {% if confirmed_bookings %}
+                            {% for booking in confirmed_bookings %}
+                            <div class="col-md-6 col-xl-4">
+                                <div class="booking-card h-100 d-flex flex-column">
+                                    <div class="booking-card-header">
+                                        <img src="{{ booking.customer_photo }}" alt="{{ booking.customer_name }}">
+                                        <div class="booking-card-companion-info">
+                                            <h6 class="mb-1">{{ booking.customer_name }}</h6>
+                                            <div class="rating">
+                                                {% if booking.status == 'COMPLETED' %}
+                                                <span class="badge bg-success"
+                                                    style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border-radius: 0.5rem;">Completed</span>
+                                                {% elif booking.status == 'PAID' %}
+                                                <span class="badge bg-info text-white"
+                                                    style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border-radius: 0.5rem;">Paid</span>
+                                                {% else %}
+                                                <span class="badge bg-primary text-white"
+                                                    style="padding: 0.35rem 0.65rem; font-size: 0.75rem; border-radius: 0.5rem;">Confirmed</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="booking-card-body flex-grow-1">
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Schedule</small>
+                                                <span class="value">{{ booking.start_time.strftime('%b %d, %Y') }} at {{
+                                                    booking.start_time.strftime('%H:%M') }} ({{
+                                                    "%.0f"|format(booking.duration) }}h)</span>
+                                            </div>
+                                        </div>
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Location</small>
+                                                <span class="value text-truncate d-inline-block"
+                                                    style="max-width: 150px;">{{
+                                                    booking.location }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="booking-info-row">
+                                            <i class="fas fa-wallet"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Amount</small>
+                                                <span class="value text-primary">${{ "{:,.2f}".format(booking.amount)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="booking-card-footer">
+                                        <div class="d-flex gap-2">
+                                            <button class="btn btn-outline-primary flex-grow-1 view-booking-btn"
+                                                data-booking-id="{{ booking.booking_id }}">
+                                                <i class="fas fa-eye me-2"></i>View Details
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm px-3" title="Report Customer"
+                                                data-bs-toggle="modal" data-bs-target="#reportBookingModal"
+                                                data-booking-id="{{ booking.booking_id }}"
+                                                data-customer-id="{{ booking.customer_user_id }}">
+                                                <i class="fas fa-flag"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+                                    <i class="fas fa-calendar-times fa-3x text-muted opacity-25 mb-3"></i>
+                                    <p class="text-muted mb-0">No confirmed bookings yet.</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>

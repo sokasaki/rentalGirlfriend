@@ -1,0 +1,67 @@
+            <div class="mt-5 pt-4">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1" style="letter-spacing: -1px;">Client Reviews</h3>
+                        <p class="text-muted small mb-0">What people are saying about {{ companion.display_name }}</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3">{{ companion.total_reviews }} Total</span>
+                    </div>
+                </div>
+
+                {% if companion.reviews %}
+                <div class="row g-4">
+                    {% for review in companion.reviews %}
+                    <div class="col-lg-6">
+                        <div class="review-card p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar-wrapper me-3">
+                                    <img src="{{ review.customer_photo }}"
+                                        alt="{{ review.customer_name }}" class="rounded-circle review-avatar">
+                                    <div class="avatar-status"></div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="fw-bold mb-0" style="color: var(--dark-text);">{{ review.customer_name }}</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">{{ review.created_at.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                    <div class="review-stars mt-1">
+                                        {% for i in range(5) %}
+                                        <i class="fas fa-star{% if i >= review.rating %} text-muted-light{% else %} star-active{% endif %}" style="font-size: 0.75rem;"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="review-comment-box p-3 mb-3">
+                                <p class="mb-0">{{ review.comment or 'Perfect experience, highly recommend!' }}</p>
+                            </div>
+
+                            {% if review.reply %}
+                            <div class="companion-reply-box ms-4 p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="reply-line me-2"></div>
+                                    <small class="fw-bold text-uppercase" style="font-size: 0.65rem; color: var(--millennial-pink-dark); letter-spacing: 1px;">Companion's Response</small>
+                                    {% if review.replied_at %}
+                                    <span class="ms-auto x-small text-muted" style="font-size: 0.6rem;">{{ review.replied_at.strftime('%b %d') }}</span>
+                                    {% endif %}
+                                </div>
+                                <p class="mb-0 small" style="color: #4b5563; line-height: 1.6;">{{ review.reply }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if companion.total_reviews > companion.reviews|length %}
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary rounded-pill px-4">Load More Reviews</button>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No reviews yet. Be the first to review!</p>
+                </div>
+                {% endif %}
+            </div>

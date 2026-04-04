@@ -100,27 +100,12 @@
                                 <div class="row g-0">
                                     <div class="col-md-4 bg-light border-end d-flex flex-column">
                                         <div class="position-relative flex-grow-1">
-                                            {% set primary_photo = photos|selectattr('is_primary')|list|first if photos
-                                            else none %}
-                                            {% set display_photo = primary_photo.photo_url if primary_photo else
-                                            (photos[0].photo_url if photos else none) %}
-
-                                            {% if display_photo %}
-                                            <img src="{{ '/static/' + display_photo if not display_photo.startswith(('/', 'http')) else display_photo }}" class="w-100 h-100 object-fit-cover"
+                                            {% set display_photo = companion.primary_main_url or '/static/images/avatar-placeholder.jpg' %}
+                                            <img src="{{ display_photo }}" class="w-100 h-100 object-fit-cover"
                                                 alt="{{ companion.display_name }}"
                                                 style="cursor: zoom-in; min-height: 500px;"
-                                                onclick="openLightbox('{{ '/static/' + display_photo if not display_photo.startswith(('/', 'http')) else display_photo }}')">
-                                            {% else %}
-                                            <div class="d-flex align-items-center justify-content-center bg-light h-100"
-                                                style="min-height: 500px;">
-                                                <div class="text-center">
-                                                    <i class="fas fa-user-alt fa-3x text-muted mb-2"></i>
-                                                    <p class="small text-muted mb-0">No Profile Image</p>
-                                                </div>
-                                            </div>
-                                            {% endif %}
-
-                                            {% if primary_photo %}
+                                                onclick="openLightbox('{{ display_photo }}')">
+                                            {% if companion.primary_photo and companion.primary_photo.is_primary %}
                                             <span
                                                 class="badge bg-primary position-absolute top-0 start-0 m-3 shadow-sm">
                                                 <i class="fas fa-star me-1"></i> Primary

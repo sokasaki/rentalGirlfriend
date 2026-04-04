@@ -76,6 +76,7 @@ def dashboard_customer():
             'duration': duration_hours,
             'location': booking.meeting_location or 'Not specified',
             'amount': float(booking.total_price),
+            'total_price': float(booking.total_price),
             'status': booking.status.value,
             'rejection_reason': booking.rejection_reason,
             'review': {
@@ -100,8 +101,8 @@ def dashboard_customer():
     
     favorites = []
     for favorite, companion in favorites_query:
-        # Use thumbnail for favorites list
-        photo_url = companion.primary_thumbnail_url if companion.photos else '/static/images/avatar-placeholder.jpg'
+        # Use resized photo for favorites list so it looks crisp
+        photo_url = companion.primary_main_url if companion.photos else '/static/images/avatar-placeholder.jpg'
         
         # Parse personality traits
         try:
@@ -423,7 +424,7 @@ def dashboard_companion():
     formatted_requests = []
     for booking, customer, user in pending_requests:
         duration_hours = (booking.end_time - booking.start_time).total_seconds() / 3600
-        customer_photo = customer.thumbnail_url or 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70)
+        customer_photo = customer.thumbnail_url or '/static/images/avatar-placeholder.jpg'
         formatted_requests.append({
             'booking_id': booking.booking_id,
             'customer_name': customer.full_name or 'Anonymous',
@@ -449,7 +450,7 @@ def dashboard_companion():
     formatted_bookings = []
     for booking, customer, user in confirmed_bookings:
         duration_hours = (booking.end_time - booking.start_time).total_seconds() / 3600
-        customer_photo = customer.thumbnail_url or 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70)
+        customer_photo = customer.thumbnail_url or '/static/images/avatar-placeholder.jpg'
         formatted_bookings.append({
             'booking_id': booking.booking_id,
             'customer_name': customer.full_name or 'Anonymous',
@@ -508,7 +509,7 @@ def dashboard_companion():
         formatted_reviews.append({
             'review_id': review.review_id,
             'customer_name': customer.full_name or 'Anonymous',
-            'customer_photo': 'https://i.pravatar.cc/40?img=' + str(booking.customer_id % 70),
+            'customer_photo': customer.thumbnail_url or '/static/images/avatar-placeholder.jpg',
             'rating': review.rating,
             'comment': review.comment,
             'reply': review.reply,
