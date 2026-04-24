@@ -43,6 +43,8 @@ instance/
 models/
 migrations/
 images/
+scripts/
+
 # OS files
 .DS_Store
 Thumbs.db

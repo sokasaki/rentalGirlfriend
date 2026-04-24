@@ -13,6 +13,7 @@ def payments():
     # Get query parameters for search and filter
     search_query = request.args.get('search', '').strip()
     status_filter = request.args.get('status', '')
+    page = request.args.get('page', 1, type=int)
     
     # Calculate financial statistics (always unfiltered)
     total_revenue = db.session.query(func.sum(Payment.amount)).filter(
@@ -57,7 +58,12 @@ def payments():
             (CompanionProfile.display_name.ilike(f'%{search_query}%'))
         )
     
-    all_payments = query.all()
+    # Apply sorting (newest first)
+    query = query.order_by(Payment.payment_id.desc())
+    
+    # Paginate results
+    pagination = query.paginate(page=page, per_page=15, error_out=False)
+    all_payments = pagination.items
     
     # Format payment data for template
     payments_data = []
@@ -105,10 +111,12 @@ def payments():
         active_page='payments',
         total_revenue=float(total_revenue),
         platform_fees=platform_fees,
+        total_revenue_formatted="{:,.2f}".format(total_revenue),
         total_refunds=float(total_refunds),
         pending_refunds_count=refunded_count,
         failed_payments_count=failed_payments_count,
         payments=payments_data,
+        pagination=pagination,
         pending_count=pending_count,
         search_query=search_query,
         status_filter=status_filter,

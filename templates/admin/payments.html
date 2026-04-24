@@ -26,6 +26,9 @@
                                     <h5 class="fw-bold mb-0">Transaction Ledger</h5>
                                     <div class="d-flex gap-2">
                                         <form method="GET" action="{{ url_for('payments') }}" class="d-flex gap-2">
+                                            {% if status_filter %}
+                                            <input type="hidden" name="status" value="{{ status_filter }}">
+                                            {% endif %}
                                             <div class="input-group input-group-sm" style="width: 250px;">
                                                 <span class="input-group-text bg-light border-end-0"><i
                                                         class="fa-solid fa-magnifying-glass text-muted"></i></span>
@@ -33,23 +36,28 @@
                                                     placeholder="Search customer or companion..." name="search"
                                                     value="{{ search_query }}">
                                             </div>
-                                            <button type="submit" class="btn btn-primary btn-sm px-3">SEARCH</button>
+                                            <button type="submit" class="btn btn-primary btn-sm px-3 shadow-sm">SEARCH</button>
+                                            {% if search_query or status_filter %}
+                                            <a href="{{ url_for('payments') }}" class="btn btn-light btn-sm px-2 shadow-sm" title="Clear Filters">
+                                                <i class="fa-solid fa-xmark text-muted"></i>
+                                            </a>
+                                            {% endif %}
                                         </form>
                                         <div class="dropdown">
-                                            <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
-                                                <i class="fa-solid fa-filter me-1"></i>STATUS
+                                            <button class="btn btn-light btn-sm shadow-sm" data-bs-toggle="dropdown">
+                                                <i class="fa-solid fa-filter me-1"></i>{% if status_filter %}{{ status_filter }}{% else %}STATUS{% endif %}
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                                                 <li><a class="dropdown-item {% if not status_filter %}active{% endif %}"
-                                                        href="{{ url_for('payments') }}">All Transactions</a></li>
+                                                        href="{{ url_for('payments', search=search_query) }}">All Transactions</a></li>
                                                 <li><a class="dropdown-item {% if status_filter == 'COMPLETED' %}active{% endif %}"
-                                                        href="{{ url_for('payments', status='COMPLETED') }}">Completed</a>
+                                                        href="{{ url_for('payments', status='COMPLETED', search=search_query) }}">Completed</a>
                                                 </li>
                                                 <li><a class="dropdown-item {% if status_filter == 'PENDING' %}active{% endif %}"
-                                                        href="{{ url_for('payments', status='PENDING') }}">Pending</a>
+                                                        href="{{ url_for('payments', status='PENDING', search=search_query) }}">Pending</a>
                                                 </li>
                                                 <li><a class="dropdown-item {% if status_filter == 'FAILED' %}active{% endif %}"
-                                                        href="{{ url_for('payments', status='FAILED') }}">Failed</a>
+                                                        href="{{ url_for('payments', status='FAILED', search=search_query) }}">Refunded</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -130,13 +138,13 @@
                                                         style="font-size: 0.65rem;">PENDING</span>
                                                     {% elif payment.status == 'FAILED' %}
                                                     <span
-                                                        class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2"
-                                                        style="font-size: 0.65rem;">FAILED</span>
+                                                        class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2"
+                                                        style="font-size: 0.65rem;">REFUNDED</span>
                                                     {% else %}
                                                     <span
                                                         class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2"
                                                         style="font-size: 0.65rem;">{{ payment.status or 'Unknown'
-                                                        }}</span>
+                                                         }}</span>
                                                     {% endif %}
                                                 </td>
                                                 <td class="px-4 text-center small text-muted">{{
@@ -185,6 +193,36 @@
                                     </table>
                                 </div>
                             </div>
+                            
+                            <!-- Pagination -->
+                            {% if pagination and pagination.pages > 1 %}
+                            <div class="card-footer bg-white border-0 p-4 pt-0">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination pagination-sm justify-content-center mb-0">
+                                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                                            <a class="page-link shadow-sm border-0 mx-1 rounded" 
+                                               href="{{ url_for('payments', page=pagination.prev_num, search=search_query, status=status_filter) }}">Previous</a>
+                                        </li>
+                                        
+                                        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                            {% if page_num %}
+                                                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                                    <a class="page-link shadow-sm border-0 mx-1 rounded" 
+                                                       href="{{ url_for('payments', page=page_num, search=search_query, status=status_filter) }}">{{ page_num }}</a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled"><span class="page-link border-0">...</span></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                            <a class="page-link shadow-sm border-0 mx-1 rounded" 
+                                               href="{{ url_for('payments', page=pagination.next_num, search=search_query, status=status_filter) }}">Next</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            {% endif %}
                         </div>
 
                         <div class="row g-4">
@@ -206,16 +244,19 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-header bg-white border-0 p-4 d-flex justify-content-between">
-                                        <h5 class="fw-bold mb-0 text-danger">Integrity Monitoring</h5>
-                                        <span class="badge bg-success">SECURE</span>
+                                    <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                                        <h5 class="fw-bold mb-0 text-primary">Gateway Status</h5>
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3">ACTIVE</span>
                                     </div>
-                                    <div class="card-body p-4 pt-0 text-center">
-                                        <div class="alert alert-success border-0 small mb-0 py-3">
-                                            <i class="fa-solid fa-shield-check fa-2x d-block mb-2 opacity-50"></i>
-                                            All gateway connections are active. Last reconciliation: <span
-                                                class="fw-bold">Just
-                                                now</span>.
+                                    <div class="card-body p-4 pt-0">
+                                        <div class="alert alert-light border-0 small mb-0 py-3 d-flex align-items-center">
+                                            <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3">
+                                                <i class="fa-solid fa-shield-check"></i>
+                                            </div>
+                                            <div>
+                                                All systems operational.<br>
+                                                <span class="text-muted">Last sync: Just now</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -275,7 +316,7 @@
                                     Refunds</small>
                             </div>
                             <div class="h4 fw-bold mb-0 text-danger">${{ "{:,.2f}".format(total_refunds or 0) }}</div>
-                            <p class="text-muted small mb-0">{{ pending_refunds_count or 0 }} requests pending</p>
+                            <p class="text-muted small mb-0">{{ pending_refunds_count or 0 }} processed refunds</p>
                         </div>
 
                         <hr class="my-4">
@@ -295,11 +336,11 @@
                         </div>
 
                         <div class="mt-5 p-3 bg-light rounded-3 text-center border-dashed">
-                            <img src="https://stripe.com/img/v3/home/social.png" alt="Stripe"
-                                style="height: 16px; filter: grayscale(1); opacity: 0.5;">
-                            <br>
-                            <small class="text-muted mt-2 d-block" style="font-size: 0.6rem;">Enterprise processing by
-                                Stripe</small>
+                            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                                <i class="fa-solid fa-qrcode text-primary opacity-50"></i>
+                                <span class="fw-bold small text-muted" style="letter-spacing: 1px;">KHQR ENABLED</span>
+                            </div>
+                            <small class="text-muted d-block" style="font-size: 0.6rem;">Enterprise processing via Bakong Network</small>
                         </div>
                     </div>
                 </div>

@@ -21,8 +21,7 @@ def _get_khqr_service():
     if not token:
         return None
 
-    time_shift = int(app.config.get('KHQR_TIME_SHIFT_SECONDS', 0))
-    return KHQRPaymentService(token, time_shift_seconds=time_shift)
+    return KHQRPaymentService(token)
 
 
 def _calculate_total_with_fee(booking):
@@ -78,7 +77,7 @@ def khqr_checkout():
             currency=currency,
             merchant_name=app.config.get('KHQR_MERCHANT_NAME', 'RentACompanion'),
             merchant_city=app.config.get('KHQR_MERCHANT_CITY', 'Phnom Penh'),
-            phone_number=app.config.get('KHQR_PHONE_NUMBER', '855884777905'),
+            phone_number=app.config.get('KHQR_PHONE_NUMBER', '855000000000'),
             bank_account=app.config.get('KHQR_BANK_ACCOUNT'),
             store_label=app.config.get('KHQR_STORE_LABEL', 'MShop'),
             terminal_label=app.config.get('KHQR_TERMINAL_LABEL', 'Cashier-01'),
@@ -209,7 +208,8 @@ def khqr_check_payment():
         print(f"KHQR check payment error: {str(e)}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
+        status_code = 400 if isinstance(e, ValueError) else 500
+        return jsonify({'error': str(e)}), status_code
 
 
 @app.get('/khqr/payment/<int:booking_id>')
@@ -252,7 +252,7 @@ def khqr_payment_page(booking_id):
             currency=currency,
             merchant_name=app.config.get('KHQR_MERCHANT_NAME', 'RentACompanion'),
             merchant_city=app.config.get('KHQR_MERCHANT_CITY', 'Phnom Penh'),
-            phone_number=app.config.get('KHQR_PHONE_NUMBER', '855884777905'),
+            phone_number=app.config.get('KHQR_PHONE_NUMBER', '855000000000'),
             bank_account=app.config.get('KHQR_BANK_ACCOUNT'),
             store_label=app.config.get('KHQR_STORE_LABEL', 'MShop'),
             terminal_label=app.config.get('KHQR_TERMINAL_LABEL', 'Cashier-01'),
