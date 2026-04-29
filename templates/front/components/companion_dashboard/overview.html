@@ -59,56 +59,78 @@
                         <div class="row g-3 g-md-4 mb-4">
                             <div class="col-6 col-md-3">
                                 <div class="glass-stat-card">
-                                    <div class="stat-icon-wrapper bg-success-subtle text-success">
-                                        <i class="fas fa-wallet"></i>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="stat-icon-wrapper bg-success-subtle text-success">
+                                            <i class="fas fa-wallet"></i>
+                                        </div>
+                                        <div class="text-success small fw-bold"><i class="fas fa-arrow-up me-1"></i>12%</div>
                                     </div>
-                                    <div class="small text-muted fw-bold">Total Earnings</div>
+                                    <div class="small text-muted fw-bold x-small">Total Earnings</div>
                                     <h3 class="fw-bold mb-0">${{ "{:,.0f}".format(total_earnings) }}</h3>
-                                    <div class="mt-2 small text-success">
-                                        <i class="fas fa-arrow-up me-1"></i>+12.5%
+                                    <div class="sparkline-container text-success">
+                                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="height: 30px; width: 100%;">
+                                            <path d="M0,25 Q10,15 20,22 T40,10 T60,20 T80,5 T100,15" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="glass-stat-card">
-                                    <div class="stat-icon-wrapper bg-danger-subtle text-danger">
-                                        <i class="fas fa-inbox"></i>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+                                            <i class="fas fa-inbox"></i>
+                                        </div>
+                                        <div class="text-warning small fw-bold">Active</div>
                                     </div>
-                                    <div class="small text-muted fw-bold">Pending Requests</div>
+                                    <div class="small text-muted fw-bold x-small">Pending</div>
                                     <h3 class="fw-bold mb-0">{{ pending_count }}</h3>
-                                    <div class="mt-2 small text-danger">
-                                        {{ pending_count }} needs attention
+                                    <div class="sparkline-container text-warning">
+                                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="height: 30px; width: 100%;">
+                                            <path d="M0,20 Q20,25 40,15 T70,22 T100,10" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="glass-stat-card">
-                                    <div class="stat-icon-wrapper bg-primary-subtle text-primary">
-                                        <i class="fas fa-calendar-check"></i>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+                                            <i class="fas fa-calendar-check"></i>
+                                        </div>
+                                        <div class="text-primary small fw-bold">+{{ monthly_bookings }}</div>
                                     </div>
-                                    <div class="small text-muted fw-bold">Total Bookings</div>
+                                    <div class="small text-muted fw-bold x-small">Bookings</div>
                                     <h3 class="fw-bold mb-0">{{ total_bookings }}</h3>
-                                    <div class="mt-2 small text-primary">{{ monthly_bookings }} new this month</div>
+                                    <div class="sparkline-container text-primary">
+                                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="height: 30px; width: 100%;">
+                                            <path d="M0,25 L20,15 L40,20 L60,5 L80,15 L100,10" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-6 col-md-3">
                                 <div class="glass-stat-card">
-                                    <div class="stat-icon-wrapper bg-warning-subtle text-warning">
-                                        <i class="fas fa-star"></i>
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="stat-icon-wrapper bg-info-subtle text-info">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="text-info small fw-bold">{{ total_reviews }}</div>
                                     </div>
-                                    <div class="small text-muted fw-bold">Avg Rating</div>
+                                    <div class="small text-muted fw-bold x-small">Rating</div>
                                     <h3 class="fw-bold mb-0">
-                                        {{ "%.1f"|format(companion.avg_rating) if companion.avg_rating > 0 else "N/A" }}
+                                        {{ "%.1f"|format(companion.avg_rating) if companion.avg_rating > 0 else "0.0" }}
                                     </h3>
-                                    <div class="mt-2 small text-warning">
-                                        {{ total_reviews }} client reviews
+                                    <div class="sparkline-container text-info">
+                                        <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="height: 30px; width: 100%;">
+                                            <path d="M0,15 Q25,10 50,15 T100,12" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path>
+                                        </svg>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Quick Actions Grid -->
-                        <div class="row g-3 mb-4">
+                        <div class="row g-3 mb-5">
                             <div class="col-6 col-md-3">
                                 <div class="action-tile" onclick="document.getElementById('schedule-tab').click()">
                                     <div class="icon bg-primary-subtle text-primary">
@@ -143,165 +165,108 @@
                             </div>
                         </div>
 
-                        <!-- Unified Recent Activity Timeline -->
-                        <div class="row g-4">
+                        <div class="row">
                             <div class="col-12">
                                 <div class="d-flex align-items-center mb-4">
-                                    <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3"
-                                        style="width: 48px; height: 48px; background-color: #e0e7ff;">
-                                        <i class="fas fa-stream text-primary"></i>
-                                    </div>
                                     <h4 class="fw-bold mb-0">Recent Activity</h4>
+                                    <div class="ms-auto">
+                                        <button class="btn btn-link btn-sm text-decoration-none fw-600 text-primary">View All</button>
+                                    </div>
                                 </div>
 
                                 <div class="timeline-container">
                                     {% if timeline_activities %}
                                     {% for activity in timeline_activities %}
                                     {% if activity.type == 'request' %}
-                                    <!-- Booking Request Post -->
-                                    <div class="card border-0 shadow-sm mb-3 activity-timeline-item">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-calendar-plus text-white"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0 fw-bold">New Booking Request</h6>
-                                                        <small class="text-muted d-sm-none"
-                                                            style="font-size: 0.65rem;">{{ activity.date }}</small>
-                                                    </div>
-                                                    <small class="text-muted d-none d-sm-inline">{{ activity.date
-                                                        }}</small>
-                                                </div>
+                                    <!-- Booking Request -->
+                                    <div class="activity-card">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="activity-icon activity-action">
+                                                <i class="fas fa-calendar-plus"></i>
                                             </div>
-                                            <div class="bg-light rounded p-3">
-                                                <p class="mb-2 small"><strong>{{ activity.customer_name }}</strong>
-                                                    requested
-                                                    a
-                                                    {{ activity.duration }} session.</p>
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="text-muted small" style="font-size: 0.75rem;"><i
-                                                            class="fas fa-map-marker-alt me-1"></i>{{
-                                                        activity.location
-                                                        }}</span>
-                                                    <span class="fw-bold text-success small">${{
-                                                        "{:,.2f}".format(activity.amount)
-                                                        }}</span>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-0 fw-bold">New Booking Request</h6>
+                                                    <span class="text-timestamp">{{ activity.date }}</span>
                                                 </div>
-                                                <div class="mt-3">
-                                                    <button
-                                                        class="btn btn-primary d-block w-100 d-sm-inline-block btn-sm rounded-pill px-4"
-                                                        onclick="document.getElementById('requests-tab').click()">Manage
-                                                        Request</button>
+                                                <p class="text-muted small mb-3"><strong>{{ activity.customer_name }}</strong> requested a {{ activity.duration }} session in {{ activity.location }}.</p>
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-primary btn-sm px-3" onclick="document.getElementById('requests-tab').click()">Manage Request</button>
+                                                    <span class="ms-auto fw-bold text-success small">${{ "{:,.2f}".format(activity.amount) }}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     {% elif activity.type == 'booking' %}
-                                    <!-- Booking Confirmation/History Post -->
-                                    <div class="card border-0 shadow-sm mb-3 activity-timeline-item">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style="width: 40px; height: 40px;">
-                                                    <i
-                                                        class="fas {% if activity.status == 'COMPLETED' %}fa-check-circle{% else %}fa-calendar-check{% endif %} text-white"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0 fw-bold">
-                                                            {% if activity.status == 'COMPLETED' %}Session Completed{%
-                                                            else %}Confirmed Booking{% endif %}
-                                                        </h6>
-                                                        <small class="text-muted d-sm-none"
-                                                            style="font-size: 0.65rem;">{{ activity.date }}</small>
-                                                    </div>
-                                                    <small class="text-muted d-none d-sm-inline">{{ activity.date
-                                                        }}</small>
-                                                </div>
+                                    <!-- Booking Confirmation -->
+                                    <div class="activity-card">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="activity-icon activity-confirmed">
+                                                <i class="fas {% if activity.status == 'COMPLETED' %}fa-check-circle{% else %}fa-calendar-check{% endif %}"></i>
                                             </div>
-                                            <div class="d-flex align-items-center">
-                                                <img src="{{ activity.customer_photo }}" class="rounded-circle me-3"
-                                                    width="40" height="40" alt="">
-                                                <div class="flex-grow-1">
-                                                    <p class="mb-0 small">Session with <strong>{{ activity.customer_name
-                                                            }}</strong> ({{ activity.duration }})</p>
-                                                    <p class="mb-0 small text-muted">
-                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ activity.location
-                                                        }}
-                                                    </p>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-0 fw-bold">{% if activity.status == 'COMPLETED' %}Session Completed{% else %}Booking Confirmed{% endif %}</h6>
+                                                    <span class="text-timestamp">{{ activity.date }}</span>
                                                 </div>
-                                                <button class="btn btn-outline-primary btn-sm rounded-pill px-3"
-                                                    onclick="document.getElementById('bookings-tab').click()">View</button>
+                                                <div class="d-flex align-items-center mt-2">
+                                                    <img src="{{ activity.customer_photo }}" class="rounded-circle me-3" width="32" height="32" style="object-fit: cover;">
+                                                    <div>
+                                                        <p class="mb-0 small">Session with <strong>{{ activity.customer_name }}</strong></p>
+                                                        <p class="mb-0 x-small text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ activity.location }}</p>
+                                                    </div>
+                                                    <button class="btn btn-light btn-sm ms-auto px-3" onclick="document.getElementById('bookings-tab').click()">View</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     {% elif activity.type == 'review' %}
-                                    <!-- New Review Post -->
-                                    <div class="card border-0 shadow-sm mb-3 activity-timeline-item">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-star text-white"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0 fw-bold">New Review Received</h6>
-                                                        <small class="text-muted d-sm-none"
-                                                            style="font-size: 0.65rem;">{{ activity.date }}</small>
-                                                    </div>
-                                                    <small class="text-muted d-none d-sm-inline">{{ activity.date
-                                                        }}</small>
-                                                </div>
+                                    <!-- New Review -->
+                                    <div class="activity-card">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="activity-icon activity-system">
+                                                <i class="fas fa-star"></i>
                                             </div>
-                                            <div class="p-3 bg-light rounded">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="text-warning me-2 small">
-                                                        {% for i in range(activity.rating|int) %}
-                                                        <i class="fas fa-star" style="font-size: 0.75rem;"></i>
-                                                        {% endfor %}
-                                                    </div>
-                                                    <span class="small fw-bold">{{ activity.customer_name }}</span>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-0 fw-bold">New Review Received</h6>
+                                                    <span class="text-timestamp">{{ activity.date }}</span>
                                                 </div>
-                                                <p class="mb-0 fst-italic small text-muted">"{{ activity.comment }}"</p>
+                                                <div class="p-2 bg-light rounded-3 mt-2">
+                                                    <div class="d-flex align-items-center mb-1">
+                                                        <div class="text-warning me-2 small">
+                                                            {% for i in range(activity.rating|int) %}<i class="fas fa-star x-small"></i>{% endfor %}
+                                                        </div>
+                                                        <span class="x-small fw-bold">{{ activity.customer_name }}</span>
+                                                    </div>
+                                                    <p class="mb-0 fst-italic small text-muted">"{{ activity.comment }}"</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     {% elif activity.type == 'notification' %}
-                                    <!-- Notification Post -->
-                                    <div class="card border-0 shadow-sm mb-3 activity-timeline-item">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center mb-3">
-                                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                    style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-bell text-white"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <h6 class="mb-0 fw-bold">{{ activity.title }}</h6>
-                                                        <small class="text-muted d-sm-none"
-                                                            style="font-size: 0.65rem;">{{ activity.date }}</small>
-                                                    </div>
-                                                    <small class="text-muted d-none d-sm-inline">{{ activity.date
-                                                        }}</small>
-                                                </div>
+                                    <!-- System Notification -->
+                                    <div class="activity-card">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="activity-icon activity-system">
+                                                <i class="fas fa-bell"></i>
                                             </div>
-                                            <p class="mb-0 small text-muted">{{ activity.message }}</p>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-0 fw-bold">{{ activity.title }}</h6>
+                                                    <span class="text-timestamp">{{ activity.date }}</span>
+                                                </div>
+                                                <p class="mb-0 small text-muted">{{ activity.message }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                     {% endif %}
                                     {% endfor %}
                                     {% else %}
-                                    <div class="card border-0 shadow-sm">
-                                        <div class="card-body text-center py-5">
-                                            <i class="fas fa-stream fa-3x text-muted opacity-25 mb-3"></i>
-                                            <h5 class="text-muted">No recent activity</h5>
-                                            <p class="text-muted mb-0">Your latest earnings, reviews and bookings will
-                                                appear here.</p>
-                                        </div>
+                                    <div class="text-center py-5 glass-effect rounded-4">
+                                        <i class="fas fa-stream fa-3x text-muted opacity-25 mb-3"></i>
+                                        <h5 class="text-muted fw-bold">No recent activity</h5>
+                                        <p class="text-muted mb-0 small">New updates will appear here automatically.</p>
                                     </div>
                                     {% endif %}
                                 </div>

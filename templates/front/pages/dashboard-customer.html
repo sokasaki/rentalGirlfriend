@@ -31,7 +31,7 @@
             style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 400px; overflow: hidden;">
             <img src="{{ customer.cover_photo or 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?w=1200&h=400&fit=crop' }}" alt="Cover"
                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
-            <button class="btn btn-light btn-sm position-absolute" style="bottom: 20px; right: 20px;">
+            <button class="btn btn-sm position-absolute glass-edit-btn" style="bottom: 20px; right: 20px;">
                 <i class="fas fa-camera me-2 d-none d-sm-inline"></i><span class="d-none d-sm-inline">Edit Cover
                     Photo</span><i class="fas fa-camera d-sm-none"></i>
             </button>
@@ -47,7 +47,7 @@
                             <!-- Profile Picture -->
                             <div class="position-relative me-4 profile-picture-wrapper">
                                 <img src="{{ customer.profile_photo }}" class="rounded-circle profile-picture"
-                                    style="object-fit: cover; width: 300px; height: 300px; border: 5px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+                                    style="object-fit: cover; width: 300px; height: 300px; border: 4px solid white; box-shadow: 0 8px 24px rgba(0,0,0,0.12);"
                                     alt="Profile">
                             </div>
 
@@ -192,6 +192,91 @@
         .cursor-pointer { cursor: pointer; }
         .star-rating i { transition: transform 0.2s; }
         .star-rating i:hover { transform: scale(1.2); }
+
+        /* Bento Grid & UI Refinements */
+        .bento-card {
+            border-radius: 20px !important;
+            border: 1px solid rgba(0,0,0,0.03) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        
+        .bento-card:hover {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.06) !important;
+            transform: translateY(-2px);
+        }
+
+        .glass-edit-btn {
+            background: rgba(255, 255, 255, 0.2) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .glass-edit-btn:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+            transform: scale(1.05);
+        }
+
+        /* Timeline Spacing & Typography */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Increased vertical gap by 20% (approx 1.25rem -> 1.5rem) */
+        }
+
+        .activity-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .system-log-slimmer {
+            border-radius: 16px !important;
+            border: none !important;
+            padding: 12px 20px !important;
+            margin-bottom: 0 !important;
+        }
+
+        .log-payment { background-color: rgba(16, 185, 129, 0.05) !important; }
+        .log-booking { background-color: rgba(99, 102, 241, 0.05) !important; }
+
+        .btn-boutique {
+            font-size: 0.8rem !important;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-item-horizontal {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 12px;
+            background: #f8fafc;
+            flex: 1;
+        }
+
+        .stat-icon-muted {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            margin-right: 12px;
+            font-size: 0.9rem;
+        }
     </style>
 
     <script>

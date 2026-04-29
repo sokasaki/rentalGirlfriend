@@ -1,4 +1,5 @@
                             <div class="tab-pane fade show active" id="timeline" role="tabpanel">
+                                <div class="timeline-container">
                                 
                                 <!-- ⚠️ Reports Requiring Response -->
                                 {% if awaiting_reports %}
@@ -52,7 +53,24 @@
                                 {% for activity in timeline_activities %}
                                 {% if activity.type == 'booking' %}
                                 <!-- Booking Activity Post -->
-                                <div class="card border-0 shadow-sm mb-3">
+                                {% if activity.status == 'Completed' %}
+                                <div class="system-log-slimmer log-booking mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-indigo-soft rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 32px; height: 32px; background: rgba(99, 102, 241, 0.1);">
+                                                <i class="fas fa-calendar-check text-indigo" style="color: #6366f1; font-size: 0.8rem;"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold small">Booking Completed</span>
+                                                <span class="activity-meta ms-2">with {{ activity.companion_name }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="activity-meta">{{ activity.date }}</span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="card bento-card shadow-sm mb-3">
                                     <div class="card-body">
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -61,7 +79,7 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0 fw-bold">Booking - {{ activity.status }}</h6>
-                                                <small class="text-muted">{{ activity.date }}</small>
+                                                <small class="activity-meta">{{ activity.date }}</small>
                                             </div>
                                         </div>
                                         <div class="bg-light rounded p-3">
@@ -70,23 +88,24 @@
                                                     width="60" alt="">
                                                 <div class="flex-grow-1">
                                                     <h6 class="fw-bold mb-1">{{ activity.companion_name }}</h6>
-                                                    <p class="mb-1 small text-muted">
+                                                    <p class="mb-1 small activity-meta">
                                                         <i class="fas fa-clock me-1"></i>{{ activity.start_time }} • {{
                                                         activity.duration }}
                                                     </p>
-                                                    <p class="mb-0 small text-muted">
+                                                    <p class="mb-0 small activity-meta">
                                                         <i class="fas fa-map-marker-alt me-1"></i>{{ activity.location
                                                         }}
                                                     </p>
                                                 </div>
-                                                <button class="btn btn-primary btn-sm">View Details</button>
+                                                <button class="btn btn-primary btn-boutique">View Details</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% elif activity.type == 'favorite' %}
                                 <!-- New Favorite Post -->
-                                <div class="card border-0 shadow-sm mb-3">
+                                <div class="card bento-card shadow-sm mb-3">
                                     <div class="card-body">
                                         <div class="d-flex align-items-center mb-3">
                                             <div class="bg-danger rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -95,7 +114,7 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0 fw-bold">Added to favorites</h6>
-                                                <small class="text-muted">{{ activity.date }}</small>
+                                                <small class="activity-meta">{{ activity.date }}</small>
                                             </div>
                                         </div>
                                         <div class="bg-light rounded p-3">
@@ -108,43 +127,40 @@
                                                         <i class="fas fa-star text-warning"></i>
                                                         <span class="fw-bold">{{
                                                             "%.1f"|format(activity.companion_rating or 0) }}</span>
-                                                        <span class="text-muted small">({{ activity.companion_bookings
+                                                        <span class="activity-meta small">({{ activity.companion_bookings
                                                             }} bookings)</span>
                                                     </div>
                                                     {% if activity.personality_traits %}
                                                     {% for trait in activity.personality_traits[:2] %}
-                                                    <span class="badge bg-primary me-1">{{ trait }}</span>
+                                                    <span class="badge bg-primary me-1" style="font-size: 0.7rem;">{{ trait }}</span>
                                                     {% endfor %}
                                                     {% endif %}
                                                 </div>
                                                 <div class="text-end">
-                                                    <div class="fw-bold text-primary mb-2">${{
-                                                        "{:,.0f}".format(activity.hourly_rate or 0) }}/hour</div>
+                                                    <div class="fw-bold text-primary mb-2" style="font-size: 0.9rem;">${{
+                                                        "{:,.0f}".format(activity.hourly_rate or 0) }}/hr</div>
                                                     <a href="{{ url_for('profile', companion_id=activity.companion_id) }}"
-                                                        class="btn btn-outline-primary btn-sm">Book Now</a>
+                                                        class="btn btn-outline-primary btn-boutique">Book Now</a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 {% elif activity.type == 'payment' %}
-                                <!-- Payment Success Post -->
-                                <div class="card border-0 shadow-sm mb-3">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                style="width: 40px; height: 40px;">
-                                                <i class="fas fa-check text-white"></i>
+                                <!-- Payment Success Post (Slimmed) -->
+                                <div class="system-log-slimmer log-payment mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-success-soft rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.1);">
+                                                <i class="fas fa-check text-success" style="color: #10b981; font-size: 0.8rem;"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0 fw-bold">Payment Successful</h6>
-                                                <small class="text-muted">{{ activity.date }}</small>
+                                                <span class="fw-bold small">Payment Successful</span>
+                                                <span class="activity-meta ms-2">${{ "{:,.2f}".format(activity.amount or 0) }} for {{ activity.companion_name }}</span>
                                             </div>
                                         </div>
-                                        <p class="mb-0">Your payment of <strong>${{ "{:,.2f}".format(activity.amount or
-                                                0)
-                                                }}</strong> for booking with {{ activity.companion_name }} has been
-                                            processed successfully.</p>
+                                        <span class="activity-meta">{{ activity.date }}</span>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -158,4 +174,5 @@
                                     </div>
                                 </div>
                                 {% endif %}
+                                </div>
                             </div>

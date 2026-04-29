@@ -19,13 +19,17 @@
     <style>
         /* Modern Variables & Premium Tokens */
         :root {
-            --app-primary: #6366f1;
-            --app-primary-soft: rgba(99, 102, 241, 0.1);
-            --app-secondary: #4338ca;
+            --app-primary: #6366f1; /* Deep Periwinkle */
+            --app-primary-soft: rgba(99, 102, 241, 0.08);
+            --app-accent: #4f46e5; /* Muted Indigo */
+            --app-accent-soft: rgba(79, 70, 229, 0.1);
             --app-success: #10b981;
             --app-warning: #f59e0b;
             --app-danger: #ef4444;
-            --app-bg: #f8fafc;
+            --app-bg: #fcfdfe;
+            --app-card-bg: rgba(255, 255, 255, 0.7);
+            --app-border: rgba(0, 0, 0, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.4);
             --font-main: 'Inter', sans-serif;
             --font-heading: 'Montserrat', sans-serif;
         }
@@ -34,15 +38,12 @@
             font-family: var(--font-main);
             background-color: var(--app-bg);
             color: #1e293b;
+            -webkit-font-smoothing: antialiased;
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
+        h1, h2, h3, h4, h5, h6 {
             font-family: var(--font-heading);
+            letter-spacing: -0.02em;
         }
 
         /* Global UI Utilities */
@@ -53,123 +54,107 @@
             letter-spacing: 0.5px;
         }
 
-        .italic {
-            font-style: italic;
+        .text-timestamp {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
         }
 
-        .rounded-4 {
-            border-radius: 1.25rem !important;
+        .rounded-4 { border-radius: 1.25rem !important; }
+        .rounded-5 { border-radius: 2rem !important; }
+
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: var(--app-card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
         }
 
-        .rounded-5 {
-            border-radius: 2rem !important;
-        }
-
-        .shadow-premium {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+        /* Premium Borders */
+        .border-thin {
+            border: 1px solid var(--app-border) !important;
         }
 
         /* Premium Buttons */
         .btn-primary {
-            background: linear-gradient(135deg, var(--app-primary) 0%, var(--app-secondary) 100%);
+            background: var(--app-primary);
             border: none;
             font-weight: 600;
+            padding: 0.6rem 1.25rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+            background: var(--app-accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
 
-        /* Profile Header */
+        .btn-light {
+            background: white;
+            border: 1px solid var(--app-border);
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 12px;
+        }
+
+        .btn-light:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        /* Profile Header Redesign */
         .cover-photo {
+            height: 180px !important; /* Compressed height */
             position: relative;
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            overflow: hidden;
         }
 
         .profile-picture {
-            width: 130px !important;
-            height: 130px !important;
+            width: 120px !important;
+            height: 120px !important;
             border: 4px solid white !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        @media (min-width: 576px) {
-            .profile-picture {
-                width: 180px !important;
-                height: 180px !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .profile-picture {
-                width: 220px !important;
-                height: 220px !important;
-            }
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05) !important;
+            transition: transform 0.3s ease;
         }
 
         .profile-section {
-            margin-top: -80px !important;
+            margin-top: -60px !important; /* Adjusted for smaller profile pic */
+            z-index: 10;
         }
 
-        @media (min-width: 576px) {
-            .profile-section {
-                margin-top: -110px !important;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .profile-section {
-                margin-top: -150px !important;
-            }
-        }
-
-        /* Profile Buttons */
-        .profile-buttons .btn {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            font-weight: 600;
-            border-radius: 10px;
-        }
-
-        @media (max-width: 767px) {
-            .profile-buttons {
-                flex-wrap: wrap;
-            }
-
-            .profile-buttons .btn {
-                font-size: 0.75rem;
-                padding: 0.35rem 0.6rem;
-            }
+        .action-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
         }
 
         /* Profile Nav Tabs */
         .profile-nav-tabs {
             flex-wrap: nowrap;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
 
-        .profile-nav-tabs::-webkit-scrollbar {
-            display: none;
-        }
+        .profile-nav-tabs::-webkit-scrollbar { display: none; }
 
         .profile-nav-tabs .nav-link {
             white-space: nowrap;
-            color: #64748b;
+            color: #94a3b8;
             font-weight: 600;
-            font-size: 0.85rem;
-            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            padding: 1rem 1.25rem;
             border: none;
             border-bottom: 2px solid transparent;
-            border-radius: 0;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .profile-nav-tabs .nav-link i {
-            font-size: 0.8rem;
-            margin-right: 0.4rem;
+            margin-right: 0.5rem;
+            opacity: 0.7;
         }
 
         .profile-nav-tabs .nav-link.active {
@@ -179,196 +164,125 @@
         }
 
         .profile-nav-tabs .nav-link:hover:not(.active) {
-            color: #334155;
-            background: rgba(0, 0, 0, 0.03);
+            color: #64748b;
+            background: rgba(0,0,0,0.02);
         }
 
         /* Stat Icon Wrapper */
         .stat-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1rem;
             margin-bottom: 1rem;
+            transition: transform 0.3s ease;
         }
 
         /* Glass Stat Cards */
         .glass-stat-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: var(--app-card-bg);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
             border-radius: 1.5rem;
             padding: 1.5rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             height: 100%;
+            position: relative;
+            overflow: hidden;
         }
 
         .glass-stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.85);
+            border-color: var(--app-primary-soft);
+        }
+
+        .glass-stat-card:hover .stat-icon-wrapper {
+            transform: scale(1.1);
+        }
+
+        /* Sparkline Placeholder Visual */
+        .sparkline-container {
+            height: 30px;
+            width: 100%;
+            margin-top: 1rem;
+            opacity: 0.6;
         }
 
         /* Action Tiles */
         .action-tile {
             background: white;
-            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+            border: 1px solid var(--app-border) !important;
             border-radius: 1.25rem;
             padding: 1.25rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 0.75rem;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease;
             cursor: pointer;
             font-weight: 600;
             font-size: 0.875rem;
+            color: #475569;
         }
 
         .action-tile:hover {
-            background-color: var(--app-primary) !important;
-            color: white !important;
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.4) !important;
-        }
-
-        .action-tile:hover i,
-        .action-tile:hover span {
-            color: white !important;
+            background-color: var(--app-primary-soft) !important;
+            color: var(--app-primary) !important;
+            transform: translateY(-2px);
+            border-color: var(--app-primary) !important;
         }
 
         .action-tile .icon {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
         }
 
-        /* Booking Cards */
-        .booking-card {
+        /* Timeline / Activity Feed */
+        .activity-card {
             background: white;
+            border: 1px solid var(--app-border);
             border-radius: 1.25rem;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .booking-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .booking-card-header {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .activity-card:hover {
+            border-color: var(--app-primary-soft);
+            background: #fafbff;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .booking-card-header img {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            justify-content: center;
             flex-shrink: 0;
         }
 
-        .booking-card-companion-info h6 {
-            font-weight: 700;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
-        }
-
-        .booking-card-body {
-            padding: 1.25rem;
-        }
-
-        .booking-info-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-        }
-
-        .booking-info-row:last-child {
-            border-bottom: none;
-        }
-
-        .booking-info-row i {
-            width: 18px;
-            text-align: center;
-            color: var(--app-primary);
-            margin-top: 2px;
-            flex-shrink: 0;
-            font-size: 0.85rem;
-        }
-
-        .booking-info-row .value {
-            font-weight: 600;
-            color: #1e293b;
-            font-size: 0.9rem;
-        }
-
-        .booking-card-footer {
-            padding: 1rem 1.25rem;
-            background: #f8fafc;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        /* Pending badge */
-        .badge-pending {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-        }
-
-        /* Review Feed */
-        .review-card {
-            border: 1px solid rgba(0, 0, 0, 0.04) !important;
-            transition: all 0.3s ease;
-        }
-
-        .review-card:hover {
-            border-color: var(--app-primary-soft) !important;
-        }
-
-        /* Day Availability Cards */
-        .day-card {
-            border: 1px solid rgba(0, 0, 0, 0.05) !important;
-            transition: all 0.3s ease;
-        }
-
-        .day-card:hover {
-            border-color: var(--app-primary) !important;
-            background-color: #f5f5ff;
-        }
-
-        /* Notification Badge on button */
-        .badge-notification {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            font-size: 0.6rem;
-            padding: 0.15rem 0.35rem;
-        }
+        /* Color-coded system */
+        .activity-confirmed { background: rgba(16, 185, 129, 0.1); color: #10b981; } /* Green */
+        .activity-action { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }    /* Amber */
+        .activity-system { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }    /* Blue */
 
         /* Form Controls */
-        .form-control,
-        .form-select {
+        .form-control, .form-select {
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             padding: 0.6rem 1rem;
-            transition: all 0.2s;
+            font-size: 0.95rem;
         }
 
         .form-control:focus {
@@ -376,241 +290,13 @@
             box-shadow: 0 0 0 4px var(--app-primary-soft);
         }
 
-        /* Nav-pills-premium (legacy compat) */
-        .nav-pills-premium .nav-link {
-            border-radius: 12px;
-            color: #64748b;
-            font-weight: 600;
-            padding: 0.75rem 1.25rem;
-            transition: all 0.2s;
-        }
-
-        .nav-pills-premium .nav-link.active {
-            background-color: var(--app-primary-soft);
-            color: var(--app-primary);
-        }
-
-        /* ================================================
-           Companion Dashboard — Facebook-Style Mobile
-           ================================================ */
-
-        /* ── Tablet (≤ 992px) ── */
-        @media (max-width: 992px) {
-            .glass-stat-card {
-                padding: 1.1rem;
-            }
-
-            .glass-stat-card h3 {
-                font-size: 1.4rem;
-            }
-
-            .action-tile {
-                padding: 1rem;
-                font-size: 0.82rem;
-            }
-        }
-
-        /* ── Mobile (≤ 768px — Facebook style) ── */
+        /* Responsive Adjustments */
         @media (max-width: 768px) {
-
-            /* Cover photo: shorter on mobile */
-            .cover-photo {
-                height: 160px !important;
-            }
-
-            /* Profile section: stack vertically + center */
-            .profile-section {
-                flex-direction: column !important;
-                align-items: center !important;
-                text-align: center !important;
-                margin-top: 0 !important;
-                padding: 0.5rem 0 0 !important;
-            }
-
-            /* Profile picture overlap cover */
-            .profile-section>.position-relative {
-                margin: -70px auto 0.5rem !important;
-                z-index: 2;
-            }
-
-            .profile-picture {
-                width: 110px !important;
-                height: 110px !important;
-            }
-
-            /* Name + info + buttons: full-width centered */
-            .profile-section .flex-grow-1 {
-                text-align: center;
-                width: 100%;
-                padding: 0 0 0.75rem !important;
-            }
-
-            .profile-section h4 {
-                font-size: 1.25rem;
-                margin-bottom: 0.25rem;
-            }
-
-            /* Buttons centered */
-            .profile-buttons {
-                justify-content: center !important;
-                gap: 0.4rem !important;
-            }
-
-            /* Nav tabs: icon + text, scroll horizontally */
-            .profile-nav-tabs .nav-link {
-                font-size: 0.8rem;
-                padding: 0.75rem 0.85rem;
-            }
-
-            /* Stat cards: 2x2 grid on mobile */
-            .glass-stat-card {
-                padding: 0.85rem !important;
-                border-radius: 1.25rem !important;
-                text-align: center;
-            }
-
-            .glass-stat-card h3 {
-                font-size: 1.15rem !important;
-            }
-
-            .glass-stat-card .small.text-muted {
-                font-size: 0.65rem !important;
-                margin-bottom: 0.25rem !important;
-            }
-
-            .stat-icon-wrapper {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 0.95rem !important;
-                margin: 0 auto 0.5rem !important;
-            }
-
-            /* Quick action tiles compact */
-            .action-tile {
-                padding: 0.75rem !important;
-                font-size: 0.75rem !important;
-                gap: 0.35rem !important;
-                border-radius: 1rem;
-            }
-
-            .action-tile .icon {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 1rem !important;
-            }
-
-            /* Timeline compact: remove card look on mobile */
-            .activity-timeline-item {
-                background: white;
-                border: none !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-                border-radius: 0 !important;
-                margin-bottom: 0 !important;
-                box-shadow: none !important;
-            }
-
-            .activity-timeline-item:last-child {
-                border-bottom: none !important;
-            }
-
-            .activity-timeline-item .card-body {
-                padding: 1rem 0 !important;
-            }
-
-            /* Dashboard Cards (Booking/Review) on mobile */
-            .booking-card,
-            .review-card {
-                border-radius: 1rem !important;
-                margin-bottom: 1rem !important;
-            }
-
-            .booking-card-body {
-                padding: 1rem !important;
-            }
-
-            .booking-info-row {
-                margin-bottom: 0.6rem !important;
-                gap: 0.75rem !important;
-            }
-
-            /* Booking card footer: stack buttons */
-            .booking-card-footer {
-                padding: 0.75rem 1rem !important;
-            }
-
-            .booking-card-footer .d-flex.gap-2 {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .booking-card-footer .btn {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 0.25rem;
-            }
-
-            /* Earnings Section */
-            .earnings-card {
-                border-radius: 1.5rem !important;
-                padding: 1.25rem !important;
-            }
-
-            .earnings-card h1 {
-                font-size: 1.75rem !important;
-            }
-
-            /* Schedule Section */
-            .day-card {
-                margin-bottom: 0.5rem !important;
-            }
-
-            .day-card .card-body {
-                padding: 0.75rem !important;
-            }
-
-            /* Table optimization */
-            .table-responsive {
-                border: none !important;
-            }
-
-            .table tr td {
-                padding: 0.75rem 0.5rem !important;
-            }
-        }
-
-        /* ── Small Mobile (≤ 576px) ── */
-        @media (max-width: 576px) {
-            .cover-photo {
-                height: 140px !important;
-            }
-
-            .tab-content .card-body {
-                padding: 0.75rem 0 !important;
-                /* Flat look for timeline */
-            }
-
-            .timeline-container>.card {
-                border-radius: 0 !important;
-                border: none !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-                margin-bottom: 0 !important;
-                box-shadow: none !important;
-            }
-        }
-
-        /* ── Extra small (≤ 400px) ── */
-        @media (max-width: 400px) {
-            .action-tile span {
-                font-size: 0.72rem;
-            }
-
-            .profile-buttons .btn span {
-                font-size: 0.7rem;
-            }
-
-            .glass-stat-card .small {
-                font-size: 0.7rem;
-            }
+            .cover-photo { height: 140px !important; }
+            .profile-section { margin-top: -50px !important; }
+            .profile-picture { width: 100px !important; height: 100px !important; }
+            .glass-stat-card { padding: 1.25rem; }
+            .action-row { justify-content: center; width: 100%; margin-top: 1rem; }
         }
     </style>
 </head>
@@ -623,76 +309,70 @@
         <div class="container ">
         </div>
         <!-- Cover Photo -->
-        <div class="position-relative cover-photo"
-            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); height: 260px; overflow: hidden;">
+        <div class="cover-photo">
             <img id="cover-photo-preview"
                 src="{{ companion.cover_photo_url or 'https://i.pinimg.com/736x/e7/a2/8b/e7a28b18ac32e6f361fa6385bfd7f4eb.jpg' }}"
-                alt="Cover" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;">
+                alt="Cover" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
             <button class="btn btn-light btn-sm position-absolute"
                 onclick="document.getElementById('cover-photo-input').click()"
-                style="bottom: 16px; right: 16px; font-size: 0.8rem; z-index: 10;">
-                <i class="fas fa-camera me-1"></i><span class="d-none d-sm-inline">Edit Cover</span>
+                style="bottom: 12px; right: 12px; font-size: 0.75rem; z-index: 10; border-radius: 8px; padding: 0.4rem 0.75rem;">
+                <i class="fas fa-camera me-1"></i>Edit Cover
             </button>
         </div>
 
         <!-- Profile Info Bar -->
-        <div class="bg-white border-bottom">
+        <div class="bg-white border-bottom border-thin">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
-                        <div class="d-flex flex-column flex-md-row align-items-center align-items-md-end position-relative profile-section text-center text-md-start">
+                        <div class="d-flex flex-column flex-md-row align-items-center align-items-md-end profile-section pb-3">
                             <!-- Profile Picture -->
-                            <div class="position-relative mb-3 mb-md-0 me-0 me-md-4">
+                            <div class="position-relative mb-3 mb-md-0 me-md-4">
                                 <img id="profile-photo-preview" src="{{ companion.photo_url }}"
                                     class="rounded-circle profile-picture" style="object-fit: cover;" alt="Profile">
                                 <button class="btn btn-white btn-sm rounded-circle position-absolute shadow-sm"
                                     onclick="document.getElementById('profile-photo-input').click()"
-                                    style="bottom: 8px; right: 8px; width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #eee; z-index: 10;">
-                                    <i class="fas fa-pencil-alt text-primary" style="font-size: 0.8rem;"></i>
+                                    style="bottom: 5px; right: 5px; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid var(--app-border); z-index: 10;">
+                                    <i class="fas fa-pencil-alt text-primary" style="font-size: 0.75rem;"></i>
                                 </button>
                             </div>
 
-                            <!-- User Info -->
-                            <div class="flex-grow-1 pb-3 w-100">
-                                <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1 flex-wrap">
-                                    <h4 class="fw-bold mb-0">{{ companion.display_name }}</h4>
-                                    {% if companion.verification_status == 'APPROVED' %}
-                                    <span class="badge bg-success" style="font-size: 0.85rem; padding: 0.3rem 0.4rem;">
-                                        <i class="fas fa-check-circle"></i>
-                                    </span>
-                                    {% else %}
-                                    <span class="badge bg-warning text-dark"
-                                        style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
-                                        <i class="fas fa-clock me-1"></i>Pending
-                                    </span>
-                                    {% endif %}
-                                    {% if companion.avg_rating > 0 %}
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.85rem;">
-                                        <i class="fas fa-star"></i> {{ "%.1f"|format(companion.avg_rating) }}
-                                    </span>
-                                    {% endif %}
-                                </div>
-                                <p class="text-muted mb-2 small">Professional Companion &bull; {{ total_bookings }}
-                                    Bookings &bull; Member since {{ companion.member_since }}</p>
-                                <div class="d-flex justify-content-center justify-content-md-start gap-2 profile-buttons flex-wrap">
-                                    <button class="btn btn-primary btn-sm"
-                                        onclick="document.getElementById('schedule-tab').click()">
-                                        <i class="fas fa-calendar-plus me-1"></i><span class="d-none d-sm-inline">Manage
-                                            Availability</span><span class="d-sm-none">Availability</span>
-                                    </button>
-                                    <button class="btn btn-light btn-sm"
-                                        onclick="document.getElementById('settings-tab').click()">
-                                        <i class="fas fa-edit me-1"></i><span class="d-none d-sm-inline">Edit
-                                            Profile</span><span class="d-sm-none">Edit</span>
-                                    </button>
-                                    <button class="btn btn-light btn-sm position-relative"
-                                        onclick="document.getElementById('requests-tab').click()">
-                                        <i class="fas fa-envelope me-1"></i><span
-                                            class="d-none d-sm-inline">Messages</span>
-                                        {% if pending_count > 0 %}
-                                        <span class="badge bg-danger badge-notification">{{ pending_count }}</span>
-                                        {% endif %}
-                                    </button>
+                            <!-- User Info & Action Row -->
+                            <div class="flex-grow-1 w-100">
+                                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center align-items-lg-end gap-3">
+                                    <div class="text-center text-md-start">
+                                        <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                                            <h4 class="fw-bold mb-0">{{ companion.display_name }}</h4>
+                                            {% if companion.verification_status == 'APPROVED' %}
+                                            <i class="fas fa-check-circle text-success" title="Verified"></i>
+                                            {% endif %}
+                                            {% if companion.avg_rating > 0 %}
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                                                <i class="fas fa-star me-1"></i>{{ "%.1f"|format(companion.avg_rating) }}
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-muted mb-0 small fw-medium">
+                                            <span class="text-primary">{{ total_bookings }} Bookings</span> &bull; 
+                                            Member since {{ companion.member_since }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Streamlined Action Row -->
+                                    <div class="action-row">
+                                        <button class="btn btn-primary btn-sm" onclick="document.getElementById('schedule-tab').click()">
+                                            <i class="fas fa-calendar-alt me-2"></i>Availability
+                                        </button>
+                                        <button class="btn btn-light btn-sm position-relative" onclick="document.getElementById('requests-tab').click()">
+                                            <i class="fas fa-envelope me-2"></i>Messages
+                                            {% if pending_count > 0 %}
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.2rem 0.4rem;">{{ pending_count }}</span>
+                                            {% endif %}
+                                        </button>
+                                        <button class="btn btn-light btn-sm" onclick="document.getElementById('settings-tab').click()">
+                                            <i class="fas fa-cog"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,6 @@
                     <div class="col-lg-4">
                         <!-- Intro Card -->
-                        <div class="card border-0 shadow-sm mb-3">
+                        <div class="card bento-card shadow-sm mb-3">
                             <div class="card-body">
                                 <h6 class="fw-bold mb-3">Intro</h6>
                                 <div class="mb-3">
@@ -34,32 +34,56 @@
                         </div>
 
                         <!-- Stats Card -->
-                        <div class="card border-0 shadow-sm mb-3">
+                        <div class="card bento-card shadow-sm mb-3">
                             <div class="card-body">
                                 <h6 class="fw-bold mb-3">Statistics</h6>
-                                <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
-                                    <div class="text-center">
-                                        <h4 class="fw-bold text-primary mb-0">{{ total_bookings }}</h4>
-                                        <small class="text-muted">Total Bookings</small>
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="d-flex gap-2">
+                                        <div class="stat-item-horizontal">
+                                            <div class="stat-icon-muted">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small">{{ total_bookings }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Bookings</div>
+                                            </div>
+                                        </div>
+                                        <div class="stat-item-horizontal">
+                                            <div class="stat-icon-muted">
+                                                <i class="fas fa-clock"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small">{{ upcoming_count }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Upcoming</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="text-center">
-                                        <h4 class="fw-bold text-primary mb-0">{{ upcoming_count }}</h4>
-                                        <small class="text-muted">Upcoming</small>
+                                    <div class="d-flex gap-2">
+                                        <div class="stat-item-horizontal">
+                                            <div class="stat-icon-muted">
+                                                <i class="fas fa-heart"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small">{{ favorites_count }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Favorites</div>
+                                            </div>
+                                        </div>
+                                        <div class="stat-item-horizontal">
+                                            <div class="stat-icon-muted">
+                                                <i class="fas fa-wallet"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small">${{ "{:,.0f}".format(total_spent or 0) }}</div>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Spent</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="text-center">
-                                        <h4 class="fw-bold text-primary mb-0">{{ favorites_count }}</h4>
-                                        <small class="text-muted">Favorites</small>
-                                    </div>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <h5 class="fw-bold text-success mb-0">${{ "{:,.0f}".format(total_spent or 0) }}</h5>
-                                    <small class="text-muted">Total Spent</small>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Favorite Companions Quick View -->
-                        <div class="card border-0 shadow-sm">
+                        <div class="card bento-card shadow-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="fw-bold mb-0">Favorite Companions</h6>

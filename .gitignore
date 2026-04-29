@@ -40,7 +40,6 @@ instance/
 *.swp
 *.swo
 
-models/
 migrations/
 images/
 scripts/
