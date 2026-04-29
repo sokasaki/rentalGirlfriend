@@ -4,103 +4,76 @@
                                 <div class="mb-5">
                                     <div class="d-flex align-items-center mb-4">
                                         <div class="bg-primary-soft rounded-circle d-flex align-items-center justify-content-center me-3"
-                                            style="width: 48px; height: 48px;">
-                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                            style="width: 40px; height: 40px; background: rgba(255, 107, 157, 0.1);">
+                                            <i class="fas fa-calendar-alt text-primary" style="font-size: 0.9rem;"></i>
                                         </div>
-                                        <h4 class="fw-bold mb-0">Upcoming Bookings</h4>
+                                        <h5 class="fw-bold mb-0">Upcoming Sessions</h5>
                                     </div>
 
                                     <div class="row g-4">
                                         {% if upcoming_bookings %}
                                         {% for booking in upcoming_bookings %}
-                                        <div class="col-md-6 col-xl-6">
-                                            <div class="booking-card h-100 d-flex flex-column">
+                                        <div class="col-md-6">
+                                            <div class="card bento-card shadow-sm h-100 d-flex flex-column border-0">
                                                 <!-- Companion Header -->
-                                                <div class="booking-card-header">
-                                                    <img src="{{ booking.companion_photo }}"
+                                                <div class="p-3 border-bottom d-flex align-items-center">
+                                                    <img src="{{ booking.companion_photo }}" class="rounded-circle me-3"
+                                                        width="50" height="50" style="object-fit: cover;"
                                                         alt="{{ booking.companion_name }}">
-                                                    <div class="booking-card-companion-info">
-                                                        <h6 class="mb-1">{{ booking.companion_name }}</h6>
-                                                        <div class="rating">
-                                                            <span><i class="fas fa-star text-warning me-1"></i>{{
-                                                                "%.1f"|format(booking.companion_rating or 0) }}</span>
-                                                            <span class="text-muted">•</span>
-                                                            <span class="small text-muted">Professional Companion</span>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="fw-bold mb-0">{{ booking.companion_name }}</h6>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-star text-warning me-1" style="font-size: 0.75rem;"></i>
+                                                            <span class="small fw-bold">{{ "%.1f"|format(booking.companion_rating or 0) }}</span>
                                                         </div>
                                                     </div>
-                                                    <div class="ms-auto">
+                                                    <div>
                                                         {% if booking.status == 'PENDING' %}
-                                                        <span class="booking-status-badge badge-pending">Pending</span>
+                                                        <span class="badge bg-warning-subtle text-warning px-3 rounded-pill small" style="font-size: 0.65rem; background: rgba(245, 158, 11, 0.1) !important;">Pending</span>
                                                         {% elif booking.status == 'APPROVED' %}
-                                                        <span
-                                                            class="booking-status-badge badge-approved">Approved</span>
+                                                        <span class="badge bg-info-subtle text-info px-3 rounded-pill small" style="font-size: 0.65rem; background: rgba(6, 182, 212, 0.1) !important;">Approved</span>
                                                         {% elif booking.status == 'CONFIRMED' %}
-                                                        <span
-                                                            class="booking-status-badge badge-confirmed">Confirmed</span>
+                                                        <span class="badge bg-primary-subtle text-primary px-3 rounded-pill small" style="font-size: 0.65rem; background: rgba(255, 107, 157, 0.1) !important;">Confirmed</span>
                                                         {% elif booking.status == 'PAID' %}
-                                                        <span class="booking-status-badge badge-approved">Paid</span>
+                                                        <span class="badge bg-success-subtle text-success px-3 rounded-pill small" style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.1) !important;">Paid</span>
                                                         {% endif %}
                                                     </div>
                                                 </div>
-
+                                                
                                                 <!-- Booking Details -->
-                                                <div class="booking-card-body flex-grow-1">
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-calendar-day"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Date & Time</small>
-                                                            <span class="value">{{ booking.start_time.strftime('%b %d,
-                                                                %Y') }} at {{ booking.start_time.strftime('%I:%M %p')
-                                                                }}</span>
+                                                <div class="p-3 flex-grow-1 bg-light-subtle">
+                                                    <div class="row g-3">
+                                                        <div class="col-6">
+                                                            <div class="activity-meta text-uppercase small mb-1" style="font-size: 0.6rem;">Date</div>
+                                                            <div class="fw-bold small">{{ booking.start_time.strftime('%b %d, %Y') }}</div>
                                                         </div>
-                                                    </div>
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-hourglass-half"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Duration</small>
-                                                            <span class="value">{{ booking.duration }}</span>
+                                                        <div class="col-6">
+                                                            <div class="activity-meta text-uppercase small mb-1" style="font-size: 0.6rem;">Time</div>
+                                                            <div class="fw-bold small">{{ booking.start_time.strftime('%I:%M %p') }}</div>
                                                         </div>
-                                                    </div>
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-map-marker-alt"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Location</small>
-                                                            <span class="value">{{ booking.location }}</span>
+                                                        <div class="col-6">
+                                                            <div class="activity-meta text-uppercase small mb-1" style="font-size: 0.6rem;">Duration</div>
+                                                            <div class="fw-bold small">{{ booking.duration }}</div>
                                                         </div>
-                                                    </div>
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-wallet"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Total Price</small>
-                                                            <span class="value text-primary">${{
-                                                                "{:,.2f}".format(booking.total_price or 0) }}</span>
+                                                        <div class="col-6">
+                                                            <div class="activity-meta text-uppercase small mb-1" style="font-size: 0.6rem;">Total</div>
+                                                            <div class="fw-bold small text-primary">${{ "{:,.2f}".format(booking.total_price or 0) }}</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <!-- Action Buttons -->
-                                                <div class="booking-card-footer">
-                                                    <div class="actions">
-                                                        {% if booking.status == 'PENDING' %}
-                                                        <button class="btn btn-light w-100" disabled>
-                                                            <i class="fas fa-clock me-2"></i>Waiting for Approval
-                                                        </button>
-                                                        {% elif booking.status == 'APPROVED' %}
-                                                        <a href="{{ url_for('payment', booking_id=booking.booking_id) }}"
-                                                            class="btn btn-primary w-100">
-                                                            <i class="fas fa-credit-card me-2"></i>Pay Now
-                                                        </a>
-                                                        {% elif booking.status == 'PAID' %}
-                                                        <button class="btn btn-success w-100" disabled>
-                                                            <i class="fas fa-check-circle me-2"></i>Booking Paid
-                                                        </button>
-                                                        {% else %}
-                                                        <button class="btn btn-outline-primary w-100">
-                                                            <i class="fas fa-eye me-2"></i>View Details
-                                                        </button>
-                                                        {% endif %}
-                                                    </div>
-                                                    <button class="btn btn-light ms-2">
+                                                <div class="p-3 border-top d-flex gap-2">
+                                                    {% if booking.status == 'PENDING' %}
+                                                    <button class="btn btn-light btn-boutique w-100" disabled>Waiting Approval</button>
+                                                    {% elif booking.status == 'APPROVED' %}
+                                                    <a href="{{ url_for('payment', booking_id=booking.booking_id) }}" class="btn btn-primary btn-boutique w-100">Pay Now</a>
+                                                    {% elif booking.status == 'PAID' %}
+                                                    <button class="btn btn-success btn-boutique w-100" disabled>Session Paid</button>
+                                                    {% else %}
+                                                    <button class="btn btn-outline-primary btn-boutique w-100">View Details</button>
+                                                    {% endif %}
+                                                    <button class="btn btn-light btn-boutique px-3">
                                                         <i class="fas fa-ellipsis-h text-muted"></i>
                                                     </button>
                                                 </div>
@@ -126,77 +99,47 @@
                                 </div>
                                 <!-- Past Bookings -->
                                 <div class="mb-4">
-                                    <div class="d-flex align-items-center mb-4">
-                                        <div class="bg-success-subtle rounded-circle d-flex align-items-center justify-content-center me-3"
-                                            style="width: 48px; height: 48px; background-color: #ecfdf5;">
-                                            <i class="fas fa-history text-success"></i>
+                                    <div class="d-flex align-items-center mb-4 mt-2">
+                                        <div class="bg-success-soft rounded-circle d-flex align-items-center justify-content-center me-3"
+                                            style="width: 40px; height: 40px; background-color: rgba(16, 185, 129, 0.1);">
+                                            <i class="fas fa-history text-success" style="font-size: 0.9rem;"></i>
                                         </div>
-                                        <h4 class="fw-bold mb-0">Past Bookings</h4>
+                                        <h5 class="fw-bold mb-0">Booking History</h5>
                                     </div>
 
                                     <div class="row g-4">
                                         {% if past_bookings %}
                                         {% for booking in past_bookings %}
-                                        <div class="col-md-6 col-xl-4">
-                                            <div class="booking-card h-100 d-flex flex-column" style="opacity: 0.85;">
-                                                <!-- Companion Header -->
-                                                <div class="booking-card-header">
-                                                    <img src="{{ booking.companion_photo }}"
-                                                        alt="{{ booking.companion_name }}"
-                                                        style="filter: grayscale(0.5);">
-                                                    <div class="booking-card-companion-info">
-                                                        <h6 class="mb-1">{{ booking.companion_name }}</h6>
-                                                        <div class="rating">
-                                                            <span
-                                                                class="badge bg-light text-dark border">Completed</span>
+                                        <div class="col-12">
+                                            <div class="system-log-slimmer log-booking mb-3">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center flex-grow-1">
+                                                        <img src="{{ booking.companion_photo }}" class="rounded-circle me-3" 
+                                                            width="32" height="32" style="object-fit: cover; filter: grayscale(0.5);">
+                                                        <div class="flex-grow-1">
+                                                            <span class="fw-bold small">{{ booking.companion_name }}</span>
+                                                            <span class="activity-meta ms-2 d-none d-sm-inline">Completed Session • ${{ "{:,.2f}".format(booking.total_price or 0) }}</span>
                                                         </div>
                                                     </div>
-                                                </div>
-
-                                                <!-- Booking Details -->
-                                                <div class="booking-card-body flex-grow-1">
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-calendar-check"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Finished Date</small>
-                                                            <span class="value">{{ booking.start_time.strftime('%b %d,
-                                                                %Y')
-                                                                }}</span>
-                                                        </div>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="activity-meta d-none d-md-inline" style="font-size: 0.75rem;">{{ booking.start_time.strftime('%b %d, %Y') }}</span>
+                                                        {% if booking.status == 'COMPLETED' and not booking.review %}
+                                                        <button class="btn btn-outline-primary btn-boutique py-1 px-3" 
+                                                                data-booking-id="{{ booking.booking_id }}"
+                                                                data-companion-name="{{ booking.companion_name }}"
+                                                                onclick="openReviewModalFromBtn(this)">
+                                                            Review
+                                                        </button>
+                                                        {% elif booking.review %}
+                                                        <span class="badge bg-success-subtle text-success rounded-pill px-3" style="font-size: 0.65rem; background: rgba(16, 185, 129, 0.1) !important;">Reviewed</span>
+                                                        {% elif booking.status == 'PAID' %}
+                                                        <button class="btn btn-primary btn-boutique py-1 px-3" onclick="markBookingCompleted({{ booking.booking_id }})">
+                                                            Complete
+                                                        </button>
+                                                        {% else %}
+                                                        <span class="activity-meta small">{{ booking.status|title }}</span>
+                                                        {% endif %}
                                                     </div>
-                                                    <div class="booking-info-row">
-                                                        <i class="fas fa-tag"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Amount</small>
-                                                            <span class="value">${{ "{:,.2f}".format(booking.total_price
-                                                                or 0)
-                                                                }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Action Button -->
-                                                <div class="booking-card-footer">
-                                                    {% if booking.status == 'COMPLETED' and not booking.review %}
-                                                    <button class="btn btn-outline-primary w-100" 
-                                                            data-booking-id="{{ booking.booking_id }}"
-                                                            data-companion-name="{{ booking.companion_name }}"
-                                                            onclick="openReviewModalFromBtn(this)">
-                                                        <i class="fas fa-star me-2"></i>Write a Review
-                                                    </button>
-                                                    {% elif booking.review %}
-                                                    <button class="btn btn-success w-100" disabled>
-                                                        <i class="fas fa-check me-2"></i>Reviewed
-                                                    </button>
-                                                    {% elif booking.status == 'PAID' %}
-                                                    <button class="btn btn-primary w-100" onclick="markBookingCompleted({{ booking.booking_id }})">
-                                                        <i class="fas fa-check-double me-2"></i>Mark as Completed
-                                                    </button>
-                                                    {% else %}
-                                                    <button class="btn btn-light w-100" disabled>
-                                                        <i class="fas fa-info-circle me-2"></i>{{ booking.status|title }}
-                                                    </button>
-                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>

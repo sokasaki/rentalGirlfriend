@@ -5,149 +5,184 @@
                                 <h4 class="fw-bold mb-1">Financial Overview</h4>
                                 <p class="text-muted small mb-0">Track your earnings and business performance</p>
                             </div>
-                            <div class="bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold small">
-                                <i class="fas fa-chart-line me-2"></i>Live Stats
+                            <div class="bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold x-small">
+                                <i class="fas fa-chart-line me-2"></i>Live Earnings
                             </div>
                         </div>
 
                         <div class="row g-4 mb-4">
                             <div class="col-md-7">
-                                <div class="card border-0 shadow-sm overflow-hidden earnings-card"
-                                    style="border-radius: 24px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                                    <div class="card-body p-4 text-white">
-                                        <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div class="bento-card h-100 border-0 shadow-lg p-0 overflow-hidden"
+                                    style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                    <div class="card-body p-4 p-lg-5 text-white">
+                                        <div class="d-flex justify-content-between align-items-start mb-5">
                                             <div>
-                                                <div class="opacity-75 small fw-bold text-uppercase mb-1"
-                                                    style="letter-spacing: 1px;">Available Balance</div>
-                                                <h1 class="fw-bold mb-0">${{ "{:,.2f}".format(monthly_earnings * 0.85)
-                                                    }}</h1>
+                                                <div class="opacity-75 x-small fw-bold text-uppercase mb-2"
+                                                    style="letter-spacing: 1.5px;">Available Balance</div>
+                                                <h1 class="display-5 fw-800 mb-0" id="display-balance">
+                                                    ${{ "{:,.2f}".format(monthly_earnings * 0.85) }}
+                                                </h1>
                                             </div>
-                                            <div class="bg-white bg-opacity-20 p-3 rounded-circle d-none d-sm-block">
+                                            <div class="bg-white bg-opacity-20 p-3 rounded-4 shadow-sm">
                                                 <i class="fas fa-wallet fa-2x"></i>
                                             </div>
                                         </div>
 
-                                        <div class="row g-3 mb-4">
+                                        <div class="row g-3 mb-5">
                                             <div class="col-6">
-                                                <div class="bg-white bg-opacity-10 p-3 rounded-3">
-                                                    <div class="x-small opacity-75 mb-1">Gross Earnings</div>
-                                                    <div class="fw-bold h5 mb-0">${{ "{:,.0f}".format(monthly_earnings)
-                                                        }}</div>
+                                                <div class="bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-10">
+                                                    <div class="x-small opacity-75 mb-1 fw-bold">GROSS EARNINGS</div>
+                                                    <div class="fw-bold h5 mb-0">${{ "{:,.0f}".format(monthly_earnings) }}</div>
                                                 </div>
                                             </div>
                                             <div class="col-6">
-                                                <div class="bg-white bg-opacity-10 p-3 rounded-3">
-                                                    <div class="x-small opacity-75 mb-1">Platform Fee (15%)</div>
-                                                    <div class="fw-bold h5 mb-0">-${{ "{:,.0f}".format(monthly_earnings
-                                                        * 0.15) }}
-                                                    </div>
+                                                <div class="bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-10">
+                                                    <div class="x-small opacity-75 mb-1 fw-bold">PLATFORM FEE (15%)</div>
+                                                    <div class="fw-bold h5 mb-0">-${{ "{:,.0f}".format(monthly_earnings * 0.15) }}</div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <button
-                                            class="btn btn-white w-100 fw-bold py-3 rounded-pill shadow-sm text-success"
-                                            style="background: white !important;">
+                                        {% if monthly_earnings * 0.85 > 0 %}
+                                        <button class="btn btn-light w-100 fw-bold py-3 rounded-pill shadow-lg text-success border-0 hover-lift"
+                                                onclick="initiateWithdrawal({{ monthly_earnings * 0.85 }})">
                                             <i class="fas fa-arrow-down-to-bracket me-2"></i>Withdraw Funds to Bank
                                         </button>
+                                        {% else %}
+                                        <button class="btn btn-light w-100 fw-bold py-3 rounded-pill shadow-sm text-muted border-0 opacity-75" disabled>
+                                            <i class="fas fa-lock me-2"></i>Insufficient Balance
+                                        </button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-md-5">
-                                <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
-                                    <div class="card-header bg-white border-0 p-4">
-                                        <h6 class="fw-bold mb-0">Performance Insights</h6>
+                                <div class="bento-card h-100 border-0 shadow-sm">
+                                    <h6 class="fw-bold mb-4 d-flex align-items-center">
+                                        <i class="fas fa-chart-pie text-primary me-2"></i> Performance Insights
+                                    </h6>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-2 small">
+                                                <span class="text-muted fw-bold">Response Rate</span>
+                                                <span class="text-success fw-bold">{{ companion.response_rate|default('98') }}%</span>
+                                            </div>
+                                            <div class="progress rounded-pill shadow-sm" style="height: 8px;">
+                                                <div class="progress-bar bg-success" style="width: {{ companion.response_rate|default('98') }}%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-2 small">
+                                                <span class="text-muted fw-bold">Acceptance Rate</span>
+                                                <span class="text-primary fw-bold">{{ companion.acceptance_rate|default('85') }}%</span>
+                                            </div>
+                                            <div class="progress rounded-pill shadow-sm" style="height: 8px;">
+                                                <div class="progress-bar bg-primary" style="width: {{ companion.acceptance_rate|default('85') }}%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-2 small">
+                                                <span class="text-muted fw-bold">Completion Rate</span>
+                                                <span class="text-info fw-bold">{{ companion.completion_rate|default('95') }}%</span>
+                                            </div>
+                                            <div class="progress rounded-pill shadow-sm" style="height: 8px;">
+                                                <div class="progress-bar bg-info" style="width: {{ companion.completion_rate|default('95') }}%"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="card-body p-4 pt-0">
-                                        <div class="mb-4">
-                                            <div class="d-flex justify-content-between mb-2 small fw-bold">
-                                                <span>Response Rate</span>
-                                                <span class="text-success">98%</span>
-                                            </div>
-                                            <div class="progress" style="height: 6px; border-radius: 3px;">
-                                                <div class="progress-bar bg-success" style="width: 98%"></div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-4">
-                                            <div class="d-flex justify-content-between mb-2 small fw-bold">
-                                                <span>Acceptance Rate</span>
-                                                <span class="text-primary">85%</span>
-                                            </div>
-                                            <div class="progress" style="height: 6px; border-radius: 3px;">
-                                                <div class="progress-bar bg-primary" style="width: 85%"></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="d-flex justify-content-between mb-2 small fw-bold">
-                                                <span>Completion Rate</span>
-                                                <span class="text-info">95%</span>
-                                            </div>
-                                            <div class="progress" style="height: 6px; border-radius: 3px;">
-                                                <div class="progress-bar bg-info" style="width: 95%"></div>
-                                            </div>
-                                        </div>
 
-                                        <div class="mt-4 p-3 bg-light rounded-3">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-award text-warning fa-2x me-3"></i>
-                                                <div>
-                                                    <div class="fw-bold small">Top Rated Companion</div>
-                                                    <div class="x-small text-muted">You're in the top 5% of providers!
-                                                    </div>
-                                                </div>
+                                    {% if companion.avg_rating >= 4.5 %}
+                                    <div class="mt-4 p-3 bg-primary-subtle rounded-4 border border-primary-subtle shadow-sm">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary text-white rounded-circle p-2 me-3 shadow-sm">
+                                                <i class="fas fa-award"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small">Top Rated Provider</div>
+                                                <div class="x-small text-muted">You're in the top 5% based on your {{ "%.1f"|format(companion.avg_rating) }} rating!</div>
                                             </div>
                                         </div>
                                     </div>
+                                    {% else %}
+                                    <div class="mt-4 p-3 bg-light rounded-4 border border-light-subtle">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-secondary text-white rounded-circle p-2 me-3 opacity-50">
+                                                <i class="fas fa-star"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold small text-muted">Maintain 4.5+ Rating</div>
+                                                <div class="x-small text-muted">Unlock the "Top Rated" badge for better visibility.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Recent Earnings History Placeholder -->
-                        <div class="card border-0 shadow-sm" style="border-radius: 20px;">
-                            <div class="card-header bg-white border-0 p-4">
+                        <!-- Recent Transactions -->
+                        <div class="bento-card border-0 shadow-sm overflow-hidden p-0">
+                            <div class="p-4 border-bottom border-light d-flex justify-content-between align-items-center">
                                 <h6 class="fw-bold mb-0">Recent Transactions</h6>
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm rounded-pill px-3 x-small fw-bold border-0" type="button" data-bs-toggle="dropdown">
+                                        Filter <i class="fas fa-chevron-down ms-1"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4">
+                                        <li><a class="dropdown-item small" href="#">All Time</a></li>
+                                        <li><a class="dropdown-item small" href="#">This Month</a></li>
+                                        <li><a class="dropdown-item small" href="#">Last 30 Days</a></li>
+                                    </ul>
+                                </div>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="bg-light">
                                         <tr>
-                                            <th class="border-0 small text-muted text-uppercase ps-4">Session Date</th>
-                                            <th class="border-0 small text-muted text-uppercase">Client</th>
-                                            <th class="border-0 small text-muted text-uppercase">Status</th>
-                                            <th class="border-0 small text-muted text-uppercase text-end pe-4">Net
-                                                Earned</th>
+                                            <th class="border-0 x-small text-muted text-uppercase ps-4 py-3">Session Date</th>
+                                            <th class="border-0 x-small text-muted text-uppercase py-3">Client</th>
+                                            <th class="border-0 x-small text-muted text-uppercase py-3">Status</th>
+                                            <th class="border-0 x-small text-muted text-uppercase text-end pe-4 py-3">Net Earned</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% if confirmed_bookings %}
-                                        {% for booking in confirmed_bookings[:3] %}
+                                        {% for booking in confirmed_bookings[:10] %}
                                         <tr>
                                             <td class="ps-4">
-                                                <div class="fw-bold small">{{ booking.start_time.strftime('%b %d, %Y')
-                                                    }}</div>
-                                                <div class="x-small text-muted">{{ booking.duration }}h session</div>
+                                                <div class="fw-bold small">{{ booking.start_time.strftime('%b %d, %Y') }}</div>
+                                                <div class="x-small text-muted">{{ "%.0f"|format(booking.duration) }}h session</div>
                                             </td>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <img src="{{ booking.customer_photo }}" class="rounded-circle me-2"
-                                                        width="24" height="24">
-                                                    <span class="small fw-medium">{{ booking.customer_name }}</span>
+                                                    <img src="{{ booking.customer_photo }}" class="rounded-circle me-2 border border-2 border-white shadow-sm"
+                                                        width="32" height="32" style="object-fit: cover;">
+                                                    <span class="small fw-bold text-dark">{{ booking.customer_name }}</span>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span
-                                                    class="badge bg-success-subtle text-success rounded-pill x-small">Completed</span>
+                                                {% if booking.status == 'COMPLETED' %}
+                                                <span class="badge bg-success-subtle text-success rounded-pill x-small px-3">Completed</span>
+                                                {% elif booking.status == 'PAID' %}
+                                                <span class="badge bg-info-subtle text-info rounded-pill x-small px-3">Paid</span>
+                                                {% else %}
+                                                <span class="badge bg-warning-subtle text-warning rounded-pill x-small px-3">Scheduled</span>
+                                                {% endif %}
                                             </td>
-                                            <td class="text-end pe-4 fw-bold text-success">
-                                                +${{ "{:,.2f}".format(booking.amount * 0.85) }}
+                                            <td class="text-end pe-4">
+                                                <span class="fw-bold text-success">+${{ "{:,.2f}".format(booking.amount * 0.85) }}</span>
                                             </td>
                                         </tr>
                                         {% endfor %}
                                         {% else %}
                                         <tr>
-                                            <td colspan="4" class="text-center py-4 text-muted small">No transactions
-                                                found</td>
+                                            <td colspan="4" class="text-center py-5">
+                                                <div class="text-muted opacity-50 mb-3"><i class="fas fa-receipt fa-3x"></i></div>
+                                                <div class="h6 text-muted fw-bold">No transactions found</div>
+                                                <p class="text-muted small">Your future session earnings will appear here.</p>
+                                            </td>
                                         </tr>
                                         {% endif %}
                                     </tbody>
@@ -155,3 +190,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <script>
+                        function initiateWithdrawal(amount) {
+                            if (amount <= 0) return;
+                            
+                            Swal.fire({
+                                title: 'Confirm Withdrawal',
+                                html: `You are about to withdraw <strong>$${amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</strong> to your linked bank account.`,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes, Withdraw',
+                                cancelButtonText: 'Cancel',
+                                confirmButtonColor: '#10b981',
+                                reverseButtons: true,
+                                border: '0',
+                                borderRadius: '24px'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        title: 'Processing...',
+                                        text: 'Sending request to our finance team.',
+                                        timer: 2000,
+                                        showConfirmButton: false,
+                                        didOpen: () => { Swal.showLoading(); }
+                                    }).then(() => {
+                                        Swal.fire({
+                                            title: 'Success!',
+                                            text: 'Your withdrawal request has been submitted.',
+                                            icon: 'success',
+                                            confirmButtonColor: '#10b981'
+                                        });
+                                    });
+                                }
+                            });
+                        }
+                    </script>

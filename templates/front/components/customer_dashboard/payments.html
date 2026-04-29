@@ -1,65 +1,46 @@
                             <div class="tab-pane fade" id="payments" role="tabpanel">
-                                <div class="card border-0 shadow-sm">
+                                <div class="card bento-card shadow-sm border-0">
                                     <div class="card-header bg-white border-0 p-4">
                                         <h5 class="fw-bold mb-0">Payment History</h5>
                                     </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Date</th>
-                                                        <th>Description</th>
-                                                        <th>Companion</th>
-                                                        <th>Amount</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% if payments %}
-                                                    {% for payment in payments %}
-                                                    <tr>
-                                                        <td>{{ payment.date.strftime('%b %d, %Y') if payment.date else
-                                                            'N/A' }}</td>
-                                                        <td>{{ payment.description }}</td>
-                                                        <td>{{ payment.companion_name }}</td>
-                                                        <td class="fw-bold">${{ "{:,.2f}".format(payment.amount or 0) }}
-                                                        </td>
-                                                        <td>
-                                                            {% if payment.status == 'PAID' %}
-                                                            <span class="badge bg-success">Completed</span>
-                                                            {% elif payment.status == 'PENDING' %}
-                                                            <span class="badge bg-warning">Pending</span>
-                                                            {% elif payment.status == 'FAILED' %}
-                                                            <span class="badge bg-danger">Failed</span>
-                                                            {% elif payment.status == 'REFUNDED' %}
-                                                            <span class="badge bg-secondary">Refunded</span>
-                                                            {% endif %}
-                                                        </td>
-                                                        <td>
-                                                            <a class="btn btn-sm btn-outline-primary"
-                                                                href="{{ url_for('receipt', payment_id=payment.payment_id) }}">
-                                                                View
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    {% endfor %}
-                                                    {% else %}
-                                                    <tr>
-                                                        <td colspan="5" class="text-center text-muted py-4">
-                                                            No payment history
-                                                        </td>
-                                                    </tr>
-                                                    {% endif %}
-                                                </tbody>
-                                            </table>
+                                    <div class="card-body p-4 pt-0">
+                                        <div class="timeline-container">
+                                            {% if payments %}
+                                            {% for payment in payments %}
+                                            <div class="system-log-slimmer log-payment mb-2">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-success-soft rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                            style="width: 32px; height: 32px; background: rgba(16, 185, 129, 0.1);">
+                                                            <i class="fas fa-check text-success" style="font-size: 0.8rem;"></i>
+                                                        </div>
+                                                        <div>
+                                                            <span class="fw-bold small">{{ payment.description }}</span>
+                                                            <span class="activity-meta ms-2 small">with {{ payment.companion_name }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-4">
+                                                        <span class="fw-bold small text-primary">${{ "{:,.2f}".format(payment.amount or 0) }}</span>
+                                                        <span class="activity-meta d-none d-md-inline" style="font-size: 0.75rem;">{{ payment.date.strftime('%b %d, %Y') if payment.date else 'N/A' }}</span>
+                                                        <a class="btn btn-outline-primary btn-boutique py-1 px-3"
+                                                            href="{{ url_for('receipt', payment_id=payment.payment_id) }}" style="font-size: 0.7rem;">
+                                                            Receipt
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                            {% else %}
+                                            <div class="text-center text-muted py-5">
+                                                <i class="fas fa-receipt fa-3x opacity-25 mb-3"></i>
+                                                <p>No payment history found</p>
+                                            </div>
+                                            {% endif %}
                                         </div>
                                     </div>
-                                    <div class="card-footer bg-white border-0 p-4">
+                                    <div class="card-footer bg-white border-0 p-4 pt-0">
                                         <div class="text-end">
-                                            <h5 class="mb-0">Total Spent: <span class="text-primary">${{
-                                                    "{:,.2f}".format(total_spent or 0) }}</span>
-                                            </h5>
+                                            <p class="activity-meta mb-0">Lifetime Spend: <span class="fw-bold text-primary" style="font-size: 1.1rem;">${{ "{:,.2f}".format(total_spent or 0) }}</span></p>
                                         </div>
                                     </div>
                                 </div>

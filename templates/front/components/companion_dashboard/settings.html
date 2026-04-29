@@ -1,394 +1,201 @@
                     <!-- Settings Tab -->
                     <div class="tab-pane fade" id="settings" role="tabpanel">
-                        <form method="POST" action="{{ url_for('update_profile_companion') }}"
-                            enctype="multipart/form-data">
-                            <input type="file" id="profile-photo-input" name="profile_photo" class="d-none"
-                                accept="image/*">
-                            <input type="file" id="cover-photo-input" name="cover_photo" class="d-none"
-                                accept="image/*">
-                            <!-- Basic Information -->
-                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-                                <div class="card-header bg-white border-0 p-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-primary-subtle text-primary rounded-3 p-2 me-3">
-                                            <i class="fas fa-user-circle fa-lg"></i>
-                                        </div>
-                                        <h5 class="fw-bold mb-0">Basic Information</h5>
-                                    </div>
-                                </div>
-                                <div class="card-body p-4 pt-0">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Display
-                                                Name</label>
-                                            <input type="text" class="form-control border-light-subtle bg-light"
-                                                name="display_name" value="{{ companion.display_name }}"
-                                                style="border-radius: 10px;">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Email
-                                                Address</label>
-                                            <input type="email" class="form-control border-light-subtle bg-light"
-                                                name="email" value="{{ companion.email }}" style="border-radius: 10px;">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Phone
-                                                Number</label>
-                                            <input type="tel" class="form-control border-light-subtle bg-light"
-                                                name="phone" value="{{ companion.phone }}" style="border-radius: 10px;">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Date of
-                                                Birth</label>
-                                            <input type="date" class="form-control border-light-subtle bg-light"
-                                                name="date_of_birth" value="{{ companion.date_of_birth }}"
-                                                style="border-radius: 10px;">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Age</label>
-                                            <input type="number" class="form-control border-light-subtle bg-light"
-                                                name="age" value="{{ companion.age }}" min="18" max="99"
-                                                style="border-radius: 10px;">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Gender
-                                                Identity</label>
-                                            <select class="form-select border-light-subtle bg-light" name="gender"
-                                                style="border-radius: 10px;">
-                                                <option value="FEMALE" {% if companion.gender=='FEMALE' %}selected{%
-                                                    endif %}>Female
-                                                </option>
-                                                <option value="MALE" {% if companion.gender=='MALE' %}selected{% endif
-                                                    %}>Male
-                                                </option>
-                                                <option value="NON_BINARY" {% if companion.gender=='NON_BINARY'
-                                                    %}selected{% endif %}>Non-binary</option>
-                                                <option value="OTHER" {% if companion.gender=='OTHER' %}selected{% endif
-                                                    %}>Other
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fw-semibold small text-muted">Current City
-                                                / Location</label>
-                                            <input type="text" class="form-control border-light-subtle bg-light"
-                                                name="location" value="{{ companion.location }}"
-                                                style="border-radius: 10px;">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <form method="POST" action="{{ url_for('update_profile_companion') }}" enctype="multipart/form-data">
+                            <input type="file" id="profile-photo-input" name="profile_photo" class="d-none" accept="image/*">
+                            <input type="file" id="cover-photo-input" name="cover_photo" class="d-none" accept="image/*">
 
-                            <!-- Bio & Professional -->
-                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-                                <div class="card-header bg-white border-0 p-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-success-subtle text-success rounded-3 p-2 me-3">
-                                            <i class="fas fa-briefcase fa-lg"></i>
+                            <div class="row g-4">
+                                <!-- Left Column: Personal & Professional -->
+                                <div class="col-lg-8">
+                                    <!-- Basic Information -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="bg-primary-subtle text-primary rounded-4 p-2 me-3">
+                                                <i class="fas fa-user-circle fa-lg"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-0">Basic Information</h5>
                                         </div>
-                                        <h5 class="fw-bold mb-0">Professional Details</h5>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Display Name</label>
+                                                <input type="text" class="form-control border-0 bg-light p-3 rounded-4"
+                                                    name="display_name" value="{{ companion.display_name }}" style="font-size: 0.9rem;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Email Address</label>
+                                                <input type="email" class="form-control border-0 bg-light p-3 rounded-4"
+                                                    name="email" value="{{ companion.email }}" style="font-size: 0.9rem;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Phone Number</label>
+                                                <input type="tel" class="form-control border-0 bg-light p-3 rounded-4"
+                                                    name="phone" value="{{ companion.phone }}" style="font-size: 0.9rem;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Date of Birth</label>
+                                                <input type="date" class="form-control border-0 bg-light p-3 rounded-4"
+                                                    name="date_of_birth" value="{{ companion.date_of_birth }}" style="font-size: 0.9rem;">
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="card-body p-4 pt-0">
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <label class="form-label fw-semibold small text-muted">Professional
-                                                Bio</label>
-                                            <textarea class="form-control border-light-subtle bg-light" name="bio"
-                                                rows="4" maxlength="1000"
-                                                style="border-radius: 10px;">{{ companion.bio }}</textarea>
-                                            <div class="form-text small">Describe your personality and what
-                                                clients can expect.
+
+                                    <!-- Bio & Rates -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="bg-success-subtle text-success rounded-4 p-2 me-3">
+                                                <i class="fas fa-briefcase fa-lg"></i>
                                             </div>
+                                            <h5 class="fw-bold mb-0">Professional Details</h5>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label fw-semibold small text-muted">Hourly Rate
-                                                (USD)</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text bg-light border-light-subtle">$</span>
-                                                <input type="number" class="form-control border-light-subtle bg-light"
-                                                    name="rate_per_hour" value="{{ companion.rate_per_hour|int }}"
-                                                    min="5" step="5">
-                                                <span class="input-group-text bg-light border-light-subtle">/
-                                                    hr</span>
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Bio & Personality</label>
+                                                <textarea class="form-control border-0 bg-light p-3 rounded-4" name="bio"
+                                                    rows="4" maxlength="1000" style="font-size: 0.9rem;">{{ companion.bio }}</textarea>
+                                                <div class="form-text x-small mt-2">Describe what clients can expect during a session.</div>
                                             </div>
-                                        </div>
-                                        <div class="col-12 mt-3">
-                                            <label class="form-label fw-semibold small text-muted">Languages Spoken</label>
-                                            <div class="row g-2">
-                                                {% set lang_list = ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Chinese (Mandarin)', 'Japanese', 'Korean'] %}
-                                                {% for lang in lang_list %}
-                                                <div class="col-md-3 col-6">
-                                                    <div class="form-check custom-trait-check">
-                                                        <input class="form-check-input" type="checkbox" name="languages" value="{{ lang }}" id="lang_{{ loop.index }}" {% if lang in companion.languages %}checked{% endif %}>
-                                                        <label class="form-check-label small fw-medium" for="lang_{{ loop.index }}">{{ lang }}</label>
-                                                    </div>
-                                                </div>
-                                                {% endfor %}
-                                                
-                                                <!-- Other Language -->
-                                                <div class="col-md-3 col-6">
-                                                    <div class="form-check custom-trait-check">
-                                                        <input class="form-check-input" type="checkbox" id="toggleOtherLanguage">
-                                                        <label class="form-check-label small fw-medium" for="toggleOtherLanguage">Other...</label>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="col-12 mt-2" id="otherLanguageContainer" style="display: none;">
-                                                    <div class="input-group input-group-sm" style="max-width: 300px;">
-                                                        <input type="text" id="otherLanguageInput" name="custom_language" class="form-control" placeholder="Type language...">
-                                                        <button class="btn btn-outline-primary" type="button" id="addOtherLanguage">Add</button>
-                                                    </div>
-                                                    <div id="customLanguagesList" class="d-flex flex-wrap gap-2 mt-3">
-                                                        {% for clang in companion.languages %}
-                                                            {% if clang not in lang_list %}
-                                                            <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill" data-value="{{ clang }}">
-                                                                {{ clang }} <i class="fas fa-times cursor-pointer remove-item" style="cursor: pointer;"></i>
-                                                                <input type="hidden" name="languages" value="{{ clang }}">
-                                                            </span>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold x-small text-muted text-uppercase mb-2">Hourly Rate (USD)</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-light border-0 rounded-start-4 fw-bold text-muted">$</span>
+                                                    <input type="number" class="form-control border-0 bg-light p-3"
+                                                        name="rate_per_hour" value="{{ companion.rate_per_hour|int }}" min="5" step="5">
+                                                    <span class="input-group-text bg-light border-0 rounded-end-4 x-small fw-bold text-muted">/ hr</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- Personality Traits -->
-                            <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-                                <div class="card-header bg-white border-0 p-4">
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-warning-subtle text-warning rounded-3 p-2 me-3">
-                                            <i class="fas fa-tags fa-lg"></i>
-                                        </div>
-                                        <h5 class="fw-bold mb-0">Personality Traits</h5>
-                                    </div>
-                                </div>
-                                <div class="card-body p-4 pt-0">
-                                    <div class="row g-3">
-                                        {% set traits = ['Outgoing', 'Friendly', 'Adventurous', 'Intellectual',
-                                        'Empathetic',
-                                        'Humorous', 'Reserved', 'Sophisticated', 'Energetic', 'Calm',
-                                        'Creative', 'Reliable',
-                                        'Caring', 'Good Listener'] %}
-                                {% for trait in traits %}
-                                <div class="col-md-3 col-6">
-                                    <div class="form-check custom-trait-check">
-                                        <input class="form-check-input" type="checkbox"
-                                            name="personality_traits" value="{{ trait }}"
-                                            id="trait_{{ loop.index }}" {% if trait in
-                                            companion.personality_traits %}checked{% endif %}>
-                                        <label class="form-check-label small fw-medium"
-                                            for="trait_{{ loop.index }}">
-                                            {{ trait }}
-                                        </label>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                                
-                                <!-- Other Trait -->
-                                <div class="col-md-3 col-6">
-                                    <div class="form-check custom-trait-check">
-                                        <input class="form-check-input" type="checkbox" id="toggleOtherTrait">
-                                        <label class="form-check-label small fw-medium" for="toggleOtherTrait">Other...</label>
-                                    </div>
-                                </div>
-                                <div class="col-12 mt-2" id="otherTraitContainer" style="display: none;">
-                                    <div class="input-group input-group-sm" style="max-width: 300px;">
-                                        <input type="text" id="otherTraitInput" name="custom_personality_trait" class="form-control" placeholder="Type trait...">
-                                        <button class="btn btn-outline-primary" type="button" id="addOtherTrait">Add</button>
-                                    </div>
-                                    <div id="customTraitsList" class="d-flex flex-wrap gap-2 mt-3">
-                                        {% for ct in companion.personality_traits %}
-                                            {% if ct not in traits %}
-                                            <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-25 d-flex align-items-center gap-2 py-2 px-3 rounded-pill" data-value="{{ ct }}">
-                                                {{ ct }} <i class="fas fa-times cursor-pointer remove-item" style="cursor: pointer;"></i>
-                                                <input type="hidden" name="personality_traits" value="{{ ct }}">
-                                            </span>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Photo Gallery Management -->
-                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-                        <div class="card-header bg-white border-0 p-4">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-danger-subtle text-danger rounded-3 p-2 me-3">
-                                        <i class="fas fa-images fa-lg"></i>
-                                    </div>
-                                    <h5 class="fw-bold mb-0">Photo Gallery</h5>
-                                </div>
-                                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
-                                    onclick="document.getElementById('gallery-photo-input').click()">
-                                    <i class="fas fa-plus me-1"></i> Add Photo
-                                </button>
-                                <input type="file" id="gallery-photo-input" class="d-none" accept="image/*" multiple>
-                            </div>
-                        </div>
-                        <div class="card-body p-4 pt-0">
-                            <div class="row g-3" id="gallery-container">
-                                {% for photo in photos %}
-                                <div class="col-md-3 col-6 photo-item" data-photo-id="{{ photo.photo_id }}">
-                                    <div class="position-relative group">
-                                        <div class="ratio ratio-1x1 rounded-3 overflow-hidden shadow-sm border border-light-subtle">
-                                            <img src="{{ photo.photo_url }}" alt="Gallery" class="object-fit-cover">
+                                    <!-- Traits & Languages -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="bg-warning-subtle text-warning rounded-4 p-2 me-3">
+                                                <i class="fas fa-tags fa-lg"></i>
+                                            </div>
+                                            <h5 class="fw-bold mb-0">Traits & Languages</h5>
                                         </div>
                                         
-                                        <!-- Badges & Actions -->
-                                        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-1 opacity-100 group-hover:opacity-100 transition-all">
-                                            {% if photo.is_primary %}
-                                            <span class="badge bg-primary rounded-pill shadow-sm mb-1">Primary</span>
+                                        <div class="mb-4">
+                                            <label class="form-label fw-bold x-small text-muted text-uppercase mb-3 d-block">Personality Traits</label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                {% set traits = ['Outgoing', 'Friendly', 'Adventurous', 'Intellectual', 'Empathetic', 'Humorous', 'Reserved', 'Sophisticated', 'Energetic', 'Creative'] %}
+                                                {% for trait in traits %}
+                                                <div class="trait-selector">
+                                                    <input type="checkbox" class="btn-check" name="personality_traits" value="{{ trait }}" id="trait_{{ loop.index }}" {% if trait in companion.personality_traits %}checked{% endif %}>
+                                                    <label class="btn btn-outline-light border-light-subtle text-dark x-small rounded-pill px-3 py-2 fw-medium" for="trait_{{ loop.index }}">{{ trait }}</label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label fw-bold x-small text-muted text-uppercase mb-3 d-block">Languages Spoken</label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                {% set lang_list = ['English', 'Spanish', 'French', 'Japanese', 'Korean', 'Chinese'] %}
+                                                {% for lang in lang_list %}
+                                                <div class="lang-selector">
+                                                    <input type="checkbox" class="btn-check" name="languages" value="{{ lang }}" id="lang_{{ loop.index }}" {% if lang in companion.languages %}checked{% endif %}>
+                                                    <label class="btn btn-outline-light border-light-subtle text-dark x-small rounded-pill px-3 py-2 fw-medium" for="lang_{{ loop.index }}">{{ lang }}</label>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Gallery & Status -->
+                                <div class="col-lg-4">
+                                    <!-- Photo Gallery -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <div class="d-flex align-items-center justify-content-between mb-4">
+                                            <h6 class="fw-bold mb-0"><i class="fas fa-images text-danger me-2"></i> Gallery</h6>
+                                            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 x-small fw-bold" onclick="document.getElementById('gallery-photo-input').click()">
+                                                <i class="fas fa-plus me-1"></i> ADD
+                                            </button>
+                                            <input type="file" id="gallery-photo-input" class="d-none" accept="image/*" multiple>
+                                        </div>
+                                        <div class="row g-2" id="gallery-container">
+                                            {% for photo in photos %}
+                                            <div class="col-4 photo-item" data-photo-id="{{ photo.photo_id }}">
+                                                <div class="position-relative rounded-3 overflow-hidden shadow-sm border border-light ratio ratio-1x1 group">
+                                                    <img src="{{ photo.photo_url }}" class="object-fit-cover w-100 h-100">
+                                                    <div class="position-absolute top-0 end-0 p-1 d-flex flex-column gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                                        <button type="button" class="btn btn-xs btn-danger rounded-circle delete-photo-btn p-1" style="width: 20px; height: 20px; font-size: 0.6rem;" data-photo-id="{{ photo.photo_id }}">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="form-text x-small mt-3 text-muted">Recommend square photos (800x800).</div>
+                                    </div>
+
+                                    <!-- Notifications -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <h6 class="fw-bold mb-4"><i class="fas fa-bell text-info me-2"></i> Notifications</h6>
+                                        <div class="space-y-3">
+                                            <div class="form-check form-switch d-flex justify-content-between align-items-center p-0 mb-3">
+                                                <label class="form-check-label fw-bold x-small text-muted" for="notify_email">Email Updates</label>
+                                                <input class="form-check-input m-0 boutique-switch" type="checkbox" checked id="notify_email">
+                                            </div>
+                                            <div class="form-check form-switch d-flex justify-content-between align-items-center p-0 mb-3">
+                                                <label class="form-check-label fw-bold x-small text-muted" for="notify_sms">SMS Alerts</label>
+                                                <input class="form-check-input m-0 boutique-switch" type="checkbox" checked id="notify_sms">
+                                            </div>
+                                            <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+                                                <label class="form-check-label fw-bold x-small text-muted" for="notify_bookings">Booking Alerts</label>
+                                                <input class="form-check-input m-0 boutique-switch" type="checkbox" checked id="notify_bookings">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Account Status -->
+                                    <div class="bento-card border-0 shadow-sm mb-4 p-4">
+                                        <h6 class="fw-bold mb-3"><i class="fas fa-shield-alt text-primary me-2"></i> Verification</h6>
+                                        <div class="text-center py-3">
+                                            {% if companion.verification_status == 'APPROVED' %}
+                                            <div class="bg-success-subtle text-success p-3 rounded-circle d-inline-flex mb-2">
+                                                <i class="fas fa-check-circle fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold small text-success">Verified Profile</div>
                                             {% else %}
-                                            <button type="button" class="btn btn-sm btn-light rounded-circle shadow-sm set-primary-btn" 
-                                                    title="Set as profile picture" data-photo-id="{{ photo.photo_id }}">
-                                                <i class="far fa-star text-warning"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-danger rounded-circle shadow-sm delete-photo-btn" 
-                                                    title="Delete photo" data-photo-id="{{ photo.photo_id }}">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
+                                            <div class="bg-warning-subtle text-warning p-3 rounded-circle d-inline-flex mb-2">
+                                                <i class="fas fa-exclamation-circle fa-2x"></i>
+                                            </div>
+                                            <div class="fw-bold small text-warning">Verification Pending</div>
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                                {% endfor %}
-                                
-                                {% if not photos %}
-                                <div class="col-12 text-center py-5" id="empty-gallery-msg">
-                                    <div class="text-muted mb-2">
-                                        <i class="fas fa-images fa-3x opacity-25"></i>
-                                    </div>
-                                    <p class="text-muted small">Your gallery is empty. Add some beautiful photos!</p>
-                                </div>
-                                {% endif %}
                             </div>
-                            <div class="form-text small mt-3">
-                                <i class="fas fa-info-circle me-1"></i> Max 10 photos. JPG, PNG or WEBP. 
-                                Recommended size: 800x800px.
-                            </div>
-                        </div>
-                    </div>
 
-                            <!-- Fixed Action Bar for Settings -->
-                            <div class="card border-0 shadow-sm mb-5" style="border-radius: 15px; background: white;">
-                                <div class="card-body p-4 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="fw-bold mb-0">Keep your profile updated!</h6>
-                                        <p class="text-muted small mb-0">Detailed profiles attract 3x more
-                                            bookings.</p>
-                                    </div>
-                                    <button type="submit" id="save-settings-btn"
-                                        class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm">
-                                        Save Changes
-                                    </button>
+                            <!-- Floating Action Bar -->
+                            <div class="bento-card border-0 shadow-lg mb-5 p-4 d-flex justify-content-between align-items-center sticky-bottom" style="bottom: 20px; z-index: 100;">
+                                <div class="d-none d-md-block">
+                                    <h6 class="fw-bold mb-0 text-dark">Ready to save?</h6>
+                                    <p class="text-muted x-small mb-0">Your profile will be updated instantly across the platform.</p>
                                 </div>
+                                <button type="submit" class="btn btn-boutique px-5 py-3 shadow-lg">
+                                    Save Profile Changes
+                                </button>
                             </div>
                         </form>
-
-                        <!-- Notifications & Account Status -->
-                        <div class="row g-4 mt-2">
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px;">
-                                    <div class="card-header bg-white border-0 p-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-info-subtle text-info rounded-3 p-2 me-3">
-                                                <i class="fas fa-bell fa-lg"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-0">Notifications</h5>
-                                        </div>
-                                    </div>
-                                    <div class="card-body p-4 pt-2">
-                                        <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
-                                            <input class="form-check-input ms-0 me-3" type="checkbox" checked
-                                                id="notify_email">
-                                            <label class="form-check-label fw-semibold" for="notify_email">Email
-                                                Notifications</label>
-                                            <div class="x-small text-muted ms-5">Get updates about your account
-                                                via email</div>
-                                        </div>
-                                        <div class="form-check form-switch mb-3 p-3 bg-light rounded-3">
-                                            <input class="form-check-input ms-0 me-3" type="checkbox" checked
-                                                id="notify_sms">
-                                            <label class="form-check-label fw-semibold" for="notify_sms">SMS
-                                                Notifications</label>
-                                            <div class="x-small text-muted ms-5">Receive instant alerts on your
-                                                phone</div>
-                                        </div>
-                                        <div class="form-check form-switch p-3 bg-light rounded-3">
-                                            <input class="form-check-input ms-0 me-3" type="checkbox" checked
-                                                id="notify_bookings">
-                                            <label class="form-check-label fw-semibold" for="notify_bookings">Booking
-                                                Alerts</label>
-                                            <div class="x-small text-muted ms-5">Never miss a new reservation
-                                                request</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius: 20px;">
-                                    <div class="card-header bg-white border-0 p-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-primary-subtle text-primary rounded-3 p-2 me-3">
-                                                <i class="fas fa-shield-alt fa-lg"></i>
-                                            </div>
-                                            <h5 class="fw-bold mb-0">Account Status</h5>
-                                        </div>
-                                    </div>
-                                    <div class="card-body p-4 pt-2">
-                                        <div class="mb-4">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="fw-bold small">Verification Status</span>
-                                                {% if companion.verification_status == 'APPROVED' %}
-                                                <span
-                                                    class="badge bg-success-subtle text-success rounded-pill px-3">Approved</span>
-                                                {% elif companion.verification_status == 'PENDING' %}
-                                                <span
-                                                    class="badge bg-warning-subtle text-warning rounded-pill px-3">Pending</span>
-                                                {% else %}
-                                                <span
-                                                    class="badge bg-danger-subtle text-danger rounded-pill px-3">Unverified</span>
-                                                {% endif %}
-                                            </div>
-                                            <div class="p-3 bg-light rounded-3 mb-3">
-                                                <div class="d-flex align-items-center">
-                                                    <i
-                                                        class="fas {% if companion.verification_status == 'APPROVED' %}fa-check-circle text-success{% else %}fa-exclamation-circle text-warning{% endif %} me-3 h4 mb-0"></i>
-                                                    <div class="x-small">
-                                                        {% if companion.verification_status == 'APPROVED' %}
-                                                        Your profile is verified and visible to all clients.
-                                                        {% else %}
-                                                        Complete your verification to appear in search results.
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <span class="fw-bold small">Profile Completion</span>
-                                                <span class="text-success fw-bold small">100%</span>
-                                            </div>
-                                            <div class="progress" style="height: 6px; border-radius: 3px;">
-                                                <div class="progress-bar bg-success" style="width: 100%"></div>
-                                            </div>
-                                        </div>
-                                        <div class="mt-4 pt-3 border-top x-small text-muted text-center">
-                                            Member since {{ companion.member_since }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /settings tab-pane -->
-
                     </div>
+
+                    <style>
+                        .btn-check:checked + .btn-outline-light {
+                            background-color: var(--boutique-gold) !important;
+                            border-color: var(--boutique-gold) !important;
+                            color: white !important;
+                            box-shadow: 0 4px 10px rgba(184, 134, 11, 0.2);
+                        }
+                        .boutique-switch:checked {
+                            background-color: var(--boutique-gold);
+                            border-color: var(--boutique-gold);
+                        }
+                        .btn-xs {
+                            padding: 1px 5px;
+                            font-size: 0.75rem;
+                        }
+                    </style>

@@ -1,5 +1,5 @@
                             <div class="tab-pane fade" id="favorites" role="tabpanel">
-                                <div class="card border-0 shadow-sm">
+                                <div class="card bento-card shadow-sm border-0">
                                     <div class="card-header bg-white border-0 p-4">
                                         <h5 class="fw-bold mb-0">Favorite Companions</h5>
                                     </div>
@@ -8,43 +8,38 @@
                                             {% if favorites %}
                                             {% for favorite in favorites %}
                                             <div class="col-md-6">
-                                                <div class="card border-0 shadow-sm h-100 overflow-hidden">
+                                                <div class="card bento-card shadow-sm h-100 overflow-hidden border-0">
                                                     <div class="row g-0 h-100">
-                                                        <div class="col-5 bg-light">
+                                                        <div class="col-5">
                                                             <img src="{{ favorite.companion_photo }}"
                                                                 class="w-100 h-100" style="object-fit: cover; aspect-ratio: 3/4;" alt="">
                                                         </div>
                                                         <div class="col-7">
-                                                            <div class="card-body p-2 p-md-3 d-flex flex-column h-100">
-                                                                <h6 class="fw-bold mb-1 text-truncate">{{ favorite.companion_name }}
-                                                                </h6>
+                                                            <div class="p-3 d-flex flex-column h-100">
+                                                                <h6 class="fw-bold mb-1 text-truncate">{{ favorite.companion_name }}</h6>
                                                                 <div class="mb-2">
                                                                     <i class="fas fa-star text-warning" style="font-size: 0.85rem;"></i>
-                                                                    <span class="fw-bold" style="font-size: 0.85rem;">{{
-                                                                        "%.1f"|format(favorite.companion_rating or 0)
-                                                                        }}</span>
-                                                                    <span class="text-muted" style="font-size: 0.75rem;">({{
-                                                                        favorite.total_bookings }}
-                                                                        bookings)</span>
+                                                                    <span class="fw-bold small">{{ "%.1f"|format(favorite.companion_rating or 0) }}</span>
+                                                                    <span class="activity-meta ms-1" style="font-size: 0.75rem;">({{ favorite.total_bookings }} bookings)</span>
                                                                 </div>
-                                                                <p class="text-muted mb-2 text-truncate" style="font-size: 0.8rem;">
+                                                                <p class="activity-meta mb-2 text-truncate small">
                                                                     {% if favorite.personality_traits %}
                                                                     {{ favorite.personality_traits[:2]|join(', ') }}
                                                                     {% else %}
                                                                     Professional Companion
                                                                     {% endif %}
                                                                 </p>
-                                                                <div class="d-flex justify-content-between align-items-center mt-auto flex-wrap gap-1">
+                                                                <div class="d-flex justify-content-between align-items-center mt-auto">
                                                                     <span class="fw-bold text-primary" style="font-size: 0.9rem;">${{ "{:,.0f}".format(favorite.rate_per_hour or 0) }}/hr</span>
-                                                                    <div class="d-flex gap-1" style="margin-left: -4px;">
-                                                                        <button class="btn btn-sm btn-light border py-1 px-2" title="Remove from favorites"
+                                                                    <div class="d-flex gap-1">
+                                                                        <button class="btn btn-sm btn-light border py-1 px-2 rounded-3" title="Remove"
                                                                             data-companion-id="{{ favorite.companion_id }}"
                                                                             data-favorited="true"
                                                                             onclick="toggleFavorite(this); setTimeout(() => location.reload(), 1000);">
                                                                             <i class="fas fa-heart text-danger" style="font-size: 0.8rem;"></i>
                                                                         </button>
                                                                         <a href="{{ url_for('profile', companion_id=favorite.companion_id) }}"
-                                                                            class="btn btn-sm btn-primary py-1 px-2" style="font-size: 0.8rem;">Book</a>
+                                                                            class="btn btn-primary btn-boutique py-1 px-3">Book</a>
                                                                     </div>
                                                                 </div>
                                                             </div>
