@@ -9,6 +9,7 @@
     <style>
         :root {
             --khqr-red: #e11d27;
+            --khqr-dark-red: #b8141f;
             --text-dark: #333;
             --text-light: #666;
         }
@@ -28,11 +29,12 @@
             overflow: hidden;
             position: relative;
             margin: 50px auto;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* Header */
         .header {
-            background-color: var(--khqr-red);
+            background: linear-gradient(135deg, var(--khqr-red), var(--khqr-dark-red));
             height: 80px;
             display: flex;
             justify-content: center;
@@ -49,7 +51,7 @@
             height: 0;
             border-style: solid;
             border-width: 0 0 40px 40px;
-            border-color: transparent transparent transparent var(--khqr-red);
+            border-color: transparent transparent transparent var(--khqr-dark-red);
             transform: rotate(90deg);
         }
 
@@ -58,6 +60,7 @@
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         /* Merchant Information Section */
@@ -113,6 +116,7 @@
         .qr-wrapper {
             position: relative;
             padding: 10px;
+            animation: fadeInScale 0.8s ease-out;
         }
 
         .qr-wrapper img {
@@ -154,17 +158,20 @@
             font-size: 14px;
             color: var(--text-light);
             margin-bottom: 10px;
+            animation: pulse 2s infinite ease-in-out;
         }
 
         .status-text.success {
             color: #28a745 !important;
             font-weight: bold;
             font-size: 16px;
+            animation: none;
         }
 
         .status-text.error {
             color: #dc3545 !important;
             font-weight: bold;
+            animation: none;
         }
 
         .spinner {
@@ -180,15 +187,21 @@
             background: #eee;
             border: none;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             color: #666;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .cancel-btn:hover {
-            background: #ddd;
+            background: #e5e5e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .cancel-btn:active {
+            transform: translateY(0);
         }
 
         .md5-display {
@@ -209,10 +222,28 @@
             color: var(--khqr-red);
             text-decoration: none;
             font-size: 14px;
+            transition: opacity 0.2s;
         }
 
         .back-link a:hover {
+            opacity: 0.8;
             text-decoration: underline;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>

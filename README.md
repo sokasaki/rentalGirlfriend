@@ -48,6 +48,8 @@ A web-based platform for managing companion rental services, including booking, 
 5.  **Initialize the database**:
     ```bash
     flask db upgrade
+    python scripts/seed_roles.py
+    python scripts/seed_permissions.py
     python scripts/seed_data.py
     ```
 

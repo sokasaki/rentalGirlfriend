@@ -1,4 +1,53 @@
                             <div class="tab-pane fade show active" id="timeline" role="tabpanel">
+                                
+                                <!-- ⚠️ Reports Requiring Response -->
+                                {% if awaiting_reports %}
+                                <div class="mb-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3"
+                                            style="width: 40px; height: 40px;">
+                                            <i class="fas fa-exclamation-triangle text-white"></i>
+                                        </div>
+                                        <h5 class="fw-bold mb-0">Action Required</h5>
+                                    </div>
+
+                                    {% for rpt in awaiting_reports %}
+                                    <div class="alert alert-warning border-0 shadow-sm p-4 mb-3" style="border-radius: 15px;">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div>
+                                                <h6 class="fw-bold text-dark mb-1">Response Requested by Admin</h6>
+                                                <p class="text-muted small mb-0">A report requires your attention. Please provide your response below.
+                                                </p>
+                                                <p class="text-muted small">Requested {{ rpt.requested_at }}</p>
+                                            </div>
+                                            <span class="badge bg-warning text-dark px-3 rounded-pill">Response Needed</span>
+                                        </div>
+
+                                        <div class="bg-white rounded-3 p-3 mb-3 border border-warning-subtle">
+                                            <div class="small text-muted mb-1"><i class="fas fa-flag me-2"></i>Report Details:
+                                            </div>
+                                            <div class="fw-medium text-dark">{{ rpt.reason }}</div>
+                                        </div>
+
+                                        <form action="{{ url_for('respond_to_report', report_id=rpt.report_id) }}"
+                                            method="POST">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold small">Your Response</label>
+                                                <textarea name="details" class="form-control border-0 bg-white" rows="3"
+                                                    placeholder="Provide the requested details here..." required
+                                                    style="border-radius: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"></textarea>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-warning fw-bold px-4 rounded-pill">
+                                                    Submit Information
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
                                 {% if timeline_activities %}
                                 {% for activity in timeline_activities %}
                                 {% if activity.type == 'booking' %}

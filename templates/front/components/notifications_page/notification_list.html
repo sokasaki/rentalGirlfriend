@@ -18,7 +18,7 @@
                         'Recently' }}
                     </div>
                     <div class="notif-actions">
-                        <a href="{{ url_for('dashboard_customer') }}" class="notif-action-btn primary">
+                        <a href="{{ url_for('dashboard_companion') if user_type == 'companion' else url_for('dashboard_customer') }}" class="notif-action-btn primary">
                             <i class="fas fa-reply"></i> Respond Now
                         </a>
                     </div>

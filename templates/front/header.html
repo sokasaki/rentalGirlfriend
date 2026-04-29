@@ -39,8 +39,9 @@
                     <i class="fas fa-heart"></i> {{ platform_name }}
                 </a>
             </div>
-            <div class="col-4 text-end d-none d-sm-block" id="vue-notification-app">
-                <div class="dropdown" v-cloak>
+            <div class="col-4 text-end" id="vue-notification-app">
+                <!-- Desktop Dropdown (Hidden on mobile) -->
+                <div class="dropdown d-none d-sm-block" v-cloak>
                     <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationDropdown"
                         role="button" data-bs-toggle="dropdown" aria-expanded="false" @click="fetchNotifications">
                         <i class="fa-regular fa-bell"></i>
@@ -154,6 +155,42 @@
                         </li>
                     </ul>
                 </div>
+
+                <!-- Respond to Report Modals (Vue Managed) -->
+                <div v-for="report in state.pending_reports" :key="'modal-'+report.report_id" 
+                    class="modal fade text-start" :id="'respondReportModal' + report.report_id" tabindex="-1"
+                    :aria-labelledby="'respondReportModalLabel' + report.report_id" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <div class="modal-header bg-warning text-dark border-0">
+                                <h5 class="modal-title fw-bold" :id="'respondReportModalLabel' + report.report_id">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> Urgent Information Request
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="mb-3">Our moderation team needs more details regarding your report <strong>#{% raw %}{{ report.report_id }}{% endraw %}</strong>.</p>
+                                <div class="bg-light p-3 rounded mb-4">
+                                    <p class="small text-muted mb-1">Original Reason:</p>
+                                    <p class="small mb-0">{% raw %}{{ report.reason }}{% endraw %}</p>
+                                </div>
+                                <p class="text-danger small mb-3"><i class="fas fa-clock me-1"></i> Please provide the requested information within 1 hour to maintain active account status.</p>
+
+                                <form :action="config.respondToReportUrlBase + report.report_id" method="POST">
+                                    <div class="mb-3">
+                                        <label :for="'details' + report.report_id" class="form-label fw-bold small">Your Response</label>
+                                        <textarea class="form-control" :id="'details' + report.report_id" name="details" rows="3"
+                                            placeholder="Describe what happened or provide requested details..." required></textarea>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary px-4">Submit Details</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -167,6 +204,7 @@
         dashboardCompanionUrl: "{{ url_for('dashboard_companion') if user_type == 'companion' else '' }}",
         dashboardCustomerUrl: "{{ url_for('dashboard_customer') if user_type == 'customer' else '' }}",
         paymentUrlBase: "{{ url_for('payment', booking_id=0)[:-1] if session.get('user_id') else '' }}",
+        respondToReportUrlBase: "{{ url_for('respond_to_report', report_id=0)[:-1] if session.get('user_id') else '' }}",
         initialNotificationCount: parseInt('{{ notification_count|default(0) }}') || 0
     };
 
@@ -247,46 +285,4 @@
             return { state, config, fetchNotifications, markRead };
         }
     }).mount('#vue-notification-app');
-</script>
-
-<!-- Respond to Report Modals -->
-{% if pending_reports %}
-{% for report in pending_reports %}
-<div class="modal fade" id="respondReportModal{{ report.report_id }}" tabindex="-1"
-    aria-labelledby="respondReportModalLabel{{ report.report_id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-warning text-dark border-0">
-                <h5 class="modal-title fw-bold" id="respondReportModalLabel{{ report.report_id }}">
-                    <i class="fas fa-exclamation-triangle me-2"></i> Urgent Information Request
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="mb-3">Our moderation team needs more details regarding your report <strong>#{{
-                        report.report_id }}</strong>.</p>
-                <div class="bg-light p-3 rounded mb-4">
-                    <p class="small text-muted mb-1">Original Reason:</p>
-                    <p class="small mb-0">{{ report.reason }}</p>
-                </div>
-                <p class="text-danger small mb-3"><i class="fas fa-clock me-1"></i> Please provide the requested
-                    information within 1 hour to maintain active account status.</p>
-
-                <form action="{{ url_for('respond_to_report', report_id=report.report_id) }}" method="POST">
-                    <div class="mb-3">
-                        <label for="details{{ report.report_id }}" class="form-label fw-bold small">Your
-                            Response</label>
-                        <textarea class="form-control" id="details{{ report.report_id }}" name="details" rows="3"
-                            placeholder="Describe what happened or provide requested details..." required></textarea>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary px-4">Submit Details</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
-{% endif %}
+</script>

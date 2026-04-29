@@ -171,6 +171,14 @@ def do_register_customer():
 
         # Create Customer Profile
         dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+        
+        # Validate age (at least 18)
+        today = datetime.now().date()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        if age < 18:
+            flash('You must be at least 18 years old to register.', 'danger')
+            return redirect(url_for('register_customer'))
+
         new_profile = CustomerProfile(
             user_id=new_user.user_id,
             full_name=full_name,
@@ -241,6 +249,14 @@ def do_register_companion():
 
         # Create Companion Profile
         dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+        
+        # Validate age (at least 18)
+        today = datetime.now().date()
+        calculated_age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        if calculated_age < 18:
+            flash('You must be at least 18 years old to register.', 'danger')
+            return redirect(url_for('register_companion'))
+
         new_profile = CompanionProfile(
             user_id=new_user.user_id,
             display_name=display_name,

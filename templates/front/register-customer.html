@@ -228,6 +228,36 @@
                     }
                 }
 
+                // Age validation for DOB
+                const dobInput = currentStepElement.querySelector('input[name="dob"]');
+                if (dobInput && dobInput.value) {
+                    const birthDate = new Date(dobInput.value);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const monthDiff = today.getMonth() - birthDate.getMonth();
+                    
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    
+                    if (age < 18) {
+                        dobInput.classList.add('is-invalid');
+                        dobInput.classList.remove('is-valid');
+                        isValid = false;
+                        if (!firstInvalidField) firstInvalidField = dobInput;
+                        
+                        let errorDiv = Array.from(dobInput.parentNode.children).find(el => el.classList.contains('invalid-feedback'));
+                        if (errorDiv) {
+                            errorDiv.textContent = 'You must be at least 18 years old';
+                        } else {
+                            const newErrorDiv = document.createElement('div');
+                            newErrorDiv.className = 'invalid-feedback';
+                            newErrorDiv.textContent = 'You must be at least 18 years old';
+                            dobInput.parentNode.appendChild(newErrorDiv);
+                        }
+                    }
+                }
+
                 if (!isValid) {
                     // Shake animation
                     currentStepElement.style.animation = 'shake 0.5s';
@@ -351,6 +381,18 @@
                         photoPreview.appendChild(img);
                     }
                     reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // Clear validation error for DOB when changed
+        const dobInput = document.querySelector('input[name="dob"]');
+        if (dobInput) {
+            dobInput.addEventListener('change', function() {
+                this.classList.remove('is-invalid');
+                const errorDiv = Array.from(this.parentNode.children).find(el => el.classList.contains('invalid-feedback'));
+                if (errorDiv && errorDiv.textContent === 'You must be at least 18 years old') {
+                    errorDiv.remove();
                 }
             });
         }

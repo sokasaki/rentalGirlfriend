@@ -16,7 +16,8 @@ from bakong_khqr import KHQR
 class KHQRPaymentService:
     """Generate KHQR payloads and check payment status."""
 
-    CHECK_PAYMENT_URL = "https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5"
+    # Correct Sandbox (SIT) URL
+    CHECK_PAYMENT_URL = "https://sit-api-bakong.nbc.gov.kh/v1/check_transaction_by_md5"
 
     def __init__(self, token):
         token = (token or "").strip().strip('"\'')
@@ -122,7 +123,23 @@ class KHQRPaymentService:
             static=static,
         )
         md5 = self.khqr.generate_md5(qr_string)
-        qr_base64 = self.khqr.qr_image(qr_string, format="base64")
+        
+        # Generate raw QR code using qrcode library for a clean look
+        import qrcode
+        import io
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=10,
+            border=1,
+        )
+        qr.add_data(qr_string)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        qr_base64 = base64.b64encode(buffered.getvalue()).decode()
 
         return {
             "md5": md5,
