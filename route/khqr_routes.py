@@ -31,6 +31,11 @@ def _calculate_total_with_fee(booking):
     return subtotal + service_fee
 
 
+def _render_khqr_error(message, status_code=400):
+    """Render a user-friendly KHQR error page."""
+    return render_template('khqr/error.html', message=message), status_code
+
+
 @app.post('/khqr/checkout')
 def khqr_checkout():
     """
@@ -219,7 +224,7 @@ def khqr_payment_page(booking_id):
     """
     khqr_service = _get_khqr_service()
     if not khqr_service:
-        return "KHQR service not configured", 503
+        return _render_khqr_error('KHQR service not configured', 503)
     
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -227,15 +232,14 @@ def khqr_payment_page(booking_id):
     try:
         booking = Booking.query.get(booking_id)
         if not booking:
-            return "Booking not found", 404
+            return _render_khqr_error('Booking not found', 404)
         
         customer = CustomerProfile.query.filter_by(user_id=session['user_id']).first()
         if not customer or booking.customer_id != customer.customer_id:
-            return "Unauthorized", 403
+            return _render_khqr_error('Unauthorized', 403)
         
         if booking.status != BookingStatusEnum.APPROVED:
-            return f"Booking must be approved before payment", 400
-
+            return _render_khqr_error('Booking must be approved before payment', 400)
         if app.config.get('KHQR_DEMO_MODE', False):
             amount = app.config.get('KHQR_DEMO_AMOUNT', 100)
             currency = app.config.get('KHQR_CURRENCY', 'KHR')

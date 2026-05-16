@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KHQR Error - RentACompanion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .error-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .error-title {
+            margin: 0 0 16px;
+            font-size: 26px;
+            color: #b00020;
+        }
+
+        .error-message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .error-actions a {
+            display: inline-block;
+            background: #2f5dff;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .error-actions a:hover {
+            background: #244bdb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-card">
+        <h1 class="error-title">KHQR Payment Error</h1>
+        <p class="error-message">{{ message or 'An unexpected error occurred while preparing your payment.' }}</p>
+        <div class="error-actions">
+            <a href="{{ url_for('profile') }}">Return to Profile</a>
+        </div>
+    </div>
+</body>
+
+</html>
