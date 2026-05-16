@@ -33,7 +33,7 @@ def _calculate_total_with_fee(booking):
 
 def _render_khqr_error(message, status_code=400):
     """Render a user-friendly KHQR error page."""
-    return render_template('khqr/error.html', message=message), status_code
+    return render_template('khqr/error.html', message=message, host=request.host), status_code
 
 
 @app.post('/khqr/checkout')
@@ -279,7 +279,8 @@ def khqr_payment_page(booking_id):
             amount=checkout_data['amount'],
             currency=checkout_data['currency'],
             merchant_name=app.config.get('KHQR_MERCHANT_NAME', 'RentACompanion'),
-            booking=booking
+            booking=booking,
+            host=request.host
         )
     
     except Exception as e:
